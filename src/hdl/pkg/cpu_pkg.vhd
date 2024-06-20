@@ -10,9 +10,12 @@ package cpu_pkg is
     -- Returns the minimum number of bits required to address N unique
     -- locations
     function F_min_bits (N : natural) return natural;
+    -- Converts an integer to a std_logic_vector of specified length
     function F_int_to_vec (N : integer; len : natural) return std_logic_vector;
+    -- Returns 1 if op1 is less then op2 (signed numbers)
     function F_compare_signed (op1 : signed; op2 : signed;  len : natural)
         return std_logic_vector;
+    -- Returns 1 if op1 is less then op2 (unsigned numbers)
     function F_compare_unsigned (op1 : unsigned; op2 : unsigned; len : natural)
         return std_logic_vector;
 
@@ -22,6 +25,7 @@ package cpu_pkg is
     constant DATA_WIDTH             : integer := 32;
     constant ARCH_REGFILE_ENTRIES   : integer := 32;
     constant PHYS_REGFILE_ENTRIES   : integer := 64;
+    constant REORDER_BUFFER_ENTRIES : integer := 32;
 
     -- ==================
     -- OPCODE DEFINITIONS
@@ -58,15 +62,22 @@ package cpu_pkg is
     -- ===============
     -- DATA STRUCTURES
     -- ===============
+    -- uOP (Micro operation) defines all data & control information used in
+    -- execution units. uOPs are first produced after instruction decoding
+    -- but certain fields get populated in later stages of execution.
+    -- uOP data type contains all fields that EUs can use during execution,
+    -- but they don't have to use every available field
     type T_uop is record
+        -- uOP ID
+        id                  : std_logic_vector(F_min_bits(REORDER_BUFFER_ENTRIES) - 1 downto 0);
         -- Program counter of the instruction
-        pc                  : std_logic_vector(31 downto 0);
+        pc                  : std_logic_vector(DATA_WIDTH - 1 downto 0);
         -- Identifies which group of operations this instruction belongs to
         -- Scheduler uses this data to determine where to send the operation
         op_type             : std_logic_vector(3 downto 0);
         -- These bits are passed to execution units and identify which
         -- operation needs to be performed
-        control             : std_logic_vector(7 downto 0);
+        op_sel             : std_logic_vector(7 downto 0);
         -- Architectural registers
         arch_src_reg_1      : std_logic_vector(4 downto 0);
         arch_src_reg_2      : std_logic_vector(4 downto 0);
@@ -75,7 +86,20 @@ package cpu_pkg is
         phys_src_reg_1      : std_logic_vector(F_min_bits(PHYS_REGFILE_ENTRIES) - 1 downto 0);
         phys_src_reg_2      : std_logic_vector(F_min_bits(PHYS_REGFILE_ENTRIES) - 1 downto 0);
         phys_dst_reg        : std_logic_vector(F_min_bits(PHYS_REGFILE_ENTRIES) - 1 downto 0);
+        -- Operands
+        reg_read_1_data     : std_logic_vector(DATA_WIDTH - 1 downto 0);
+        reg_read_2_data     : std_logic_vector(DATA_WIDTH - 1 downto 0);
     end record T_uop;
+
+    -- Common Data Bus (CDB) is used to broadcast the results of instruction
+    -- execution to various parts of the CPU core. The concept originates
+    -- from Tomasulo's algorithm.
+    type T_cdb is record
+        -- uOP ID
+        id                  : std_logic_vector(F_min_bits(REORDER_BUFFER_ENTRIES) - 1 downto 0);
+        -- Register write
+        reg_write_data      : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    end record T_cdb;
 end package;
 
 package body cpu_pkg is
