@@ -32,7 +32,7 @@ begin
     barrel_shifter_inst : entity work.barrel_shifter
     port map(operand            => operand_1,
              result             => bs_result,
-             shift_amount       => operand_2,
+             shift_amount       => operand_2(4 downto 0),
              shift_arith        => is_arith,
              shift_direction    => shift_dir);
 
