@@ -13,7 +13,7 @@
 
 -- TODO:
 -- 1) ALU
--- 2) 
+-- 2) Execution unit for arithmetic instructions
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
