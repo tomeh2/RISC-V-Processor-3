@@ -22,10 +22,18 @@ package cpu_pkg is
     -- =========
     -- CONSTANTS
     -- =========
+    -- User Constants
     constant DATA_WIDTH             : integer := 32;
     constant ARCH_REGFILE_ENTRIES   : integer := 32;
     constant PHYS_REGFILE_ENTRIES   : integer := 64;
     constant REORDER_BUFFER_ENTRIES : integer := 32;
+
+    -- Fixed Constants
+    constant UOP_ID_WIDTH         : integer := F_min_bits(REORDER_BUFFER_ENTRIES);
+    constant UOP_OP_TYPE_WIDTH    : integer := 4;
+    constant UOP_OP_SEL_WIDTH     : integer := 8;
+    constant PHYS_REG_ADDR_WIDTH  : integer := F_min_bits(PHYS_REGFILE_ENTRIES);
+    constant ARCH_REG_ADDR_WIDTH  : integer := F_min_bits(ARCH_REGFILE_ENTRIES);
 
     -- ==================
     -- OPCODE DEFINITIONS
@@ -69,26 +77,29 @@ package cpu_pkg is
     -- but they don't have to use every available field
     type T_uop is record
         -- uOP ID
-        id                  : std_logic_vector(F_min_bits(REORDER_BUFFER_ENTRIES) - 1 downto 0);
+        id                  : std_logic_vector(UOP_ID_WIDTH - 1 downto 0);
         -- Program counter of the instruction
         pc                  : std_logic_vector(DATA_WIDTH - 1 downto 0);
         -- Identifies which group of operations this instruction belongs to
         -- Scheduler uses this data to determine where to send the operation
-        op_type             : std_logic_vector(3 downto 0);
+        op_type             : std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0);
         -- These bits are passed to execution units and identify which
         -- operation needs to be performed
-        op_sel             : std_logic_vector(7 downto 0);
+        op_sel             : std_logic_vector(UOP_OP_SEL_WIDTH - 1 downto 0);
         -- Architectural registers
-        arch_src_reg_1      : std_logic_vector(4 downto 0);
-        arch_src_reg_2      : std_logic_vector(4 downto 0);
-        arch_dst_reg        : std_logic_vector(4 downto 0);
+        arch_src_reg_1      : std_logic_vector(ARCH_REG_ADDR_WIDTH - 1 downto 0);
+        arch_src_reg_2      : std_logic_vector(ARCH_REG_ADDR_WIDTH - 1 downto 0);
+        arch_dst_reg        : std_logic_vector(ARCH_REG_ADDR_WIDTH - 1 downto 0);
         -- Physical registers
-        phys_src_reg_1      : std_logic_vector(F_min_bits(PHYS_REGFILE_ENTRIES) - 1 downto 0);
-        phys_src_reg_2      : std_logic_vector(F_min_bits(PHYS_REGFILE_ENTRIES) - 1 downto 0);
-        phys_dst_reg        : std_logic_vector(F_min_bits(PHYS_REGFILE_ENTRIES) - 1 downto 0);
+        phys_src_reg_1      : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
+        phys_src_reg_2      : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
+        phys_dst_reg        : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
         -- Operands
         reg_read_1_data     : std_logic_vector(DATA_WIDTH - 1 downto 0);
         reg_read_2_data     : std_logic_vector(DATA_WIDTH - 1 downto 0);
+        reg_write_data      : std_logic_vector(DATA_WIDTH - 1 downto 0);
+        -- Indicates whether data in the uOP is valid
+        valid               : std_logic;
     end record T_uop;
 
     -- Common Data Bus (CDB) is used to broadcast the results of instruction
@@ -96,10 +107,35 @@ package cpu_pkg is
     -- from Tomasulo's algorithm.
     type T_cdb is record
         -- uOP ID
-        id                  : std_logic_vector(F_min_bits(REORDER_BUFFER_ENTRIES) - 1 downto 0);
+        id                  : std_logic_vector(UOP_ID_WIDTH - 1 downto 0);
         -- Register write
         reg_write_data      : std_logic_vector(DATA_WIDTH - 1 downto 0);
+        -- Indicates whether data on the CDB is valid
+        valid               : std_logic;
     end record T_cdb;
+
+    constant T_CDB_ZERO : T_cdb := (
+        (others => '0'),
+        (others => '0'),
+        '0'
+    );
+
+    constant T_UOP_ZERO : T_uop := (
+        (others => '0'),
+        (others => '0'),
+        (others => '0'),
+        (others => '0'),
+        (others => '0'),
+        (others => '0'),
+        (others => '0'),
+        (others => '0'),
+        (others => '0'),
+        (others => '0'),
+        (others => '0'),
+        (others => '0'),
+        (others => '0'),
+        '0'
+    );
 end package;
 
 package body cpu_pkg is
