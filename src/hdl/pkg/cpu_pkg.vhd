@@ -114,13 +114,13 @@ package cpu_pkg is
         valid               : std_logic;
     end record T_cdb;
 
-    constant T_CDB_ZERO : T_cdb := (
+    constant CDB_ZERO : T_cdb := (
         (others => '0'),
         (others => '0'),
         '0'
     );
 
-    constant T_UOP_ZERO : T_uop := (
+    constant UOP_ZERO : T_uop := (
         (others => '0'),
         (others => '0'),
         (others => '0'),
