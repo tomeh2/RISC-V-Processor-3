@@ -38,7 +38,7 @@ begin
     begin
         if rising_edge(clk) then
             if reset = '1' then
-                R_pipeline_reg <= T_UOP_ZERO;
+                R_pipeline_reg <= UOP_ZERO;
             else
                 R_pipeline_reg <= uop;
                 R_pipeline_reg.reg_write_data <= alu_result;
