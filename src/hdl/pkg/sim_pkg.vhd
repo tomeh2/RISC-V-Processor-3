@@ -23,6 +23,9 @@ package sim_pkg is
     impure function F_gen_uop_arith(
         id : in integer := -1
     ) return T_uop;
+    impure function F_check_uop_arith(
+        uop : in T_uop
+    ) return boolean;
 
     -- =========
     -- CONSTANTS
@@ -115,14 +118,75 @@ package body sim_pkg is
         variable rand_num_pos : positive;
     begin
         uniform(seed, seed, rand_num);
-        rand_num_pos := positive(round(10 * rand_num));
+        rand_num_pos := positive(round(9 * rand_num));
         if rand_num_pos = 0 then
             return F_gen_uop(id, "0000", "0000" & ALU_OP_ADD);
         elsif rand_num_pos = 1 then
             return F_gen_uop(id, "0000", "0000" & ALU_OP_SLL);
-        else
+        elsif rand_num_pos = 2 then
             return F_gen_uop(id, "0000", "0000" & ALU_OP_SLT);
+        elsif rand_num_pos = 3 then
+            return F_gen_uop(id, "0000", "0000" & ALU_OP_SLTU);
+        elsif rand_num_pos = 4 then
+            return F_gen_uop(id, "0000", "0000" & ALU_OP_XOR);
+        elsif rand_num_pos = 5 then
+            return F_gen_uop(id, "0000", "0000" & ALU_OP_SRL);
+        elsif rand_num_pos = 6 then
+            return F_gen_uop(id, "0000", "0000" & ALU_OP_OR);
+        elsif rand_num_pos = 7 then
+            return F_gen_uop(id, "0000", "0000" & ALU_OP_AND);
+        elsif rand_num_pos = 8 then
+            return F_gen_uop(id, "0000", "0000" & ALU_OP_SUB);
+        elsif rand_num_pos = 9 then
+            return F_gen_uop(id, "0000", "0000" & ALU_OP_SRA);
+        else
+            return F_gen_uop(id, "1111", "11111111");
         end if;
         return F_gen_uop(id, "1111", "00000000");
     end function F_gen_uop_arith;
+
+    impure function F_check_uop_arith(
+        uop : in T_uop
+    ) return boolean is
+        variable result : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    begin
+        if uop.op_sel(3 downto 0) = ALU_OP_ADD then
+            result := std_logic_vector(signed(uop.reg_read_1_data) + signed(uop.reg_read_2_data));
+        elsif uop.op_sel(3 downto 0) = ALU_OP_SLL then
+            result := std_logic_vector(
+              unsigned(uop.reg_read_1_data) sll to_integer(unsigned(uop.reg_read_2_data(4 downto 0))));
+        elsif uop.op_sel(3 downto 0) = ALU_OP_SLT then
+            if signed(uop.reg_read_1_data) < signed(uop.reg_read_2_data) then
+                result := std_logic_vector(to_unsigned(1, DATA_WIDTH));
+            else
+                result := std_logic_vector(to_unsigned(0, DATA_WIDTH));
+            end if;
+        elsif uop.op_sel(3 downto 0) = ALU_OP_SLTU then
+            if unsigned(uop.reg_read_1_data) < unsigned(uop.reg_read_2_data) then
+                result := std_logic_vector(to_unsigned(1, DATA_WIDTH));
+            else
+                result := std_logic_vector(to_unsigned(0, DATA_WIDTH));
+            end if;
+        elsif uop.op_sel(3 downto 0) = ALU_OP_XOR then
+            result := uop.reg_read_1_data xor uop.reg_read_2_data;
+        elsif uop.op_sel(3 downto 0) = ALU_OP_SRL then
+            result := std_logic_vector(
+              unsigned(uop.reg_read_1_data) srl to_integer(unsigned(uop.reg_read_2_data(4 downto 0))));
+        elsif uop.op_sel(3 downto 0) = ALU_OP_OR then
+            result := uop.reg_read_1_data or uop.reg_read_2_data;
+        elsif uop.op_sel(3 downto 0) = ALU_OP_AND then
+            result := uop.reg_read_1_data and uop.reg_read_2_data;
+        elsif uop.op_sel(3 downto 0) = ALU_OP_SUB then
+            result := std_logic_vector(signed(uop.reg_read_1_data) - signed(uop.reg_read_2_data));
+        elsif uop.op_sel(3 downto 0) = ALU_OP_SRA then
+            result := std_logic_vector(
+              unsigned(uop.reg_read_1_data) sra to_integer(unsigned(uop.reg_read_2_data(4 downto 0))));
+        end if;
+
+        if result = uop.reg_write_data then
+            return true;
+        else
+            return false;
+        end if;
+    end function F_check_uop_arith;
 end package body;
