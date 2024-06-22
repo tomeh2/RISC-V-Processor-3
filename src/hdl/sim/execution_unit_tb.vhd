@@ -78,7 +78,7 @@ begin
                         curr_id := 0;
                     end if;
                 else
-                    uop <= T_UOP_ZERO;
+                    uop <= UOP_ZERO;
                 end if;
             end if;
         end if;
