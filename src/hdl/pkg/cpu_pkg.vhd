@@ -95,6 +95,7 @@ package cpu_pkg is
         phys_src_reg_2      : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
         phys_dst_reg        : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
         -- Operands
+        immediate           : std_logic_vector(DATA_WIDTH - 1 downto 0);
         reg_read_1_data     : std_logic_vector(DATA_WIDTH - 1 downto 0);
         reg_read_2_data     : std_logic_vector(DATA_WIDTH - 1 downto 0);
         reg_write_data      : std_logic_vector(DATA_WIDTH - 1 downto 0);
@@ -121,6 +122,7 @@ package cpu_pkg is
     );
 
     constant UOP_ZERO : T_uop := (
+        (others => '0'),
         (others => '0'),
         (others => '0'),
         (others => '0'),

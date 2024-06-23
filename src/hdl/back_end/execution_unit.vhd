@@ -25,13 +25,16 @@ end execution_unit;
 architecture rtl of execution_unit is
     signal R_pipeline_reg : T_uop;
 
+    signal alu_operand_1 : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal alu_operand_2 : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal alu_result : std_logic_vector(DATA_WIDTH - 1 downto 0);
 begin
+    alu_operand_1 <= uop.reg_read_1_data;
+    alu_operand_2 <= uop.immediate when uop.op_sel(4) = '1' else uop.reg_read_2_data;
     alu_inst : entity work.arithmetic_logic_unit
-    port map(operand_1 => uop.reg_read_1_data,
-             operand_2 => uop.reg_read_2_data,
+    port map(operand_1 => alu_operand_1,
+             operand_2 => alu_operand_2,
              result    => alu_result,
-
              op_sel    => uop.op_sel(3 downto 0));
 
     process(clk)
