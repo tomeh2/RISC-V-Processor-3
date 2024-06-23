@@ -14,6 +14,18 @@ package sim_pkg is
     -- =========
     impure function F_gen_rand_uop return T_uop;
     impure function F_gen_uop(
+        id : in integer;
+        pc : in std_logic_vector(DATA_WIDTH - 1 downto 0);
+        op_type : in std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0);
+        op_sel : in std_logic_vector(UOP_OP_SEL_WIDTH - 1 downto 0);
+        arch_src_reg_1 : in integer;
+        arch_src_reg_2 : in integer;
+        arch_dst_reg : in integer;
+        phys_src_reg_1 : in integer;
+        phys_src_reg_2 : in integer;
+        phys_dst_reg : in integer
+    ) return T_uop;
+    impure function F_gen_uop(
         id : in integer := -1;
         op_type : in std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0);
         op_sel : in std_logic_vector(UOP_OP_SEL_WIDTH - 1 downto 0);
@@ -26,6 +38,11 @@ package sim_pkg is
     impure function F_check_uop_arith(
         uop : in T_uop
     ) return boolean;
+    impure function F_gen_uop_after_decode(
+        id : in integer := -1;
+        op_type : in std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0);
+        op_sel : in std_logic_vector(UOP_OP_SEL_WIDTH - 1 downto 0)
+        ) return T_uop;
 
     -- =========
     -- CONSTANTS
@@ -35,6 +52,16 @@ package sim_pkg is
     constant INIT_SEED : positive := 999;
 
     shared variable seed : positive := INIT_SEED;
+
+    -- =====
+    -- TYPES
+    -- =====
+    type T_sim_stats is record
+        cycles      : integer;
+        uOPs_gen    : integer;
+        uOPs_pass   : integer;
+        uOPs_fail   : integer;
+    end record T_sim_stats;
 end package;
 
 package body sim_pkg is
@@ -59,6 +86,37 @@ package body sim_pkg is
         uniform(seed, seed, rand_num);
         return integer(round(rand_num * real(magnitude)));
     end function F_rand_int;
+
+    impure function F_gen_uop(
+        id : in integer;
+        pc : in std_logic_vector(DATA_WIDTH - 1 downto 0);
+        op_type : in std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0);
+        op_sel : in std_logic_vector(UOP_OP_SEL_WIDTH - 1 downto 0);
+        arch_src_reg_1 : in integer;
+        arch_src_reg_2 : in integer;
+        arch_dst_reg : in integer;
+        phys_src_reg_1 : in integer;
+        phys_src_reg_2 : in integer;
+        phys_dst_reg : in integer
+    ) return T_uop is
+        variable uop : T_uop;
+    begin
+        uop.id := std_logic_vector(to_unsigned(id, UOP_ID_WIDTH));
+        uop.pc := pc;
+        uop.op_type := op_type;
+        uop.op_sel := op_sel;
+        uop.arch_src_reg_1 := std_logic_vector(to_unsigned(arch_src_reg_1, ARCH_REG_ADDR_WIDTH));
+        uop.arch_src_reg_2 := std_logic_vector(to_unsigned(arch_src_reg_2, ARCH_REG_ADDR_WIDTH));
+        uop.arch_dst_reg := std_logic_vector(to_unsigned(arch_dst_reg, ARCH_REG_ADDR_WIDTH));
+        uop.phys_src_reg_1 := std_logic_vector(to_unsigned(phys_src_reg_1, PHYS_REG_ADDR_WIDTH));
+        uop.phys_src_reg_2 := std_logic_vector(to_unsigned(phys_src_reg_2, PHYS_REG_ADDR_WIDTH));
+        uop.phys_dst_reg := std_logic_vector(to_unsigned(phys_dst_reg, PHYS_REG_ADDR_WIDTH));
+        uop.reg_read_1_data := std_logic_vector(to_unsigned(0, DATA_WIDTH));
+        uop.reg_read_2_data := std_logic_vector(to_unsigned(0, DATA_WIDTH));
+        uop.reg_write_data := std_logic_vector(to_unsigned(0, DATA_WIDTH));
+        uop.valid := '1';
+        return uop;
+    end function F_gen_uop;
 
     impure function F_gen_rand_uop return T_uop is
         variable uop : T_uop;
@@ -105,10 +163,32 @@ package body sim_pkg is
         uop.phys_dst_reg := F_rand(PHYS_REG_ADDR_WIDTH);
         uop.reg_read_1_data := std_logic_vector(to_unsigned(F_rand_int(op_1_mag), DATA_WIDTH));
         uop.reg_read_2_data := std_logic_vector(to_unsigned(F_rand_int(op_2_mag), DATA_WIDTH));
-        uop.reg_write_data := (others => '0');
+        uop.reg_write_data := std_logic_vector(to_unsigned(F_rand_int(op_2_mag), DATA_WIDTH));
         uop.valid := '1';
         return uop;
     end function F_gen_uop;
+
+    impure function F_gen_uop_after_decode(
+        id : in integer := -1;
+        op_type : in std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0);
+        op_sel : in std_logic_vector(UOP_OP_SEL_WIDTH - 1 downto 0)
+        ) return T_uop is
+        variable uop : T_uop;
+    begin
+        if id < 0 then
+            uop.id := F_rand(UOP_ID_WIDTH);
+        else
+            uop.id := std_logic_vector(to_unsigned(id, UOP_ID_WIDTH));
+        end if;
+        uop.pc := F_rand(DATA_WIDTH - 2) & "00";    -- 4-byte aligned
+        uop.op_type := op_type;
+        uop.op_sel := op_sel;
+        uop.arch_src_reg_1 := F_rand(ARCH_REG_ADDR_WIDTH);
+        uop.arch_src_reg_2 := F_rand(ARCH_REG_ADDR_WIDTH);
+        uop.arch_dst_reg := F_rand(ARCH_REG_ADDR_WIDTH);
+        uop.valid := '1';
+        return uop;
+    end function F_gen_uop_after_decode;
 
     impure function F_gen_uop_arith(
         id : in integer := -1
@@ -189,4 +269,13 @@ package body sim_pkg is
             return false;
         end if;
     end function F_check_uop_arith;
+
+    function F_print_sim_stats(sim_stats : T_sim_stats) return boolean is
+    begin
+        report "MAX_CYCLES reached" & LF &
+        "uOPs Generated = " & integer'image(sim_stats.uOPs_gen) & LF &
+        "uOPs Passed = " & integer'image(sim_stats.uOPs_pass) & LF &
+        "uOPs Failed = " & integer'image(sim_stats.uOPs_fail);
+        assert false severity failure;
+    end function F_print_sim_stats;
 end package body;
