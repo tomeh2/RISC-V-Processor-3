@@ -1,5 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 use WORK.CPU_PKG.ALL;
 use WORK.SIM_PKG.ALL;
@@ -36,13 +37,14 @@ begin
                 uop_after_decode <= F_gen_uop(id,
                                               X"0000_0000",
                                               X"0",
-                                              X"00",
+                                              X"10",
+                                              std_logic_vector(to_unsigned(1, DATA_WIDTH)),
                                               1,
                                               2,
-                                              3,
+                                              1,
                                               1,
                                               2,
-                                              3);
+                                              1);
                 id := id + 1;
                 if id = 32 then
                     id := 0;

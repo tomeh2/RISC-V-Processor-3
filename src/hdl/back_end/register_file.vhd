@@ -42,14 +42,16 @@ begin
         if rising_edge(clk) then
             if reset = '1' then
                 for i in 0 to PHYS_REGFILE_ENTRIES - 1 loop
-                    M_regfile(i).data <= std_logic_vector(to_unsigned(i, DATA_WIDTH));
+                    M_regfile(i).data <= (others => '0');
                     M_regfile(i).valid <= '1';
                 end loop;
+                uop_1_out <= UOP_ZERO;
             else
                 -- Register write logic
-                if cdb_1_in.valid = '1' then
-                    M_regfile(to_integer(unsigned(uop_1_in.phys_dst_reg))).data <= cdb_1_in.reg_write_data;
-                    M_regfile(to_integer(unsigned(uop_1_in.phys_dst_reg))).valid <= '1';
+                -- Physical register 0 always contains the value 0
+                if cdb_1_in.valid = '1' and cdb_1_in.phys_dst_reg /= std_logic_vector(to_unsigned(0, PHYS_REG_ADDR_WIDTH)) then
+                    M_regfile(to_integer(unsigned(cdb_1_in.phys_dst_reg))).data <= cdb_1_in.reg_write_data;
+                    M_regfile(to_integer(unsigned(cdb_1_in.phys_dst_reg))).valid <= '1';
                 end if;
 
                 -- Register read logic
@@ -63,6 +65,10 @@ begin
                       M_regfile(to_integer(unsigned(uop_1_in.phys_src_reg_2))).data;
                 else
                     uop_1_out <= UOP_ZERO;
+                end if;
+
+                if (uop_1_in.spec_branch_mask and cdb_1_in.branch_mask) /= BR_MASK_ZERO and cdb_1_in.branch_mispredicted = '1' then
+                    uop_1_out.valid <= '0';
                 end if;
             end if;
         end if;

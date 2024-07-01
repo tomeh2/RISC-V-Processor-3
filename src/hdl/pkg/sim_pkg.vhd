@@ -18,6 +18,7 @@ package sim_pkg is
         pc : in std_logic_vector(DATA_WIDTH - 1 downto 0);
         op_type : in std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0);
         op_sel : in std_logic_vector(UOP_OP_SEL_WIDTH - 1 downto 0);
+        immediate : in std_logic_vector(DATA_WIDTH - 1 downto 0);
         arch_src_reg_1 : in integer;
         arch_src_reg_2 : in integer;
         arch_dst_reg : in integer;
@@ -92,6 +93,7 @@ package body sim_pkg is
         pc : in std_logic_vector(DATA_WIDTH - 1 downto 0);
         op_type : in std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0);
         op_sel : in std_logic_vector(UOP_OP_SEL_WIDTH - 1 downto 0);
+        immediate : in std_logic_vector(DATA_WIDTH - 1 downto 0);
         arch_src_reg_1 : in integer;
         arch_src_reg_2 : in integer;
         arch_dst_reg : in integer;
@@ -105,6 +107,7 @@ package body sim_pkg is
         uop.pc := pc;
         uop.op_type := op_type;
         uop.op_sel := op_sel;
+        uop.immediate := immediate;
         uop.arch_src_reg_1 := std_logic_vector(to_unsigned(arch_src_reg_1, ARCH_REG_ADDR_WIDTH));
         uop.arch_src_reg_2 := std_logic_vector(to_unsigned(arch_src_reg_2, ARCH_REG_ADDR_WIDTH));
         uop.arch_dst_reg := std_logic_vector(to_unsigned(arch_dst_reg, ARCH_REG_ADDR_WIDTH));

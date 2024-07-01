@@ -45,6 +45,9 @@ begin
             else
                 R_pipeline_reg <= uop;
                 R_pipeline_reg.reg_write_data <= alu_result;
+                if (uop.spec_branch_mask and cdb.branch_mask) /= BR_MASK_ZERO and cdb.branch_mispredicted = '1' then
+                    R_pipeline_reg.valid <= '0';
+                end if;
             end if;
         end if;
     end process;

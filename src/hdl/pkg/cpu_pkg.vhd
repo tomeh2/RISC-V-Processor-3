@@ -27,6 +27,7 @@ package cpu_pkg is
     constant ARCH_REGFILE_ENTRIES   : integer := 32;
     constant PHYS_REGFILE_ENTRIES   : integer := 64;
     constant REORDER_BUFFER_ENTRIES : integer := 32;
+    constant MAX_SPEC_BRANCHES : integer := 4;
 
     -- Fixed Constants
     constant UOP_ID_WIDTH         : integer := F_min_bits(REORDER_BUFFER_ENTRIES);
@@ -34,6 +35,8 @@ package cpu_pkg is
     constant UOP_OP_SEL_WIDTH     : integer := 8;
     constant PHYS_REG_ADDR_WIDTH  : integer := F_min_bits(PHYS_REGFILE_ENTRIES);
     constant ARCH_REG_ADDR_WIDTH  : integer := F_min_bits(ARCH_REGFILE_ENTRIES);
+    constant BR_MASK_ZERO  : std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0)
+      := (others => '0');
 
     -- ==================
     -- OPCODE DEFINITIONS
@@ -99,6 +102,13 @@ package cpu_pkg is
         reg_read_1_data     : std_logic_vector(DATA_WIDTH - 1 downto 0);
         reg_read_2_data     : std_logic_vector(DATA_WIDTH - 1 downto 0);
         reg_write_data      : std_logic_vector(DATA_WIDTH - 1 downto 0);
+        -- Operand status signals
+        reg_read_1_ready    : std_logic;
+        reg_read_2_ready    : std_logic;
+        -- Branch speculation masks
+        branch_mispredicted : std_logic;
+        branch_mask         : std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0);
+        spec_branch_mask    : std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0);
         -- Indicates whether data in the uOP is valid
         valid               : std_logic;
     end record T_uop;
@@ -134,6 +144,11 @@ package cpu_pkg is
         (others => '0'),
         (others => '0'),
         (others => '0'),
+        (others => '0'),
+        (others => '0'),
+        '0',
+        '0',
+        '0',
         (others => '0'),
         (others => '0'),
         '0'
