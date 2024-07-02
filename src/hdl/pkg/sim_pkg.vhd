@@ -24,7 +24,9 @@ package sim_pkg is
         arch_dst_reg : in integer;
         phys_src_reg_1 : in integer;
         phys_src_reg_2 : in integer;
-        phys_dst_reg : in integer
+        phys_dst_reg : in integer;
+        src_1_rdy : std_logic := '0';
+        src_2_rdy : std_logic := '0'
     ) return T_uop;
     impure function F_gen_uop(
         id : in integer := -1;
@@ -99,7 +101,9 @@ package body sim_pkg is
         arch_dst_reg : in integer;
         phys_src_reg_1 : in integer;
         phys_src_reg_2 : in integer;
-        phys_dst_reg : in integer
+        phys_dst_reg : in integer;
+        src_1_rdy : in std_logic := '0';
+        src_2_rdy : in std_logic := '0'
     ) return T_uop is
         variable uop : T_uop;
     begin
@@ -116,6 +120,8 @@ package body sim_pkg is
         uop.phys_dst_reg := std_logic_vector(to_unsigned(phys_dst_reg, PHYS_REG_ADDR_WIDTH));
         uop.reg_read_1_data := std_logic_vector(to_unsigned(0, DATA_WIDTH));
         uop.reg_read_2_data := std_logic_vector(to_unsigned(0, DATA_WIDTH));
+        uop.reg_read_1_ready := src_1_rdy;
+        uop.reg_read_2_ready := src_2_rdy;
         uop.reg_write_data := std_logic_vector(to_unsigned(0, DATA_WIDTH));
         uop.valid := '1';
         return uop;
@@ -166,6 +172,8 @@ package body sim_pkg is
         uop.phys_dst_reg := F_rand(PHYS_REG_ADDR_WIDTH);
         uop.reg_read_1_data := std_logic_vector(to_unsigned(F_rand_int(op_1_mag), DATA_WIDTH));
         uop.reg_read_2_data := std_logic_vector(to_unsigned(F_rand_int(op_2_mag), DATA_WIDTH));
+        uop.reg_read_1_ready := '0';
+        uop.reg_read_2_ready := '0';
         uop.reg_write_data := std_logic_vector(to_unsigned(F_rand_int(op_2_mag), DATA_WIDTH));
         uop.valid := '1';
         return uop;
