@@ -191,8 +191,8 @@ package body cpu_pkg is
     function F_pipeline_reg_logic (input : T_uop; reg : T_uop; cdb : T_uop; stalled : std_logic) return T_uop is
         variable R_pipeline : T_uop;
     begin
-        R_pipeline := input;
         if stalled = '0' then
+            R_pipeline := input;
             if cdb.branch_mispredicted = '1' then
                 if (input.spec_branch_mask and cdb.branch_mask) /= BR_MASK_ZERO then
                     R_pipeline.valid := '0';
@@ -201,6 +201,7 @@ package body cpu_pkg is
                 R_pipeline.spec_branch_mask := input.spec_branch_mask and not cdb.branch_mask;
             end if;
         else
+            R_pipeline := reg;
             if cdb.branch_mispredicted = '1' then
                 if (reg.spec_branch_mask and cdb.branch_mask) /= BR_MASK_ZERO then
                     R_pipeline.valid := '0';
