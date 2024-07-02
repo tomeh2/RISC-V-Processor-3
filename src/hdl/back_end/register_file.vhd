@@ -21,7 +21,17 @@ entity register_file is
         uop_1_in : in T_uop;
         uop_1_out : out T_uop;
 
-        cdb_1_in : in T_uop;
+        -- ============
+        -- FLOW CONTROL
+        -- ============
+        -- Stall in tells this block that whatever logic is connected to its
+        -- output is not yet ready for new data
+        -- Stall out tells the blocks preceding this one that this block is not
+        -- yet ready to receive new data
+        stall_in    : in std_logic;
+        stall_out   : out std_logic;
+
+        cdb : in T_uop;
 
         clk : in std_logic;
         reset : in std_logic
@@ -36,7 +46,23 @@ architecture rtl of register_file is
 
     type T_regfile is array(0 to PHYS_REGFILE_ENTRIES - 1) of T_regfile_entry;
     signal M_regfile : T_regfile;
+
+    signal R_pipeline : T_uop;
+    signal pipeline_next : T_uop;
 begin
+    -- Regfile read logic
+    -- Note that the read is done asynchronously with this code, but the idea
+    -- is that the synthesis tool will realize that this immediately goes into
+    -- a register and synthesize synchronous logic anyway
+    pipeline_next_cntrl : process(M_regfile, uop_1_in)
+    begin
+        pipeline_next <= uop_1_in;
+        pipeline_next.reg_read_1_data <=
+            M_regfile(to_integer(unsigned(uop_1_in.phys_src_reg_1))).data;
+        pipeline_next.reg_read_2_data <=
+            M_regfile(to_integer(unsigned(uop_1_in.phys_src_reg_2))).data;
+    end process;
+
     process(clk)
     begin
         if rising_edge(clk) then
@@ -45,32 +71,18 @@ begin
                     M_regfile(i).data <= (others => '0');
                     M_regfile(i).valid <= '1';
                 end loop;
-                uop_1_out <= UOP_ZERO;
+                R_pipeline <= UOP_ZERO;
             else
                 -- Register write logic
                 -- Physical register 0 always contains the value 0
-                if cdb_1_in.valid = '1' and cdb_1_in.phys_dst_reg /= std_logic_vector(to_unsigned(0, PHYS_REG_ADDR_WIDTH)) then
-                    M_regfile(to_integer(unsigned(cdb_1_in.phys_dst_reg))).data <= cdb_1_in.reg_write_data;
-                    M_regfile(to_integer(unsigned(cdb_1_in.phys_dst_reg))).valid <= '1';
-                end if;
-
-                -- Register read logic
-                if uop_1_in.valid = '1' then
-                    -- Copy all fields into the output register
-                    uop_1_out <= uop_1_in;
-                    -- Read operands
-                    uop_1_out.reg_read_1_data <=
-                      M_regfile(to_integer(unsigned(uop_1_in.phys_src_reg_1))).data;
-                    uop_1_out.reg_read_2_data <=
-                      M_regfile(to_integer(unsigned(uop_1_in.phys_src_reg_2))).data;
-                else
-                    uop_1_out <= UOP_ZERO;
-                end if;
-
-                if (uop_1_in.spec_branch_mask and cdb_1_in.branch_mask) /= BR_MASK_ZERO and cdb_1_in.branch_mispredicted = '1' then
-                    uop_1_out.valid <= '0';
+                if cdb.valid = '1' and cdb.phys_dst_reg /= std_logic_vector(to_unsigned(0, PHYS_REG_ADDR_WIDTH)) then
+                    M_regfile(to_integer(unsigned(cdb.phys_dst_reg))).data <= cdb.reg_write_data;
+                    M_regfile(to_integer(unsigned(cdb.phys_dst_reg))).valid <= '1';
                 end if;
             end if;
+            R_pipeline <= F_pipeline_reg_logic(pipeline_next, R_pipeline, cdb, stall_out);
         end if;
     end process;
+    stall_out <= R_pipeline.valid and stall_in;
+    uop_1_out <= R_pipeline;
 end rtl;
