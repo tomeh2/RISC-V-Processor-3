@@ -14,16 +14,27 @@ use WORK.CPU_PKG.ALL;
 
 entity execution_unit is
     port(
-        uop     : in T_uop;
-        cdb     : out T_uop;
+        uop         : in T_uop;
+        cdb         : out T_uop;
 
-        clk     : in std_logic;
-        reset   : in std_logic
+        -- ============
+        -- FLOW CONTROL
+        -- ============
+        -- Stall in tells this block that whatever logic is connected to its
+        -- output is not yet ready for new data
+        -- Stall out tells the blocks preceding this one that this block is not
+        -- yet ready to receive new data
+        stall_in    : in std_logic;
+        stall_out   : out std_logic;
+
+        clk         : in std_logic;
+        reset       : in std_logic
     );
 end execution_unit;
 
 architecture rtl of execution_unit is
-    signal R_pipeline_reg : T_uop;
+    signal R_pipeline : T_uop;
+    signal pipeline_next : T_uop;
 
     signal alu_operand_1 : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal alu_operand_2 : std_logic_vector(DATA_WIDTH - 1 downto 0);
@@ -37,20 +48,23 @@ begin
              result    => alu_result,
              op_sel    => uop.op_sel(3 downto 0));
 
-    process(clk)
+    process(uop, alu_result)
+    begin
+        pipeline_next <= uop;
+        pipeline_next.reg_write_data <= alu_result;
+    end process;
+
+    P_cdb_reg_cntrl : process(clk)
     begin
         if rising_edge(clk) then
             if reset = '1' then
-                R_pipeline_reg <= UOP_ZERO;
+                R_pipeline <= UOP_ZERO;
             else
-                R_pipeline_reg <= uop;
-                R_pipeline_reg.reg_write_data <= alu_result;
-                if (uop.spec_branch_mask and cdb.branch_mask) /= BR_MASK_ZERO and cdb.branch_mispredicted = '1' then
-                    R_pipeline_reg.valid <= '0';
-                end if;
+                R_pipeline <= F_pipeline_reg_logic(pipeline_next, R_pipeline, cdb, stall_out);
             end if;
         end if;
     end process;
 
-    cdb <= R_pipeline_reg;
+    cdb <= R_pipeline;
+    stall_out <= R_pipeline.valid and stall_in;
 end rtl;
