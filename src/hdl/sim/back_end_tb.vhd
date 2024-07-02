@@ -10,6 +10,7 @@ entity back_end_tb is
 end back_end_tb;
 
 architecture Behavioral of back_end_tb is
+    constant TEST_ID : integer := 1;
     constant MAX_CYCLES : integer := 100000;
 
     signal uop_after_decode : T_uop;
@@ -34,17 +35,33 @@ begin
             if rst = '1' then
                 uop_after_decode <= UOP_ZERO;
             else
-                uop_after_decode <= F_gen_uop(id,
-                                              X"0000_0000",
-                                              X"0",
-                                              X"10",
-                                              std_logic_vector(to_unsigned(1, DATA_WIDTH)),
-                                              1,
-                                              2,
-                                              1,
-                                              1,
-                                              2,
-                                              1);
+                if TEST_ID = 0 then
+                    uop_after_decode <= F_gen_uop(id,
+                                                  X"0000_0000",
+                                                  X"0",
+                                                  X"10",
+                                                  std_logic_vector(to_unsigned(1, DATA_WIDTH)),
+                                                  1,
+                                                  2,
+                                                  1,
+                                                  1,
+                                                  2,
+                                                  1);
+                elsif TEST_ID = 1 then
+                    uop_after_decode <= F_gen_uop(id,
+                                                  X"0000_0000",
+                                                  X"0",
+                                                  X"10",
+                                                  std_logic_vector(to_unsigned(1, DATA_WIDTH)),
+                                                  1,
+                                                  2,
+                                                  1,
+                                                  1,
+                                                  2,
+                                                  1,
+                                                  '1',
+                                                  '1');
+                end if;
                 id := id + 1;
                 if id = 32 then
                     id := 0;
