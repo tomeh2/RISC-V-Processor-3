@@ -153,6 +153,14 @@ package cpu_pkg is
         (others => '0'),
         '0'
     );
+
+    -- ===============================
+    -- FUNCTIONS POST TYPE DEFINITIONS
+    -- ===============================
+    -- This code contains definitions for functions which depend on previously
+    -- defined data types which are not available at the beginning
+    function F_pipeline_reg_logic (input : T_uop; reg : T_uop; cdb : T_uop; stalled : std_logic)
+        return T_uop;
 end package;
 
 package body cpu_pkg is
@@ -178,5 +186,29 @@ package body cpu_pkg is
     begin
         result := F_int_to_vec(1, len) when op1 < op2 else F_int_to_vec(0, len);
         return result;
+    end function;
+
+    function F_pipeline_reg_logic (input : T_uop; reg : T_uop; cdb : T_uop; stalled : std_logic) return T_uop is
+        variable R_pipeline : T_uop;
+    begin
+        R_pipeline := input;
+        if stalled = '0' then
+            if cdb.branch_mispredicted = '1' then
+                if (input.spec_branch_mask and cdb.branch_mask) /= BR_MASK_ZERO then
+                    R_pipeline.valid := '0';
+                end if;
+            else
+                R_pipeline.spec_branch_mask := input.spec_branch_mask and not cdb.branch_mask;
+            end if;
+        else
+            if cdb.branch_mispredicted = '1' then
+                if (reg.spec_branch_mask and cdb.branch_mask) /= BR_MASK_ZERO then
+                    R_pipeline.valid := '0';
+                end if;
+            else
+                R_pipeline.spec_branch_mask := reg.spec_branch_mask and not cdb.branch_mask;
+            end if;
+        end if;
+        return R_pipeline;
     end function;
 end package body;
