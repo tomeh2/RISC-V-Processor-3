@@ -26,7 +26,9 @@ package sim_pkg is
         phys_src_reg_2 : in integer;
         phys_dst_reg : in integer;
         src_1_rdy : std_logic := '0';
-        src_2_rdy : std_logic := '0'
+        src_2_rdy : std_logic := '0';
+        branch_mask : in std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0) := (others => '0');
+        spec_branch_mask : in std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0) := (others => '0')
     ) return T_uop;
     impure function F_gen_uop(
         id : in integer := -1;
@@ -103,7 +105,9 @@ package body sim_pkg is
         phys_src_reg_2 : in integer;
         phys_dst_reg : in integer;
         src_1_rdy : in std_logic := '0';
-        src_2_rdy : in std_logic := '0'
+        src_2_rdy : in std_logic := '0';
+        branch_mask : in std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0) := (others => '0');
+        spec_branch_mask : in std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0) := (others => '0')
     ) return T_uop is
         variable uop : T_uop;
     begin
@@ -123,6 +127,8 @@ package body sim_pkg is
         uop.reg_read_1_ready := src_1_rdy;
         uop.reg_read_2_ready := src_2_rdy;
         uop.reg_write_data := std_logic_vector(to_unsigned(0, DATA_WIDTH));
+        uop.branch_mask := branch_mask;
+        uop.spec_branch_mask := spec_branch_mask;
         uop.valid := '1';
         return uop;
     end function F_gen_uop;
