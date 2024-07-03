@@ -22,16 +22,21 @@ architecture rtl of back_end is
     signal eu0_stall_out : std_logic;
     signal rf_stall_in : std_logic;
     signal rf_stall_out : std_logic;
+    signal sched_stall_in : std_logic;
+    signal sched_stall_out : std_logic;
 
     signal cdb : T_uop;
 begin
+    sched_stall_in <= rf_stall_out;
     scheduler_inst : entity work.scheduler
     generic map(ENTRIES => 8)
-    port map(uop_in   => uop_1,
-             uop_out  => R_pipeline_sched,
-             cdb      => cdb,
-             clk      => clk,
-             reset    => reset);
+    port map(uop_in     => uop_1,
+             uop_out    => R_pipeline_sched,
+             cdb        => cdb,
+             stall_in   => sched_stall_in,
+             stall_out  => sched_stall_out,
+             clk        => clk,
+             reset      => reset);
 
     rf_stall_in <= eu0_stall_out;
     regfile_inst : entity work.register_file
@@ -51,5 +56,5 @@ begin
              clk        => clk,
              reset      => reset);
     cdb <= R_cdb_eu0;
-    eu0_stall_in <= '0';
+    eu0_stall_in <= '1', '0' after 5us;
 end rtl;
