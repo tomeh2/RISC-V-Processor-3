@@ -12,6 +12,13 @@ package cpu_pkg is
     function F_min_bits (N : natural) return natural;
     -- Converts an integer to a std_logic_vector of specified length
     function F_int_to_vec (N : integer; len : natural) return std_logic_vector;
+    -- Converts a std_logic_vector input to an integer
+    function F_vec_to_int (N : std_logic_vector) return integer;
+    -- Converts a onehot encoded std_logic_vector to an integer which
+    -- corresponds to the active bit's number counted from the right
+    -- and with rightmost bit having value 0
+    procedure F_priority_encoder (signal N : in std_logic_vector; signal value : out integer; signal valid : out std_logic; invert_dir : boolean := false);
+    procedure F_priority_encoder (signal N : in std_logic_vector; signal value : out integer);
     -- Returns 1 if op1 is less then op2 (signed numbers)
     function F_compare_signed (op1 : signed; op2 : signed;  len : natural)
         return std_logic_vector;
@@ -36,6 +43,10 @@ package cpu_pkg is
     constant PHYS_REG_ADDR_WIDTH  : integer := F_min_bits(PHYS_REGFILE_ENTRIES);
     constant ARCH_REG_ADDR_WIDTH  : integer := F_min_bits(ARCH_REGFILE_ENTRIES);
     constant BR_MASK_ZERO  : std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0)
+      := (others => '0');
+    constant PHYS_REG_ZERO        : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0)
+      := (others => '0');
+    constant ARCH_REG_ZERO        : std_logic_vector(ARCH_REG_ADDR_WIDTH - 1 downto 0)
       := (others => '0');
 
     -- ==================
@@ -173,6 +184,45 @@ package body cpu_pkg is
     begin
         return std_logic_vector(to_unsigned(N, len));
     end function;
+
+    function F_vec_to_int (N : std_logic_vector) return integer is
+    begin
+        return to_integer(unsigned(N));
+    end function;
+
+    procedure F_priority_encoder (signal N : in std_logic_vector; signal value : out integer; signal valid : out std_logic; invert_dir : boolean := false) is
+        variable temp_value : integer := 0;
+        variable temp_valid : std_logic := '0';
+    begin
+        if invert_dir = false then
+            for i in 0 to N'length - 1 loop
+                if N(i) = '1' then
+                    temp_value := i;
+                    temp_valid := '1';
+                end if;
+            end loop;
+        else
+            for i in N'length - 1 downto 0 loop
+                if N(i) = '1' then
+                    temp_value := i;
+                    temp_valid := '1';
+                end if;
+            end loop;
+        end if;
+        valid <= temp_valid;
+        value <= temp_value;
+    end procedure;
+
+    procedure F_priority_encoder (signal N : in std_logic_vector; signal value : out integer) is
+        variable temp_value : integer := 0;
+    begin
+        for i in 0 to N'length - 1 loop
+            if N(i) = '1' then
+                temp_value := i;
+            end if;
+        end loop;
+        value <= temp_value;
+    end procedure;
 
     function F_compare_signed (op1 : signed; op2 : signed; len : natural) return std_logic_vector is
         variable result : std_logic_vector(len - 1 downto 0);
