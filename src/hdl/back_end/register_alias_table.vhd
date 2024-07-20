@@ -61,6 +61,11 @@ begin
                     if take_snapshot_enable = '1' and ENABLE_MISPREDICT_RECOVERY = true then
                         mispredict_recovery_slot_id := take_snapshot_index;
                         M_rat_mispredict_recovery(mispredict_recovery_slot_id) <= M_rat;
+
+                        if arch_write_tag_1 /= ARCH_REG_ZERO then
+                            M_rat_mispredict_recovery(mispredict_recovery_slot_id)
+                              (F_vec_to_int(arch_write_tag_1)) <= phys_write_tag_1;
+                        end if;
                     end if;   
 
                     -- RAT update logic

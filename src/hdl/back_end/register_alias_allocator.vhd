@@ -41,6 +41,7 @@ architecture rtl of register_alias_allocator is
     -- if we kept full snapshots of the usage masks (and if we need to keep
     -- updating them)
     signal M_snapshots : T_reg_usage_mask;
+    signal R_snapshosts_valid : std_logic_vector(MAX_SNAPSHOTS - 1 downto 0);
     signal R_active_mask : std_logic_vector(MASK_LENGTH - 1 downto 0);
     signal empty_n : std_logic;
 
@@ -59,20 +60,25 @@ begin
                 -- Register with tag 0 is always 0, so never allocate it as a
                 -- destination register
                 R_active_mask(0) <= '0';
+                R_snapshosts_valid <= (others => '0');
             else
                 if recover_snapshot_enable = '1' then
                     R_active_mask <= R_active_mask or M_snapshots(recover_snapshot_index);
+                    R_snapshosts_valid(recover_snapshot_index) <= '0';
                 else
                     -- Snapshot logic
                     if take_snapshot_enable = '1' then
                         M_snapshots(take_snapshot_index) <= (others => '0');
+                        R_snapshosts_valid(take_snapshot_index) <= '1';
                     end if;
 
                     if get_enable = '1' and free_tag_index /= 0 then
                         -- Find a free tag index using a priority encoder
                         R_active_mask(free_tag_index) <= '0';
                         for i in 0 to MAX_SNAPSHOTS - 1 loop
-                            M_snapshots(i)(free_tag_index) <= '1'; 
+                            if R_snapshosts_valid(i) = '1' then
+                                M_snapshots(i)(free_tag_index) <= '1';
+                            end if; 
                         end loop;
                     end if;
     

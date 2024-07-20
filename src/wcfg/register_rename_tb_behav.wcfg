@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="register_rename_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="cpu_pkg" />
+            <top_module name="register_rename_tb" />
+            <top_module name="sim_pkg" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="885.822 ns"></ZoomStartTime>
+      <ZoomEndTime time="2,222.836 ns"></ZoomEndTime>
+      <Cursor1Time time="1,085.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="230"></NameColumnWidth>
+      <ValueColumnWidth column_width="137"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="14" />
+   <wvobject fp_name="/register_rename_tb/uop_in" type="array">
+      <obj_property name="ElementShortName">uop_in</obj_property>
+      <obj_property name="ObjectShortName">uop_in</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject fp_name="/register_rename_tb/uop_out" type="array">
+      <obj_property name="ElementShortName">uop_out</obj_property>
+      <obj_property name="ObjectShortName">uop_out</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject fp_name="/register_rename_tb/cdb" type="array">
+      <obj_property name="ElementShortName">cdb</obj_property>
+      <obj_property name="ObjectShortName">cdb</obj_property>
+   </wvobject>
+   <wvobject fp_name="/register_rename_tb/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/register_rename_tb/rst" type="logic">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/register_rename_tb/uut/take_snapshot_enable" type="logic">
+      <obj_property name="ElementShortName">take_snapshot_enable</obj_property>
+      <obj_property name="ObjectShortName">take_snapshot_enable</obj_property>
+   </wvobject>
+   <wvobject fp_name="/register_rename_tb/uut/take_snapshot_index" type="other">
+      <obj_property name="ElementShortName">take_snapshot_index</obj_property>
+      <obj_property name="ObjectShortName">take_snapshot_index</obj_property>
+   </wvobject>
+   <wvobject fp_name="/register_rename_tb/uut/recover_snapshot_enable" type="logic">
+      <obj_property name="ElementShortName">recover_snapshot_enable</obj_property>
+      <obj_property name="ObjectShortName">recover_snapshot_enable</obj_property>
+   </wvobject>
+   <wvobject fp_name="/register_rename_tb/uut/recover_snapshot_index" type="other">
+      <obj_property name="ElementShortName">recover_snapshot_index</obj_property>
+      <obj_property name="ObjectShortName">recover_snapshot_index</obj_property>
+   </wvobject>
+   <wvobject fp_name="/register_rename_tb/MAX_CYCLES" type="other">
+      <obj_property name="ElementShortName">MAX_CYCLES</obj_property>
+      <obj_property name="ObjectShortName">MAX_CYCLES</obj_property>
+   </wvobject>
+   <wvobject fp_name="group807" type="group">
+      <obj_property name="label">RAA</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/register_rename_tb/uut/raa_inst/get_tag" type="array">
+         <obj_property name="ElementShortName">get_tag[5:0]</obj_property>
+         <obj_property name="ObjectShortName">get_tag[5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/raa_inst/get_enable" type="logic">
+         <obj_property name="ElementShortName">get_enable</obj_property>
+         <obj_property name="ObjectShortName">get_enable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/raa_inst/put_tag" type="array">
+         <obj_property name="ElementShortName">put_tag[5:0]</obj_property>
+         <obj_property name="ObjectShortName">put_tag[5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/raa_inst/put_enable" type="logic">
+         <obj_property name="ElementShortName">put_enable</obj_property>
+         <obj_property name="ObjectShortName">put_enable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/raa_inst/take_snapshot_enable" type="logic">
+         <obj_property name="ElementShortName">take_snapshot_enable</obj_property>
+         <obj_property name="ObjectShortName">take_snapshot_enable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/raa_inst/take_snapshot_index" type="other">
+         <obj_property name="ElementShortName">take_snapshot_index</obj_property>
+         <obj_property name="ObjectShortName">take_snapshot_index</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/raa_inst/recover_snapshot_enable" type="logic">
+         <obj_property name="ElementShortName">recover_snapshot_enable</obj_property>
+         <obj_property name="ObjectShortName">recover_snapshot_enable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/raa_inst/recover_snapshot_index" type="other">
+         <obj_property name="ElementShortName">recover_snapshot_index</obj_property>
+         <obj_property name="ObjectShortName">recover_snapshot_index</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/raa_inst/empty" type="logic">
+         <obj_property name="ElementShortName">empty</obj_property>
+         <obj_property name="ObjectShortName">empty</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/raa_inst/clk" type="logic">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/raa_inst/reset" type="logic">
+         <obj_property name="ElementShortName">reset</obj_property>
+         <obj_property name="ObjectShortName">reset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/raa_inst/R_snapshosts_valid" type="array">
+         <obj_property name="ElementShortName">R_snapshosts_valid[3:0]</obj_property>
+         <obj_property name="ObjectShortName">R_snapshosts_valid[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/raa_inst/M_snapshots" type="array">
+         <obj_property name="ElementShortName">M_snapshots[0:3][63:0]</obj_property>
+         <obj_property name="ObjectShortName">M_snapshots[0:3][63:0]</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+         <wvobject fp_name="/register_rename_tb/uut/raa_inst/M_snapshots[0]" type="array">
+            <obj_property name="ElementShortName">[0][63:0]</obj_property>
+            <obj_property name="ObjectShortName">[0][63:0]</obj_property>
+            <obj_property name="isExpanded"></obj_property>
+         </wvobject>
+         <wvobject fp_name="/register_rename_tb/uut/raa_inst/M_snapshots[1]" type="array">
+            <obj_property name="ElementShortName">[1][63:0]</obj_property>
+            <obj_property name="ObjectShortName">[1][63:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/register_rename_tb/uut/raa_inst/M_snapshots[2]" type="array">
+            <obj_property name="ElementShortName">[2][63:0]</obj_property>
+            <obj_property name="ObjectShortName">[2][63:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/register_rename_tb/uut/raa_inst/M_snapshots[3]" type="array">
+            <obj_property name="ElementShortName">[3][63:0]</obj_property>
+            <obj_property name="ObjectShortName">[3][63:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/register_rename_tb/uut/raa_inst/M_snapshots[0]" type="array">
+            <obj_property name="ElementShortName">[0][63:0]</obj_property>
+            <obj_property name="ObjectShortName">[0][63:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/register_rename_tb/uut/raa_inst/M_snapshots[1]" type="array">
+            <obj_property name="ElementShortName">[1][63:0]</obj_property>
+            <obj_property name="ObjectShortName">[1][63:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/register_rename_tb/uut/raa_inst/M_snapshots[2]" type="array">
+            <obj_property name="ElementShortName">[2][63:0]</obj_property>
+            <obj_property name="ObjectShortName">[2][63:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/register_rename_tb/uut/raa_inst/M_snapshots[3]" type="array">
+            <obj_property name="ElementShortName">[3][63:0]</obj_property>
+            <obj_property name="ObjectShortName">[3][63:0]</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/raa_inst/R_active_mask" type="array">
+         <obj_property name="ElementShortName">R_active_mask[63:0]</obj_property>
+         <obj_property name="ObjectShortName">R_active_mask[63:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/raa_inst/free_tag_index" type="other">
+         <obj_property name="ElementShortName">free_tag_index</obj_property>
+         <obj_property name="ObjectShortName">free_tag_index</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/raa_inst/MAX_SNAPSHOTS" type="other">
+         <obj_property name="ElementShortName">MAX_SNAPSHOTS</obj_property>
+         <obj_property name="ObjectShortName">MAX_SNAPSHOTS</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/raa_inst/MASK_LENGTH" type="other">
+         <obj_property name="ElementShortName">MASK_LENGTH</obj_property>
+         <obj_property name="ObjectShortName">MASK_LENGTH</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group808" type="group">
+      <obj_property name="label">RAT</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/register_rename_tb/uut/execution_rat_inst/arch_read_tag_1" type="array">
+         <obj_property name="ElementShortName">arch_read_tag_1[4:0]</obj_property>
+         <obj_property name="ObjectShortName">arch_read_tag_1[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/execution_rat_inst/arch_read_tag_2" type="array">
+         <obj_property name="ElementShortName">arch_read_tag_2[4:0]</obj_property>
+         <obj_property name="ObjectShortName">arch_read_tag_2[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/execution_rat_inst/phys_read_tag_1" type="array">
+         <obj_property name="ElementShortName">phys_read_tag_1[5:0]</obj_property>
+         <obj_property name="ObjectShortName">phys_read_tag_1[5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/execution_rat_inst/phys_read_tag_2" type="array">
+         <obj_property name="ElementShortName">phys_read_tag_2[5:0]</obj_property>
+         <obj_property name="ObjectShortName">phys_read_tag_2[5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/execution_rat_inst/arch_write_tag_1" type="array">
+         <obj_property name="ElementShortName">arch_write_tag_1[4:0]</obj_property>
+         <obj_property name="ObjectShortName">arch_write_tag_1[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/execution_rat_inst/phys_write_tag_1" type="array">
+         <obj_property name="ElementShortName">phys_write_tag_1[5:0]</obj_property>
+         <obj_property name="ObjectShortName">phys_write_tag_1[5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/execution_rat_inst/write_enable_1" type="logic">
+         <obj_property name="ElementShortName">write_enable_1</obj_property>
+         <obj_property name="ObjectShortName">write_enable_1</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/execution_rat_inst/take_snapshot_enable" type="logic">
+         <obj_property name="ElementShortName">take_snapshot_enable</obj_property>
+         <obj_property name="ObjectShortName">take_snapshot_enable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/execution_rat_inst/take_snapshot_index" type="other">
+         <obj_property name="ElementShortName">take_snapshot_index</obj_property>
+         <obj_property name="ObjectShortName">take_snapshot_index</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/execution_rat_inst/recover_snapshot_enable" type="logic">
+         <obj_property name="ElementShortName">recover_snapshot_enable</obj_property>
+         <obj_property name="ObjectShortName">recover_snapshot_enable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/execution_rat_inst/recover_snapshot_index" type="other">
+         <obj_property name="ElementShortName">recover_snapshot_index</obj_property>
+         <obj_property name="ObjectShortName">recover_snapshot_index</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/execution_rat_inst/clk" type="logic">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/execution_rat_inst/reset" type="logic">
+         <obj_property name="ElementShortName">reset</obj_property>
+         <obj_property name="ObjectShortName">reset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/execution_rat_inst/M_rat" type="array">
+         <obj_property name="ElementShortName">M_rat[0:31][5:0]</obj_property>
+         <obj_property name="ObjectShortName">M_rat[0:31][5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/execution_rat_inst/M_rat_mispredict_recovery" type="array">
+         <obj_property name="ElementShortName">M_rat_mispredict_recovery[0:3][0:31][5:0]</obj_property>
+         <obj_property name="ObjectShortName">M_rat_mispredict_recovery[0:3][0:31][5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/uut/execution_rat_inst/ENABLE_MISPREDICT_RECOVERY" type="other">
+         <obj_property name="ElementShortName">ENABLE_MISPREDICT_RECOVERY</obj_property>
+         <obj_property name="ObjectShortName">ENABLE_MISPREDICT_RECOVERY</obj_property>
+      </wvobject>
+      <wvobject fp_name="/register_rename_tb/stall_out" type="logic">
+         <obj_property name="ElementShortName">stall_out</obj_property>
+         <obj_property name="ObjectShortName">stall_out</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/register_rename_tb/stall_out" type="logic">
+      <obj_property name="ElementShortName">stall_out</obj_property>
+      <obj_property name="ObjectShortName">stall_out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/register_rename_tb/stall_in" type="logic">
+      <obj_property name="ElementShortName">stall_in</obj_property>
+      <obj_property name="ObjectShortName">stall_in</obj_property>
+   </wvobject>
+</wave_config>

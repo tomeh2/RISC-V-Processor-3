@@ -13,8 +13,8 @@ entity back_end is
 end back_end;
 
 architecture rtl of back_end is
+    signal R_pipeline_rr : T_uop;
     signal R_pipeline_sched : T_uop;
-
     signal R_pipeline_regfile : T_uop;
     signal R_cdb_eu0 : T_uop;
 
@@ -24,13 +24,25 @@ architecture rtl of back_end is
     signal rf_stall_out : std_logic;
     signal sched_stall_in : std_logic;
     signal sched_stall_out : std_logic;
+    signal rr_stall_in : std_logic;
+    signal rr_stall_out : std_logic;
 
     signal cdb : T_uop;
 begin
+    rr_stall_in <= sched_stall_out;
+    register_rename_inst : entity work.register_rename
+    port map(uop_in     => uop_1,
+             uop_out    => R_pipeline_rr,
+             cdb        => cdb,
+             stall_in   => rr_stall_in,
+             stall_out  => rr_stall_out,
+             clk        => clk,
+             reset      => reset);
+
     sched_stall_in <= rf_stall_out;
     scheduler_inst : entity work.scheduler
     generic map(ENTRIES => 8)
-    port map(uop_in     => uop_1,
+    port map(uop_in     => R_pipeline_rr,
              uop_out    => R_pipeline_sched,
              cdb        => cdb,
              stall_in   => sched_stall_in,

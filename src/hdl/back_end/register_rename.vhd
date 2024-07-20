@@ -24,22 +24,26 @@ architecture rtl of register_rename is
 
     signal raa_get_enable : std_logic;
     signal raa_get_tag : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
-    signal raa_take_snapshot_enable : std_logic;
-    signal raa_take_snapshot_index : integer;
-    signal raa_recover_snapshot_index : integer;
     signal raa_empty : std_logic;
 
     signal rat_write_enable_1 : std_logic;
-    signal rat_take_snapshot_enable : std_logic;
-    signal rat_take_snapshot_index : integer;
     signal rat_empty : std_logic;
     signal rat_phys_src_reg_1 : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
     signal rat_phys_src_reg_2 : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
-begin
-    raa_get_enable <= '1' when uop_in.valid = '1' and uop_in.arch_dst_reg /= ARCH_REG_ZERO else '0';
-    F_priority_encoder(uop_in.branch_mask, raa_take_snapshot_index);
-    raa_take_snapshot_enable <= '1' when uop_in.branch_mask /= BR_MASK_ZERO and uop_in.valid = '1' else '0';
 
+    signal take_snapshot_enable : std_logic;
+    signal take_snapshot_index : integer;
+    signal recover_snapshot_enable : std_logic;
+    signal recover_snapshot_index : integer;
+
+    signal stall : std_logic;
+begin
+    take_snapshot_enable <= '1' when uop_in.branch_mask /= BR_MASK_ZERO and uop_in.valid = '1' and stall = '0' else '0';
+    F_priority_encoder(uop_in.branch_mask, take_snapshot_index);
+    recover_snapshot_enable <= cdb.branch_mispredicted and cdb.valid;
+    F_priority_encoder(cdb.branch_mask, recover_snapshot_index);
+
+    raa_get_enable <= '1' when uop_in.valid = '1' and uop_in.arch_dst_reg /= ARCH_REG_ZERO and stall = '0' else '0';
     raa_inst : entity work.register_alias_allocator
     generic map(MAX_SNAPSHOTS => MAX_SPEC_BRANCHES,
                 MASK_LENGTH => PHYS_REGFILE_ENTRIES)
@@ -47,17 +51,15 @@ begin
              get_enable => raa_get_enable,
              put_tag => (others => '0'),
              put_enable => '0',
-             take_snapshot_enable => raa_take_snapshot_enable,
-             take_snapshot_index => raa_take_snapshot_index,
-             recover_snapshot_enable => '0',
-             recover_snapshot_index => 0,
+             take_snapshot_enable => take_snapshot_enable,
+             take_snapshot_index => take_snapshot_index,
+             recover_snapshot_enable => recover_snapshot_enable,
+             recover_snapshot_index => recover_snapshot_index,
              empty => raa_empty,
              clk => clk,
              reset => reset);
 
-    rat_take_snapshot_enable <= '1' when uop_in.branch_mask /= BR_MASK_ZERO and uop_in.valid = '1' else '0';
     rat_write_enable_1 <= raa_get_enable;
-    F_priority_encoder(uop_in.branch_mask, rat_take_snapshot_index);
     execution_rat_inst : entity work.register_alias_table
     generic map(ENABLE_MISPREDICT_RECOVERY => true)
     port map(arch_read_tag_1 => uop_in.arch_src_reg_1,
@@ -67,10 +69,10 @@ begin
              arch_write_tag_1 => uop_in.arch_dst_reg,
              phys_write_tag_1 => raa_get_tag,
              write_enable_1 => rat_write_enable_1,
-             take_snapshot_enable => rat_take_snapshot_enable,
-             take_snapshot_index => rat_take_snapshot_index,
-             recover_snapshot_enable => '0',
-             recover_snapshot_index => 0,
+             take_snapshot_enable => take_snapshot_enable,
+             take_snapshot_index => take_snapshot_index,
+             recover_snapshot_enable => recover_snapshot_enable,
+             recover_snapshot_index => recover_snapshot_index,
              clk => clk,
              reset => reset);
 
@@ -107,5 +109,6 @@ begin
     end process;
 
     uop_out <= R_pipeline;
-    stall_out <= R_pipeline.valid and stall_in;
+    stall <= R_pipeline.valid and stall_in;
+    stall_out <= stall;
 end rtl;

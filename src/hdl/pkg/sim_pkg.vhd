@@ -14,29 +14,22 @@ package sim_pkg is
     -- =========
     impure function F_gen_rand_uop return T_uop;
     impure function F_gen_uop(
-        id : in integer;
-        pc : in std_logic_vector(DATA_WIDTH - 1 downto 0);
-        op_type : in std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0);
-        op_sel : in std_logic_vector(UOP_OP_SEL_WIDTH - 1 downto 0);
-        immediate : in std_logic_vector(DATA_WIDTH - 1 downto 0);
-        arch_src_reg_1 : in integer;
-        arch_src_reg_2 : in integer;
-        arch_dst_reg : in integer;
-        phys_src_reg_1 : in integer;
-        phys_src_reg_2 : in integer;
-        phys_dst_reg : in integer;
+        id : in integer := 0;
+        pc : in std_logic_vector(DATA_WIDTH - 1 downto 0) := (others => '0');
+        op_type : in std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0) := (others => '0');
+        op_sel : in std_logic_vector(UOP_OP_SEL_WIDTH - 1 downto 0) := (others => '0');
+        immediate : in std_logic_vector(DATA_WIDTH - 1 downto 0) := (others => '0');
+        arch_src_reg_1 : in integer := 0;
+        arch_src_reg_2 : in integer := 0;
+        arch_dst_reg : in integer := 0;
+        phys_src_reg_1 : in integer := 0;
+        phys_src_reg_2 : in integer := 0;
+        phys_dst_reg : in integer := 0;
         src_1_rdy : std_logic := '0';
         src_2_rdy : std_logic := '0';
         branch_mask : in std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0) := (others => '0');
         spec_branch_mask : in std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0) := (others => '0')
     ) return T_uop;
-    impure function F_gen_uop(
-        id : in integer := -1;
-        op_type : in std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0);
-        op_sel : in std_logic_vector(UOP_OP_SEL_WIDTH - 1 downto 0);
-        op_1_mag : in integer := INT_MAX / 2;
-        op_2_mag : in integer := INT_MAX / 2
-        ) return T_uop;
     impure function F_gen_uop_arith(
         id : in integer := -1
     ) return T_uop;
@@ -93,19 +86,19 @@ package body sim_pkg is
     end function F_rand_int;
 
     impure function F_gen_uop(
-        id : in integer;
-        pc : in std_logic_vector(DATA_WIDTH - 1 downto 0);
-        op_type : in std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0);
-        op_sel : in std_logic_vector(UOP_OP_SEL_WIDTH - 1 downto 0);
-        immediate : in std_logic_vector(DATA_WIDTH - 1 downto 0);
-        arch_src_reg_1 : in integer;
-        arch_src_reg_2 : in integer;
-        arch_dst_reg : in integer;
-        phys_src_reg_1 : in integer;
-        phys_src_reg_2 : in integer;
-        phys_dst_reg : in integer;
-        src_1_rdy : in std_logic := '0';
-        src_2_rdy : in std_logic := '0';
+        id : in integer := 0;
+        pc : in std_logic_vector(DATA_WIDTH - 1 downto 0) := (others => '0');
+        op_type : in std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0) := (others => '0');
+        op_sel : in std_logic_vector(UOP_OP_SEL_WIDTH - 1 downto 0) := (others => '0');
+        immediate : in std_logic_vector(DATA_WIDTH - 1 downto 0) := (others => '0');
+        arch_src_reg_1 : in integer := 0;
+        arch_src_reg_2 : in integer := 0;
+        arch_dst_reg : in integer := 0;
+        phys_src_reg_1 : in integer := 0;
+        phys_src_reg_2 : in integer := 0;
+        phys_dst_reg : in integer := 0;
+        src_1_rdy : std_logic := '0';
+        src_2_rdy : std_logic := '0';
         branch_mask : in std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0) := (others => '0');
         spec_branch_mask : in std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0) := (others => '0')
     ) return T_uop is
@@ -152,38 +145,6 @@ package body sim_pkg is
         uop.valid := '1';
         return uop;
     end function F_gen_rand_uop;
-
-    impure function F_gen_uop(
-        id : in integer := -1;
-        op_type : in std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0);
-        op_sel : in std_logic_vector(UOP_OP_SEL_WIDTH - 1 downto 0);
-        op_1_mag : in integer := INT_MAX / 2;
-        op_2_mag : in integer := INT_MAX / 2
-        ) return T_uop is
-        variable uop : T_uop;
-    begin
-        if id < 0 then
-            uop.id := F_rand(UOP_ID_WIDTH);
-        else
-            uop.id := std_logic_vector(to_unsigned(id, UOP_ID_WIDTH));
-        end if;
-        uop.pc := F_rand(DATA_WIDTH - 2) & "00";    -- 4-byte aligned
-        uop.op_type := op_type;
-        uop.op_sel := op_sel;
-        uop.arch_src_reg_1 := F_rand(ARCH_REG_ADDR_WIDTH);
-        uop.arch_src_reg_2 := F_rand(ARCH_REG_ADDR_WIDTH);
-        uop.arch_dst_reg := F_rand(ARCH_REG_ADDR_WIDTH);
-        uop.phys_src_reg_1 := F_rand(PHYS_REG_ADDR_WIDTH);
-        uop.phys_src_reg_2 := F_rand(PHYS_REG_ADDR_WIDTH);
-        uop.phys_dst_reg := F_rand(PHYS_REG_ADDR_WIDTH);
-        uop.reg_read_1_data := std_logic_vector(to_unsigned(F_rand_int(op_1_mag), DATA_WIDTH));
-        uop.reg_read_2_data := std_logic_vector(to_unsigned(F_rand_int(op_2_mag), DATA_WIDTH));
-        uop.reg_read_1_ready := '0';
-        uop.reg_read_2_ready := '0';
-        uop.reg_write_data := std_logic_vector(to_unsigned(F_rand_int(op_2_mag), DATA_WIDTH));
-        uop.valid := '1';
-        return uop;
-    end function F_gen_uop;
 
     impure function F_gen_uop_after_decode(
         id : in integer := -1;
