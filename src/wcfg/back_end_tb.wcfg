@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="back_end_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="back_end_tb" />
+            <top_module name="cpu_pkg" />
+            <top_module name="sim_pkg" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="171.117 ns"></ZoomEndTime>
+      <Cursor1Time time="120.989 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="230"></NameColumnWidth>
+      <ValueColumnWidth column_width="137"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="9" />
+   <wvobject fp_name="/back_end_tb/uop_after_decode" type="array">
+      <obj_property name="ElementShortName">uop_after_decode</obj_property>
+      <obj_property name="ObjectShortName">uop_after_decode</obj_property>
+   </wvobject>
+   <wvobject fp_name="/back_end_tb/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/back_end_tb/rst" type="logic">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/back_end_tb/MAX_CYCLES" type="other">
+      <obj_property name="ElementShortName">MAX_CYCLES</obj_property>
+      <obj_property name="ObjectShortName">MAX_CYCLES</obj_property>
+   </wvobject>
+   <wvobject fp_name="group17" type="group">
+      <obj_property name="label">BE</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/back_end_tb/uut/uop_1" type="array">
+         <obj_property name="ElementShortName">uop_1</obj_property>
+         <obj_property name="ObjectShortName">uop_1</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/clk" type="logic">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/reset" type="logic">
+         <obj_property name="ElementShortName">reset</obj_property>
+         <obj_property name="ObjectShortName">reset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/R_pipeline_regfile" type="array">
+         <obj_property name="ElementShortName">R_pipeline_regfile</obj_property>
+         <obj_property name="ObjectShortName">R_pipeline_regfile</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/R_cdb_eu0" type="array">
+         <obj_property name="ElementShortName">R_cdb_eu0</obj_property>
+         <obj_property name="ObjectShortName">R_cdb_eu0</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/cdb" type="array">
+         <obj_property name="ElementShortName">cdb</obj_property>
+         <obj_property name="ObjectShortName">cdb</obj_property>
+      </wvobject>
+      <wvobject fp_name="group43" type="group">
+         <obj_property name="label">RF</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <wvobject fp_name="/back_end_tb/uut/regfile_inst/uop_1_in" type="array">
+            <obj_property name="ElementShortName">uop_1_in</obj_property>
+            <obj_property name="ObjectShortName">uop_1_in</obj_property>
+         </wvobject>
+         <wvobject fp_name="/back_end_tb/uut/regfile_inst/uop_1_out" type="array">
+            <obj_property name="ElementShortName">uop_1_out</obj_property>
+            <obj_property name="ObjectShortName">uop_1_out</obj_property>
+         </wvobject>
+         <wvobject fp_name="/back_end_tb/uut/regfile_inst/clk" type="logic">
+            <obj_property name="ElementShortName">clk</obj_property>
+            <obj_property name="ObjectShortName">clk</obj_property>
+         </wvobject>
+         <wvobject fp_name="/back_end_tb/uut/regfile_inst/reset" type="logic">
+            <obj_property name="ElementShortName">reset</obj_property>
+            <obj_property name="ObjectShortName">reset</obj_property>
+         </wvobject>
+         <wvobject fp_name="/back_end_tb/uut/regfile_inst/M_regfile" type="array">
+            <obj_property name="ElementShortName">M_regfile[0:63]</obj_property>
+            <obj_property name="ObjectShortName">M_regfile[0:63]</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject fp_name="group44" type="group">
+         <obj_property name="label">EU</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <wvobject fp_name="/back_end_tb/uut/eu0_inst/uop" type="array">
+            <obj_property name="ElementShortName">uop</obj_property>
+            <obj_property name="ObjectShortName">uop</obj_property>
+         </wvobject>
+         <wvobject fp_name="/back_end_tb/uut/eu0_inst/cdb" type="array">
+            <obj_property name="ElementShortName">cdb</obj_property>
+            <obj_property name="ObjectShortName">cdb</obj_property>
+         </wvobject>
+         <wvobject fp_name="/back_end_tb/uut/eu0_inst/clk" type="logic">
+            <obj_property name="ElementShortName">clk</obj_property>
+            <obj_property name="ObjectShortName">clk</obj_property>
+         </wvobject>
+         <wvobject fp_name="/back_end_tb/uut/eu0_inst/reset" type="logic">
+            <obj_property name="ElementShortName">reset</obj_property>
+            <obj_property name="ObjectShortName">reset</obj_property>
+         </wvobject>
+         <wvobject fp_name="/back_end_tb/uut/eu0_inst/alu_result" type="array">
+            <obj_property name="ElementShortName">alu_result[31:0]</obj_property>
+            <obj_property name="ObjectShortName">alu_result[31:0]</obj_property>
+         </wvobject>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group50" type="group">
+      <obj_property name="label">SCHED</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/back_end_tb/uut/scheduler_inst/uop_out" type="array">
+         <obj_property name="ElementShortName">uop_out</obj_property>
+         <obj_property name="ObjectShortName">uop_out</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/scheduler_inst/uop_in" type="array">
+         <obj_property name="ElementShortName">uop_in</obj_property>
+         <obj_property name="ObjectShortName">uop_in</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/scheduler_inst/uop_dispatch" type="array">
+         <obj_property name="ElementShortName">uop_dispatch</obj_property>
+         <obj_property name="ObjectShortName">uop_dispatch</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/scheduler_inst/stall_out" type="logic">
+         <obj_property name="ElementShortName">stall_out</obj_property>
+         <obj_property name="ObjectShortName">stall_out</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/scheduler_inst/stall_in" type="logic">
+         <obj_property name="ElementShortName">stall_in</obj_property>
+         <obj_property name="ObjectShortName">stall_in</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/scheduler_inst/sched_write_index" type="other">
+         <obj_property name="ElementShortName">sched_write_index</obj_property>
+         <obj_property name="ObjectShortName">sched_write_index</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/scheduler_inst/sched_write_enable" type="logic">
+         <obj_property name="ElementShortName">sched_write_enable</obj_property>
+         <obj_property name="ObjectShortName">sched_write_enable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/scheduler_inst/sched_full" type="logic">
+         <obj_property name="ElementShortName">sched_full</obj_property>
+         <obj_property name="ObjectShortName">sched_full</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/scheduler_inst/sched_dispatch_index" type="other">
+         <obj_property name="ElementShortName">sched_dispatch_index</obj_property>
+         <obj_property name="ObjectShortName">sched_dispatch_index</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/scheduler_inst/sched_dispatch_enable" type="logic">
+         <obj_property name="ElementShortName">sched_dispatch_enable</obj_property>
+         <obj_property name="ObjectShortName">sched_dispatch_enable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/scheduler_inst/reset" type="logic">
+         <obj_property name="ElementShortName">reset</obj_property>
+         <obj_property name="ObjectShortName">reset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/scheduler_inst/clk" type="logic">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/scheduler_inst/cdb" type="array">
+         <obj_property name="ElementShortName">cdb</obj_property>
+         <obj_property name="ObjectShortName">cdb</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/scheduler_inst/R_uop_dispatch" type="array">
+         <obj_property name="ElementShortName">R_uop_dispatch</obj_property>
+         <obj_property name="ObjectShortName">R_uop_dispatch</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/scheduler_inst/M_scheduler" type="array">
+         <obj_property name="ElementShortName">M_scheduler[0:7]</obj_property>
+         <obj_property name="ObjectShortName">M_scheduler[0:7]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/scheduler_inst/ENTRIES" type="other">
+         <obj_property name="ElementShortName">ENTRIES</obj_property>
+         <obj_property name="ObjectShortName">ENTRIES</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group463" type="group">
+      <obj_property name="label">RF</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/back_end_tb/uut/regfile_inst/uop_1_in" type="array">
+         <obj_property name="ElementShortName">uop_1_in</obj_property>
+         <obj_property name="ObjectShortName">uop_1_in</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/regfile_inst/uop_1_out" type="array">
+         <obj_property name="ElementShortName">uop_1_out</obj_property>
+         <obj_property name="ObjectShortName">uop_1_out</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/regfile_inst/stall_in" type="logic">
+         <obj_property name="ElementShortName">stall_in</obj_property>
+         <obj_property name="ObjectShortName">stall_in</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/regfile_inst/stall_out" type="logic">
+         <obj_property name="ElementShortName">stall_out</obj_property>
+         <obj_property name="ObjectShortName">stall_out</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/regfile_inst/clk" type="logic">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/regfile_inst/reset" type="logic">
+         <obj_property name="ElementShortName">reset</obj_property>
+         <obj_property name="ObjectShortName">reset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/regfile_inst/M_regfile" type="array">
+         <obj_property name="ElementShortName">M_regfile[0:63]</obj_property>
+         <obj_property name="ObjectShortName">M_regfile[0:63]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/regfile_inst/R_pipeline" type="array">
+         <obj_property name="ElementShortName">R_pipeline</obj_property>
+         <obj_property name="ObjectShortName">R_pipeline</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group493" type="group">
+      <obj_property name="label">EU</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/back_end_tb/uut/eu0_inst/uop" type="array">
+         <obj_property name="ElementShortName">uop</obj_property>
+         <obj_property name="ObjectShortName">uop</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/eu0_inst/cdb" type="array">
+         <obj_property name="ElementShortName">cdb</obj_property>
+         <obj_property name="ObjectShortName">cdb</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/eu0_inst/stall_in" type="logic">
+         <obj_property name="ElementShortName">stall_in</obj_property>
+         <obj_property name="ObjectShortName">stall_in</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/eu0_inst/stall_out" type="logic">
+         <obj_property name="ElementShortName">stall_out</obj_property>
+         <obj_property name="ObjectShortName">stall_out</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/eu0_inst/clk" type="logic">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/eu0_inst/reset" type="logic">
+         <obj_property name="ElementShortName">reset</obj_property>
+         <obj_property name="ObjectShortName">reset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/eu0_inst/alu_operand_1" type="array">
+         <obj_property name="ElementShortName">alu_operand_1[31:0]</obj_property>
+         <obj_property name="ObjectShortName">alu_operand_1[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/eu0_inst/alu_operand_2" type="array">
+         <obj_property name="ElementShortName">alu_operand_2[31:0]</obj_property>
+         <obj_property name="ObjectShortName">alu_operand_2[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/eu0_inst/alu_result" type="array">
+         <obj_property name="ElementShortName">alu_result[31:0]</obj_property>
+         <obj_property name="ObjectShortName">alu_result[31:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group4295" type="group">
+      <obj_property name="label">RR</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/back_end_tb/uut/register_rename_inst/uop_in" type="array">
+         <obj_property name="ElementShortName">uop_in</obj_property>
+         <obj_property name="ObjectShortName">uop_in</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/register_rename_inst/uop_out" type="array">
+         <obj_property name="ElementShortName">uop_out</obj_property>
+         <obj_property name="ObjectShortName">uop_out</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/register_rename_inst/cdb" type="array">
+         <obj_property name="ElementShortName">cdb</obj_property>
+         <obj_property name="ObjectShortName">cdb</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/register_rename_inst/stall_in" type="logic">
+         <obj_property name="ElementShortName">stall_in</obj_property>
+         <obj_property name="ObjectShortName">stall_in</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/register_rename_inst/stall_out" type="logic">
+         <obj_property name="ElementShortName">stall_out</obj_property>
+         <obj_property name="ObjectShortName">stall_out</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/register_rename_inst/clk" type="logic">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/register_rename_inst/reset" type="logic">
+         <obj_property name="ElementShortName">reset</obj_property>
+         <obj_property name="ObjectShortName">reset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/register_rename_inst/R_pipeline" type="array">
+         <obj_property name="ElementShortName">R_pipeline</obj_property>
+         <obj_property name="ObjectShortName">R_pipeline</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/register_rename_inst/pipeline_next" type="array">
+         <obj_property name="ElementShortName">pipeline_next</obj_property>
+         <obj_property name="ObjectShortName">pipeline_next</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/register_rename_inst/raa_get_enable" type="logic">
+         <obj_property name="ElementShortName">raa_get_enable</obj_property>
+         <obj_property name="ObjectShortName">raa_get_enable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/register_rename_inst/raa_get_tag" type="array">
+         <obj_property name="ElementShortName">raa_get_tag[5:0]</obj_property>
+         <obj_property name="ObjectShortName">raa_get_tag[5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/register_rename_inst/raa_empty" type="logic">
+         <obj_property name="ElementShortName">raa_empty</obj_property>
+         <obj_property name="ObjectShortName">raa_empty</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/register_rename_inst/rat_write_enable_1" type="logic">
+         <obj_property name="ElementShortName">rat_write_enable_1</obj_property>
+         <obj_property name="ObjectShortName">rat_write_enable_1</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/register_rename_inst/rat_empty" type="logic">
+         <obj_property name="ElementShortName">rat_empty</obj_property>
+         <obj_property name="ObjectShortName">rat_empty</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/register_rename_inst/rat_phys_src_reg_1" type="array">
+         <obj_property name="ElementShortName">rat_phys_src_reg_1[5:0]</obj_property>
+         <obj_property name="ObjectShortName">rat_phys_src_reg_1[5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/register_rename_inst/rat_phys_src_reg_2" type="array">
+         <obj_property name="ElementShortName">rat_phys_src_reg_2[5:0]</obj_property>
+         <obj_property name="ObjectShortName">rat_phys_src_reg_2[5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/register_rename_inst/take_snapshot_enable" type="logic">
+         <obj_property name="ElementShortName">take_snapshot_enable</obj_property>
+         <obj_property name="ObjectShortName">take_snapshot_enable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/register_rename_inst/take_snapshot_index" type="other">
+         <obj_property name="ElementShortName">take_snapshot_index</obj_property>
+         <obj_property name="ObjectShortName">take_snapshot_index</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/register_rename_inst/recover_snapshot_enable" type="logic">
+         <obj_property name="ElementShortName">recover_snapshot_enable</obj_property>
+         <obj_property name="ObjectShortName">recover_snapshot_enable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/register_rename_inst/recover_snapshot_index" type="other">
+         <obj_property name="ElementShortName">recover_snapshot_index</obj_property>
+         <obj_property name="ObjectShortName">recover_snapshot_index</obj_property>
+      </wvobject>
+      <wvobject fp_name="/back_end_tb/uut/register_rename_inst/stall" type="logic">
+         <obj_property name="ElementShortName">stall</obj_property>
+         <obj_property name="ObjectShortName">stall</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>
