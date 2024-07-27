@@ -16,7 +16,11 @@ architecture rtl of back_end is
     signal R_pipeline_rr : T_uop;
     signal R_pipeline_sched : T_uop;
     signal R_pipeline_regfile : T_uop;
+    signal R_pipeline_rob : T_uop;
     signal R_cdb_eu0 : T_uop;
+
+    signal rob_retired_uop : T_rob;
+    signal rob_retired_uop_valid : std_logic;
 
     signal eu0_stall_in : std_logic;
     signal eu0_stall_out : std_logic;
@@ -26,6 +30,8 @@ architecture rtl of back_end is
     signal sched_stall_out : std_logic;
     signal rr_stall_in : std_logic;
     signal rr_stall_out : std_logic;
+    signal rob_stall_in : std_logic;
+    signal rob_stall_out : std_logic;
 
     signal cdb : T_uop;
 begin
@@ -39,10 +45,22 @@ begin
              clk        => clk,
              reset      => reset);
 
+    rob_stall_in <= sched_stall_out;
+    reorder_buffer_inst : entity work.reorder_buffer
+    port map(uop_in             => R_pipeline_rr,
+             uop_out            => R_pipeline_rob,
+             cdb                => cdb,
+             retired_uop        => rob_retired_uop,
+             retired_uop_valid  => rob_retired_uop_valid,
+             stall_in           => rob_stall_in,
+             stall_out          => rob_stall_out,
+             clk                => clk,
+             reset              => reset);
+
     sched_stall_in <= rf_stall_out;
     scheduler_inst : entity work.scheduler
     generic map(ENTRIES => 8)
-    port map(uop_in     => R_pipeline_rr,
+    port map(uop_in     => R_pipeline_rob,
              uop_out    => R_pipeline_sched,
              cdb        => cdb,
              stall_in   => sched_stall_in,

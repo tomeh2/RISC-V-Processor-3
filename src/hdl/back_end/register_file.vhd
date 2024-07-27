@@ -80,7 +80,7 @@ begin
                     M_regfile(to_integer(unsigned(cdb.phys_dst_reg))).valid <= '1';
                 end if;
             end if;
-            R_pipeline <= F_pipeline_reg_logic(pipeline_next, R_pipeline, cdb, stall_out);
+            R_pipeline <= F_pipeline_reg_logic(pipeline_next, R_pipeline, cdb, stall_in);
         end if;
     end process;
     stall_out <= R_pipeline.valid and stall_in;

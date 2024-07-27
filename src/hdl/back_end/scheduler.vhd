@@ -169,7 +169,7 @@ begin
             if reset = '1' then
                 R_uop_dispatch <= UOP_ZERO;
             else
-                R_uop_dispatch <= F_pipeline_reg_logic(uop_dispatch, R_uop_dispatch, cdb, not sched_dispatch_enable);
+                R_uop_dispatch <= F_pipeline_reg_logic(uop_dispatch, R_uop_dispatch, cdb, stall_in);
             end if;
         end if;
     end process;

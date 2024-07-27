@@ -14,7 +14,7 @@ package sim_pkg is
     -- =========
     impure function F_gen_rand_uop return T_uop;
     impure function F_gen_uop(
-        id : in integer := 0;
+        id : in natural := 0;
         pc : in std_logic_vector(DATA_WIDTH - 1 downto 0) := (others => '0');
         op_type : in std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0) := (others => '0');
         op_sel : in std_logic_vector(UOP_OP_SEL_WIDTH - 1 downto 0) := (others => '0');
@@ -31,13 +31,13 @@ package sim_pkg is
         spec_branch_mask : in std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0) := (others => '0')
     ) return T_uop;
     impure function F_gen_uop_arith(
-        id : in integer := -1
+        id : in natural := 0
     ) return T_uop;
     impure function F_check_uop_arith(
         uop : in T_uop
     ) return boolean;
     impure function F_gen_uop_after_decode(
-        id : in integer := -1;
+        id : in natural := 0;
         op_type : in std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0);
         op_sel : in std_logic_vector(UOP_OP_SEL_WIDTH - 1 downto 0)
         ) return T_uop;
@@ -86,7 +86,7 @@ package body sim_pkg is
     end function F_rand_int;
 
     impure function F_gen_uop(
-        id : in integer := 0;
+        id : in natural := 0;
         pc : in std_logic_vector(DATA_WIDTH - 1 downto 0) := (others => '0');
         op_type : in std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0) := (others => '0');
         op_sel : in std_logic_vector(UOP_OP_SEL_WIDTH - 1 downto 0) := (others => '0');
@@ -104,7 +104,7 @@ package body sim_pkg is
     ) return T_uop is
         variable uop : T_uop;
     begin
-        uop.id := std_logic_vector(to_unsigned(id, UOP_ID_WIDTH));
+        uop.id := to_unsigned(id, UOP_INDEX_WIDTH);
         uop.pc := pc;
         uop.op_type := op_type;
         uop.op_sel := op_sel;
@@ -129,7 +129,7 @@ package body sim_pkg is
     impure function F_gen_rand_uop return T_uop is
         variable uop : T_uop;
     begin
-        uop.id := F_rand(UOP_ID_WIDTH);
+        uop.id := to_unsigned(F_rand_int(REORDER_BUFFER_ENTRIES - 1), UOP_INDEX_WIDTH);
         uop.pc := F_rand(DATA_WIDTH - 2) & "00";    -- 4-byte aligned
         uop.op_type := F_rand(UOP_OP_TYPE_WIDTH);
         uop.op_sel := F_rand(UOP_OP_SEL_WIDTH);
@@ -147,16 +147,16 @@ package body sim_pkg is
     end function F_gen_rand_uop;
 
     impure function F_gen_uop_after_decode(
-        id : in integer := -1;
+        id : in natural := 0;
         op_type : in std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0);
         op_sel : in std_logic_vector(UOP_OP_SEL_WIDTH - 1 downto 0)
         ) return T_uop is
         variable uop : T_uop;
     begin
         if id < 0 then
-            uop.id := F_rand(UOP_ID_WIDTH);
+            uop.id := to_unsigned(F_rand_int(REORDER_BUFFER_ENTRIES - 1), UOP_INDEX_WIDTH);
         else
-            uop.id := std_logic_vector(to_unsigned(id, UOP_ID_WIDTH));
+            uop.id := to_unsigned(id, UOP_INDEX_WIDTH);
         end if;
         uop.pc := F_rand(DATA_WIDTH - 2) & "00";    -- 4-byte aligned
         uop.op_type := op_type;
@@ -169,7 +169,7 @@ package body sim_pkg is
     end function F_gen_uop_after_decode;
 
     impure function F_gen_uop_arith(
-        id : in integer := -1
+        id : in natural := 0
     ) return T_uop is
         variable uop : T_uop;
         variable rand_num : real;

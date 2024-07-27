@@ -17,8 +17,8 @@ package cpu_pkg is
     -- Converts a onehot encoded std_logic_vector to an integer which
     -- corresponds to the active bit's number counted from the right
     -- and with rightmost bit having value 0
-    procedure F_priority_encoder (signal N : in std_logic_vector; signal value : out integer; signal valid : out std_logic; invert_dir : boolean := false);
-    procedure F_priority_encoder (signal N : in std_logic_vector; signal value : out integer);
+    procedure F_priority_encoder (signal N : in std_logic_vector; signal value : out natural; signal valid : out std_logic; invert_dir : boolean := false);
+    procedure F_priority_encoder (signal N : in std_logic_vector; signal value : out natural);
     -- Returns 1 if op1 is less then op2 (signed numbers)
     function F_compare_signed (op1 : signed; op2 : signed;  len : natural)
         return std_logic_vector;
@@ -37,11 +37,11 @@ package cpu_pkg is
     constant MAX_SPEC_BRANCHES : integer := 4;
 
     -- Fixed Constants
-    constant UOP_ID_WIDTH         : integer := F_min_bits(REORDER_BUFFER_ENTRIES);
     constant UOP_OP_TYPE_WIDTH    : integer := 4;
     constant UOP_OP_SEL_WIDTH     : integer := 8;
     constant PHYS_REG_ADDR_WIDTH  : integer := F_min_bits(PHYS_REGFILE_ENTRIES);
     constant ARCH_REG_ADDR_WIDTH  : integer := F_min_bits(ARCH_REGFILE_ENTRIES);
+    constant UOP_INDEX_WIDTH      : integer := F_min_bits(REORDER_BUFFER_ENTRIES);
     constant BR_MASK_ZERO  : std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0)
       := (others => '0');
     constant PHYS_REG_ZERO        : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0)
@@ -91,7 +91,7 @@ package cpu_pkg is
     -- but they don't have to use every available field
     type T_uop is record
         -- uOP ID
-        id                  : std_logic_vector(UOP_ID_WIDTH - 1 downto 0);
+        id                  : unsigned(UOP_INDEX_WIDTH - 1 downto 0);
         -- Program counter of the instruction
         pc                  : std_logic_vector(DATA_WIDTH - 1 downto 0);
         -- Identifies which group of operations this instruction belongs to
@@ -129,12 +129,22 @@ package cpu_pkg is
     -- from Tomasulo's algorithm.
     type T_cdb is record
         -- uOP ID
-        id                  : std_logic_vector(UOP_ID_WIDTH - 1 downto 0);
+        id                  : unsigned(UOP_INDEX_WIDTH - 1 downto 0);
         -- Register write
         reg_write_data      : std_logic_vector(DATA_WIDTH - 1 downto 0);
         -- Indicates whether data on the CDB is valid
         valid               : std_logic;
     end record T_cdb;
+
+    -- ROB data holds information necessary to record one instruction in ROB.
+    type T_rob is record
+        -- Destination registers are required to update reitrement RAT and free
+        -- the physical register
+        arch_dst_reg        : std_logic_vector(ARCH_REG_ADDR_WIDTH - 1 downto 0);
+        phys_dst_reg        : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
+        -- Indicated whether this instruction has finished execution
+        executed            : std_logic;
+    end record;
 
     constant CDB_ZERO : T_cdb := (
         (others => '0'),
@@ -165,6 +175,12 @@ package cpu_pkg is
         '0'
     );
 
+    constant ROB_ZERO : T_rob := (
+        (others => '0'),
+        (others => '0'),
+        '0'
+    );
+
     -- ===============================
     -- FUNCTIONS POST TYPE DEFINITIONS
     -- ===============================
@@ -172,6 +188,12 @@ package cpu_pkg is
     -- defined data types which are not available at the beginning
     function F_pipeline_reg_logic (input : T_uop; reg : T_uop; cdb : T_uop; stalled : std_logic)
         return T_uop;
+    -- This function takes a uOP as an input and returns a type which can be
+    -- put into the ROB
+    function F_uop_to_rob_type (uop : T_uop) return T_rob;
+    -- Branchmask to index mapping functions
+    function F_brmask_to_index (signal branch_mask : in std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0))
+      return natural;
 end package;
 
 package body cpu_pkg is
@@ -213,8 +235,8 @@ package body cpu_pkg is
         value <= temp_value;
     end procedure;
 
-    procedure F_priority_encoder (signal N : in std_logic_vector; signal value : out integer) is
-        variable temp_value : integer := 0;
+    procedure F_priority_encoder (signal N : in std_logic_vector; signal value : out natural) is
+        variable temp_value : natural := 0;
     begin
         for i in 0 to N'length - 1 loop
             if N(i) = '1' then
@@ -241,9 +263,9 @@ package body cpu_pkg is
     function F_pipeline_reg_logic (input : T_uop; reg : T_uop; cdb : T_uop; stalled : std_logic) return T_uop is
         variable R_pipeline : T_uop;
     begin
-        if stalled = '0' then
+        if stalled = '0' or reg.valid = '0' then
             R_pipeline := input;
-            if cdb.branch_mispredicted = '1' then
+            if cdb.valid = '1' and cdb.branch_mispredicted = '1' then
                 if (input.spec_branch_mask and cdb.branch_mask) /= BR_MASK_ZERO then
                     R_pipeline.valid := '0';
                 end if;
@@ -261,5 +283,31 @@ package body cpu_pkg is
             end if;
         end if;
         return R_pipeline;
+    end function;
+
+    function F_uop_to_rob_type (uop : T_uop) return T_rob is
+        variable rob_var : T_rob;
+    begin
+        rob_var.arch_dst_reg := uop.arch_dst_reg;
+        rob_var.phys_dst_reg := uop.phys_dst_reg;
+        rob_var.executed := '0';
+        return rob_var;
+    end function;
+
+    function F_brmask_to_index (signal branch_mask : in std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0))
+      return natural is
+        variable temp_value : natural range 0 to MAX_SPEC_BRANCHES - 1 := 0;
+        variable not_one_hot_error : boolean := false;
+    begin
+        for i in 0 to MAX_SPEC_BRANCHES - 1 loop
+            if branch_mask(i) = '1' then
+                if not_one_hot_error = true then
+                    assert false severity failure;
+                end if;
+                temp_value := i;
+                not_one_hot_error := true;
+            end if;
+        end loop;
+        return temp_value;
     end function;
 end package body;

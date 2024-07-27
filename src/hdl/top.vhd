@@ -11,14 +11,11 @@
 -- 10) Register renaming
 -- 11) Potentially multi-core
 
--- TODO:
--- 1) ALU
--- 2) Execution unit for arithmetic instructions
-
 -- This processor relies quite heavily on the synthesis engine's ability to
 -- trim unused signals to simplify connections between modules. Modules
 -- therefore take as inputs whole data structures and not just parts that
 -- they need, but only use parts that are relevant to them.
+-- This might change in the future if it turn out to work poorly
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="reorder_buffer_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="cpu_pkg" />
+            <top_module name="reorder_buffer_tb" />
+            <top_module name="sim_pkg" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="193.523 ns"></ZoomStartTime>
+      <ZoomEndTime time="322.388 ns"></ZoomEndTime>
+      <Cursor1Time time="215.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="230"></NameColumnWidth>
+      <ValueColumnWidth column_width="121"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="9" />
+   <wvobject fp_name="/reorder_buffer_tb/uop_in" type="array">
+      <obj_property name="ElementShortName">uop_in</obj_property>
+      <obj_property name="ObjectShortName">uop_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/reorder_buffer_tb/uop_out" type="array">
+      <obj_property name="ElementShortName">uop_out</obj_property>
+      <obj_property name="ObjectShortName">uop_out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/reorder_buffer_tb/cdb" type="array">
+      <obj_property name="ElementShortName">cdb</obj_property>
+      <obj_property name="ObjectShortName">cdb</obj_property>
+   </wvobject>
+   <wvobject fp_name="/reorder_buffer_tb/stall_out" type="logic">
+      <obj_property name="ElementShortName">stall_out</obj_property>
+      <obj_property name="ObjectShortName">stall_out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/reorder_buffer_tb/stall_in" type="logic">
+      <obj_property name="ElementShortName">stall_in</obj_property>
+      <obj_property name="ObjectShortName">stall_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/reorder_buffer_tb/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/reorder_buffer_tb/rst" type="logic">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/reorder_buffer_tb/MAX_CYCLES" type="other">
+      <obj_property name="ElementShortName">MAX_CYCLES</obj_property>
+      <obj_property name="ObjectShortName">MAX_CYCLES</obj_property>
+   </wvobject>
+   <wvobject fp_name="group77" type="group">
+      <obj_property name="label">ROB</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/reorder_buffer_tb/uut/uop_in" type="array">
+         <obj_property name="ElementShortName">uop_in</obj_property>
+         <obj_property name="ObjectShortName">uop_in</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/uop_out" type="array">
+         <obj_property name="ElementShortName">uop_out</obj_property>
+         <obj_property name="ObjectShortName">uop_out</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/cdb" type="array">
+         <obj_property name="ElementShortName">cdb</obj_property>
+         <obj_property name="ObjectShortName">cdb</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/stall_in" type="logic">
+         <obj_property name="ElementShortName">stall_in</obj_property>
+         <obj_property name="ObjectShortName">stall_in</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/stall_out" type="logic">
+         <obj_property name="ElementShortName">stall_out</obj_property>
+         <obj_property name="ObjectShortName">stall_out</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/clk" type="logic">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/reset" type="logic">
+         <obj_property name="ElementShortName">reset</obj_property>
+         <obj_property name="ObjectShortName">reset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/M_rob" type="array">
+         <obj_property name="ElementShortName">M_rob[0:31]</obj_property>
+         <obj_property name="ObjectShortName">M_rob[0:31]</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/R_uop_head" type="array">
+         <obj_property name="ElementShortName">R_uop_head</obj_property>
+         <obj_property name="ObjectShortName">R_uop_head</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/R_head_index" type="array">
+         <obj_property name="ElementShortName">R_head_index[4:0]</obj_property>
+         <obj_property name="ObjectShortName">R_head_index[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/head_index_next" type="array">
+         <obj_property name="ElementShortName">head_index_next[4:0]</obj_property>
+         <obj_property name="ObjectShortName">head_index_next[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/R_tail_index" type="array">
+         <obj_property name="ElementShortName">R_tail_index[4:0]</obj_property>
+         <obj_property name="ObjectShortName">R_tail_index[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/tail_index_next" type="array">
+         <obj_property name="ElementShortName">tail_index_next[4:0]</obj_property>
+         <obj_property name="ObjectShortName">tail_index_next[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/R_utilization" type="array">
+         <obj_property name="ElementShortName">R_utilization[5:0]</obj_property>
+         <obj_property name="ObjectShortName">R_utilization[5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/utilization_next" type="array">
+         <obj_property name="ElementShortName">utilization_next[5:0]</obj_property>
+         <obj_property name="ObjectShortName">utilization_next[5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/M_tail_snapshots" type="array">
+         <obj_property name="ElementShortName">M_tail_snapshots[0:3][4:0]</obj_property>
+         <obj_property name="ObjectShortName">M_tail_snapshots[0:3][4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/cdb_brmask_index" type="other">
+         <obj_property name="ElementShortName">cdb_brmask_index</obj_property>
+         <obj_property name="ObjectShortName">cdb_brmask_index</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/M_utilization_snapshots" type="array">
+         <obj_property name="ElementShortName">M_utilization_snapshots[0:3][5:0]</obj_property>
+         <obj_property name="ObjectShortName">M_utilization_snapshots[0:3][5:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/rob_write_entry" type="array">
+         <obj_property name="ElementShortName">rob_write_entry</obj_property>
+         <obj_property name="ObjectShortName">rob_write_entry</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/uop_in_brmask_index" type="other">
+         <obj_property name="ElementShortName">uop_in_brmask_index</obj_property>
+         <obj_property name="ObjectShortName">uop_in_brmask_index</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/insert_enable" type="logic">
+         <obj_property name="ElementShortName">insert_enable</obj_property>
+         <obj_property name="ObjectShortName">insert_enable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/retire_enable" type="logic">
+         <obj_property name="ElementShortName">retire_enable</obj_property>
+         <obj_property name="ObjectShortName">retire_enable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/full" type="logic">
+         <obj_property name="ElementShortName">full</obj_property>
+         <obj_property name="ObjectShortName">full</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/empty" type="logic">
+         <obj_property name="ElementShortName">empty</obj_property>
+         <obj_property name="ObjectShortName">empty</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/retired_uop" type="array">
+         <obj_property name="ElementShortName">retired_uop</obj_property>
+         <obj_property name="ObjectShortName">retired_uop</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/retired_uop_valid" type="logic">
+         <obj_property name="ElementShortName">retired_uop_valid</obj_property>
+         <obj_property name="ObjectShortName">retired_uop_valid</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/R_pipeline" type="array">
+         <obj_property name="ElementShortName">R_pipeline</obj_property>
+         <obj_property name="ObjectShortName">R_pipeline</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/pipeline_next" type="array">
+         <obj_property name="ElementShortName">pipeline_next</obj_property>
+         <obj_property name="ObjectShortName">pipeline_next</obj_property>
+      </wvobject>
+      <wvobject fp_name="/reorder_buffer_tb/uut/uop_out" type="array">
+         <obj_property name="ElementShortName">uop_out</obj_property>
+         <obj_property name="ObjectShortName">uop_out</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>

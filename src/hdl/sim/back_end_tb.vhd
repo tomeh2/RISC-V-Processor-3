@@ -36,7 +36,7 @@ begin
                 uop_after_decode <= UOP_ZERO;
             else
                 if TEST_ID = 0 then
-                    uop_after_decode <= F_gen_uop(id,
+                    uop_after_decode <= F_gen_uop(0,
                                                   X"0000_0000",
                                                   X"0",
                                                   X"10",
@@ -48,7 +48,7 @@ begin
                                                   2,
                                                   1);
                 elsif TEST_ID = 1 then
-                    uop_after_decode <= F_gen_uop(id,
+                    uop_after_decode <= F_gen_uop(0,
                                                   X"0000_0000",
                                                   X"0",
                                                   X"10",
@@ -62,7 +62,7 @@ begin
                                                   '1',
                                                   '1');
                 elsif TEST_ID = 2 then
-                    uop_after_decode <= F_gen_uop(id,
+                    uop_after_decode <= F_gen_uop(0,
                                                   X"0000_0000",
                                                   X"0",
                                                   X"10",

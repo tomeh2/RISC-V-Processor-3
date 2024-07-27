@@ -32,9 +32,9 @@ architecture rtl of register_rename is
     signal rat_phys_src_reg_2 : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
 
     signal take_snapshot_enable : std_logic;
-    signal take_snapshot_index : integer;
+    signal take_snapshot_index : natural range 0 to MAX_SPEC_BRANCHES - 1;
     signal recover_snapshot_enable : std_logic;
-    signal recover_snapshot_index : integer;
+    signal recover_snapshot_index : natural range 0 to MAX_SPEC_BRANCHES - 1;
 
     signal stall : std_logic;
 begin
@@ -101,9 +101,9 @@ begin
     begin
         if rising_edge(clk) then
             if reset = '1' then
-                R_pipeline <= UOP_ZERO;
+                R_pipeline.valid <= '0';
             else
-                R_pipeline <= F_pipeline_reg_logic(pipeline_next, R_pipeline, cdb, stall_out);
+                R_pipeline <= F_pipeline_reg_logic(pipeline_next, R_pipeline, cdb, stall_in);
             end if;
         end if;
     end process;

@@ -52,6 +52,7 @@ begin
     begin
         pipeline_next <= uop;
         pipeline_next.reg_write_data <= alu_result;
+        pipeline_next.branch_mispredicted <= '0';
     end process;
 
     P_cdb_reg_cntrl : process(clk)
@@ -60,7 +61,7 @@ begin
             if reset = '1' then
                 R_pipeline <= UOP_ZERO;
             else
-                R_pipeline <= F_pipeline_reg_logic(pipeline_next, R_pipeline, cdb, stall_out);
+                R_pipeline <= F_pipeline_reg_logic(pipeline_next, R_pipeline, cdb, stall_in);
             end if;
         end if;
     end process;
