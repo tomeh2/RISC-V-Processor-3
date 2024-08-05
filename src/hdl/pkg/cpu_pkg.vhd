@@ -31,10 +31,13 @@ package cpu_pkg is
     -- =========
     -- User Constants
     constant DATA_WIDTH             : integer := 32;
+    constant ADDR_WIDTH             : integer := 32;
     constant ARCH_REGFILE_ENTRIES   : integer := 32;
     constant PHYS_REGFILE_ENTRIES   : integer := 64;
     constant REORDER_BUFFER_ENTRIES : integer := 32;
-    constant MAX_SPEC_BRANCHES : integer := 4;
+    constant MAX_SPEC_BRANCHES      : integer := 4;
+    constant SQ_ENTRIES             : integer := 8;
+    constant LQ_ENTRIES             : integer := 8;
 
     -- Fixed Constants
     constant UOP_OP_TYPE_WIDTH    : integer := 4;
@@ -42,6 +45,8 @@ package cpu_pkg is
     constant PHYS_REG_ADDR_WIDTH  : integer := F_min_bits(PHYS_REGFILE_ENTRIES);
     constant ARCH_REG_ADDR_WIDTH  : integer := F_min_bits(ARCH_REGFILE_ENTRIES);
     constant UOP_INDEX_WIDTH      : integer := F_min_bits(REORDER_BUFFER_ENTRIES);
+    constant SQ_TAG_WIDTH         : integer := F_min_bits(SQ_ENTRIES);
+    constant LQ_TAG_WIDTH         : integer := F_min_bits(LQ_ENTRIES);
     constant BR_MASK_ZERO  : std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0)
       := (others => '0');
     constant PHYS_REG_ZERO        : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0)
@@ -144,6 +149,57 @@ package cpu_pkg is
         phys_dst_reg        : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
         -- Indicated whether this instruction has finished execution
         executed            : std_logic;
+    end record;
+
+    type T_lsu_store is record
+        -- Store address
+        address             : std_logic_vector(ADDR_WIDTH - 1 downto 0);
+        address_valid       : std_logic;
+        -- Data to be stored
+        data                : std_logic_vector(ADDR_WIDTH - 1 downto 0);
+        data_valid          : std_logic;
+        --
+        dispatched          : std_logic;
+        done                : std_logic;
+        -- Did the instruction retire
+        retired             : std_logic;
+    end record;
+
+    type T_lsu_load is record
+        -- Store address
+        address             : std_logic_vector(ADDR_WIDTH - 1 downto 0);
+        address_valid       : std_logic;
+    end record;
+
+    type T_lsu_gen_port is record
+        address         : std_logic_vector(ADDR_WIDTH - 1 downto 0);
+        address_valid   : std_logic;
+        data            : std_logic_vector(ADDR_WIDTH - 1 downto 0);
+        data_valid      : std_logic;
+        is_store        : std_logic;
+        sq_tag          : unsigned(SQ_TAG_WIDTH - 1 downto 0);
+        lq_tag          : unsigned(LQ_TAG_WIDTH - 1 downto 0);
+    end record;
+
+    -- This data type contains all data that the LSU gives the bus controller
+    -- so that it can perform a R/W operation
+    type T_bus_request is record
+        address         : std_logic_vector(ADDR_WIDTH - 1 downto 0);
+        data            : std_logic_vector(DATA_WIDTH - 1 downto 0);
+        data_size       : std_logic_vector(1 downto 0);
+        is_store        : std_logic;
+        sq_tag          : unsigned(SQ_TAG_WIDTH - 1 downto 0);
+        lq_tag          : unsigned(LQ_TAG_WIDTH - 1 downto 0);
+        valid           : std_logic;
+    end record;
+
+    -- This data type contails all data the the bus controller has to send
+    -- back to the LSU once the R/W operation has been processed
+    type T_bus_response is record
+        data            : std_logic_vector(DATA_WIDTH - 1 downto 0);
+        sq_tag          : unsigned(SQ_TAG_WIDTH - 1 downto 0);
+        lq_tag          : unsigned(LQ_TAG_WIDTH - 1 downto 0);
+        valid           : std_logic;
     end record;
 
     constant CDB_ZERO : T_cdb := (

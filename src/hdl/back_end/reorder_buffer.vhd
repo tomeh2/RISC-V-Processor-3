@@ -36,17 +36,14 @@ architecture rtl of reorder_buffer is
     signal M_tail_snapshots : T_pointer_snapshots;
 
     signal rob_write_entry : T_rob;
-    signal uop_in_brmask_index : integer;
-    signal cdb_brmask_index : integer;
+    signal uop_in_brmask_index : natural range 0 to MAX_SPEC_BRANCHES - 1;
+    signal cdb_brmask_index : natural range 0 to MAX_SPEC_BRANCHES - 1;
     signal insert_enable : std_logic;
     signal retire_enable : std_logic;
 
     signal full : std_logic;
     signal empty : std_logic;
 begin
-    -- TODO: UTILIZATION SNAPSHOT REGISTERS NEED TO DECREMENT BY ONE ON EVERY
-    -- RETIREMENT 
-
     uop_in_brmask_index <= F_brmask_to_index(uop_in.branch_mask);
     cdb_brmask_index <= F_brmask_to_index(cdb.branch_mask);
     full <= '1' when tail_index_next = R_head_index else '0';

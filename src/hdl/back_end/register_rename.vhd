@@ -95,7 +95,7 @@ begin
     pipeline_next.branch_mispredicted <= uop_in.branch_mispredicted;
     pipeline_next.branch_mask <= uop_in.branch_mask;
     pipeline_next.spec_branch_mask <= uop_in.spec_branch_mask;
-    pipeline_next.valid <= uop_in.valid;
+    pipeline_next.valid <= uop_in.valid and not raa_empty;
 
     P_pipeline_reg_cntrl : process(clk)
     begin
@@ -109,6 +109,6 @@ begin
     end process;
 
     uop_out <= R_pipeline;
-    stall <= R_pipeline.valid and stall_in;
+    stall <= (R_pipeline.valid and stall_in) or raa_empty;
     stall_out <= stall;
 end rtl;
