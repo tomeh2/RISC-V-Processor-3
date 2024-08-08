@@ -55,6 +55,14 @@ package cpu_pkg is
       := (others => '0');
 
     -- ==================
+    -- OPTYPE DEFINITIONS
+    -- ==================
+    constant OPTYPE_ARIT    : std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0)
+        := std_logic_vector(to_unsigned(0, UOP_OP_TYPE_WIDTH));
+    constant OPTYPE_LDST    : std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0)
+        := std_logic_vector(to_unsigned(1, UOP_OP_TYPE_WIDTH));
+
+    -- ==================
     -- OPCODE DEFINITIONS
     -- ==================
     -- RV32I
@@ -158,17 +166,26 @@ package cpu_pkg is
         -- Data to be stored
         data                : std_logic_vector(ADDR_WIDTH - 1 downto 0);
         data_valid          : std_logic;
-        --
+        -- Was the uOP sent to the bus controller / cache
         dispatched          : std_logic;
+        -- Did the RW operation in the bus controller finish
         done                : std_logic;
         -- Did the instruction retire
         retired             : std_logic;
     end record;
 
     type T_lsu_load is record
-        -- Store address
+        -- Load address
         address             : std_logic_vector(ADDR_WIDTH - 1 downto 0);
         address_valid       : std_logic;
+        -- Destination register of the load uOP
+        phys_dst_reg        : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
+        -- Indicates which stores this uOP depends on
+        store_mask          : std_logic_vector(SQ_ENTRIES - 1 downto 0);
+        -- Was the uOP sent to the bus controller / cache
+        dispatched          : std_logic;
+        -- Did the RW operation in the bus controller finish
+        done                : std_logic;
     end record;
 
     type T_lsu_gen_port is record
@@ -176,7 +193,7 @@ package cpu_pkg is
         address_valid   : std_logic;
         data            : std_logic_vector(ADDR_WIDTH - 1 downto 0);
         data_valid      : std_logic;
-        is_store        : std_logic;
+        rw              : std_logic;
         sq_tag          : unsigned(SQ_TAG_WIDTH - 1 downto 0);
         lq_tag          : unsigned(LQ_TAG_WIDTH - 1 downto 0);
     end record;
@@ -187,9 +204,8 @@ package cpu_pkg is
         address         : std_logic_vector(ADDR_WIDTH - 1 downto 0);
         data            : std_logic_vector(DATA_WIDTH - 1 downto 0);
         data_size       : std_logic_vector(1 downto 0);
-        is_store        : std_logic;
-        sq_tag          : unsigned(SQ_TAG_WIDTH - 1 downto 0);
-        lq_tag          : unsigned(LQ_TAG_WIDTH - 1 downto 0);
+        rw              : std_logic;
+        tag             : unsigned(7 downto 0);
         valid           : std_logic;
     end record;
 
@@ -197,8 +213,8 @@ package cpu_pkg is
     -- back to the LSU once the R/W operation has been processed
     type T_bus_response is record
         data            : std_logic_vector(DATA_WIDTH - 1 downto 0);
-        sq_tag          : unsigned(SQ_TAG_WIDTH - 1 downto 0);
-        lq_tag          : unsigned(LQ_TAG_WIDTH - 1 downto 0);
+        rw              : std_logic;
+        tag             : unsigned(7 downto 0);
         valid           : std_logic;
     end record;
 
