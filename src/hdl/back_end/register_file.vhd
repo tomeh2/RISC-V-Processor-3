@@ -18,8 +18,8 @@ use WORK.CPU_PKG.ALL;
 
 entity register_file is
     port(
-        uop_1_in : in T_uop;
-        uop_1_out : out T_uop;
+        rf_in_port : in T_rf_in_port;
+        rf_out_port : out T_rf_out_port;
 
         -- ============
         -- FLOW CONTROL
@@ -54,13 +54,12 @@ begin
     -- Note that the read is done asynchronously with this code, but the idea
     -- is that the synthesis tool will realize that this immediately goes into
     -- a register and synthesize synchronous logic anyway
-    pipeline_next_cntrl : process(M_regfile, uop_1_in)
+    pipeline_next_cntrl : process(M_regfile, rf_in_port)
     begin
-        pipeline_next <= uop_1_in;
-        pipeline_next.reg_read_1_data <=
-            M_regfile(to_integer(unsigned(uop_1_in.phys_src_reg_1))).data;
-        pipeline_next.reg_read_2_data <=
-            M_regfile(to_integer(unsigned(uop_1_in.phys_src_reg_2))).data;
+        rf_out_port.reg_data_1 <=
+            M_regfile(to_integer(unsigned(rf_in_port.phys_src_reg_1))).data;
+        rf_out_port.reg_data_2 <=
+            M_regfile(to_integer(unsigned(rf_in_port.phys_src_reg_2))).data;
     end process;
 
     process(clk)
@@ -80,9 +79,8 @@ begin
                     M_regfile(to_integer(unsigned(cdb.phys_dst_reg))).valid <= '1';
                 end if;
             end if;
-            R_pipeline <= F_pipeline_reg_logic(pipeline_next, R_pipeline, cdb, stall_in);
         end if;
     end process;
-    stall_out <= R_pipeline.valid and stall_in;
-    uop_1_out <= R_pipeline;
+
+    stall_out <= '0';
 end rtl;

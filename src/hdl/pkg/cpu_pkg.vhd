@@ -158,6 +158,43 @@ package cpu_pkg is
         -- Indicated whether this instruction has finished execution
         executed            : std_logic;
     end record;
+    
+    type T_rr_in_port is record
+        arch_dst_reg        : std_logic_vector(ARCH_REG_ADDR_WIDTH - 1 downto 0); 
+        arch_src_reg_1      : std_logic_vector(ARCH_REG_ADDR_WIDTH - 1 downto 0); 
+        arch_src_reg_2      : std_logic_vector(ARCH_REG_ADDR_WIDTH - 1 downto 0);
+        branch_mask         : std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0);
+        valid : std_logic;
+    end record;
+    
+    type T_rr_out_port is record
+        phys_dst_reg        : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0); 
+        phys_src_reg_1      : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0); 
+        phys_src_reg_2      : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0); 
+    end record;
+    
+    type T_rob_in_port is record
+        arch_dst_reg        : std_logic_vector(ARCH_REG_ADDR_WIDTH - 1 downto 0);
+        phys_dst_reg        : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
+        branch_mask         : std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0);
+        valid               : std_logic;
+    end record;
+    
+    type T_rob_out_port is record
+        id     : unsigned(UOP_INDEX_WIDTH - 1 downto 0);
+    end record;
+    
+    type T_rf_in_port is record
+        phys_src_reg_1        : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
+        phys_src_reg_2        : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
+        phys_dst_reg          : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
+        valid                 : std_logic;
+    end record;
+    
+    type T_rf_out_port is record
+        reg_data_1      : std_logic_vector(DATA_WIDTH - 1 downto 0);
+        reg_data_2      : std_logic_vector(DATA_WIDTH - 1 downto 0);
+    end record;
 
     type T_lsu_store is record
         -- Store address
@@ -258,7 +295,7 @@ package cpu_pkg is
     -- ===============================
     -- This code contains definitions for functions which depend on previously
     -- defined data types which are not available at the beginning
-    function F_pipeline_reg_logic (input : T_uop; reg : T_uop; cdb : T_uop; stalled : std_logic)
+    function F_pipeline_reg_logic (input : T_uop; reg : T_uop; cdb : T_uop; stall : std_logic)
         return T_uop;
     -- This function takes a uOP as an input and returns a type which can be
     -- put into the ROB
@@ -332,10 +369,10 @@ package body cpu_pkg is
         return result;
     end function;
 
-    function F_pipeline_reg_logic (input : T_uop; reg : T_uop; cdb : T_uop; stalled : std_logic) return T_uop is
+    function F_pipeline_reg_logic (input : T_uop; reg : T_uop; cdb : T_uop; stall : std_logic) return T_uop is
         variable R_pipeline : T_uop;
     begin
-        if stalled = '0' or reg.valid = '0' then
+        if stall = '0' or reg.valid = '0' then
             R_pipeline := input;
             if cdb.valid = '1' and cdb.branch_mispredicted = '1' then
                 if (input.spec_branch_mask and cdb.branch_mask) /= BR_MASK_ZERO then

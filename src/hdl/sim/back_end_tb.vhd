@@ -44,9 +44,9 @@ begin
                                                   1,
                                                   2,
                                                   1,
-                                                  1,
-                                                  2,
-                                                  1);
+                                                  0,
+                                                  0,
+                                                  0);
                 elsif TEST_ID = 1 then
                     uop_after_decode <= F_gen_uop(0,
                                                   X"0000_0000",
@@ -56,9 +56,9 @@ begin
                                                   id,
                                                   id + 1,
                                                   id + 2,
-                                                  id,
-                                                  id + 1,
-                                                  id + 2,
+                                                  0,
+                                                  0,
+                                                  0,
                                                   '1',
                                                   '1');
                 elsif TEST_ID = 2 then
@@ -70,9 +70,9 @@ begin
                                                   id,
                                                   id + 1,
                                                   id + 2,
-                                                  id,
-                                                  id + 1,
-                                                  id + 2,
+                                                  0,
+                                                  0,
+                                                  0,
                                                   '1',
                                                   '1',
                                                   "1000",

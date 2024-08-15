@@ -149,7 +149,8 @@ begin
 
     uut : entity work.load_store_unit_to
     port map(uop_in         => uop_in,
-             uop_out        => uop_out,
+             lq_index       => open,
+             sq_index       => open,
              cdb_in         => cdb,
              cdb_out        => open,
              cdb_request    => open,

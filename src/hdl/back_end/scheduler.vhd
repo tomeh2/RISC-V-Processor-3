@@ -13,8 +13,8 @@ entity scheduler is
         ENTRIES : integer
     );
     port(
-        uop_in : in T_uop;
-        uop_out : out T_uop;
+        sched_in_port : in T_uop;
+        sched_out_port : out T_uop;
         cdb : in T_uop;
 
         -- ============
@@ -37,7 +37,6 @@ architecture rtl of scheduler is
     signal M_scheduler : T_sched_array;
 
     signal uop_dispatch : T_uop;
-    signal R_uop_dispatch : T_uop;
 
     -- Write priority encoder
     signal sched_write_index : integer;
@@ -76,7 +75,7 @@ begin
     -- The instruction is picked randomly within the subset of valid
     -- instructions. Valid instructions are ones where all operands are
     -- ready and the uOP itself is valid
-    P_sched_dispatch_prio_enc : process(M_scheduler, R_uop_dispatch, stall_in)
+    P_sched_dispatch_prio_enc : process(M_scheduler, stall_in)
         variable temp_index : integer;
         variable temp_enable : std_logic;
     begin
@@ -91,7 +90,7 @@ begin
             end if;
         end loop;
         sched_dispatch_index <= temp_index;
-        sched_dispatch_enable <= temp_enable and not (R_uop_dispatch.valid and stall_in);
+        sched_dispatch_enable <= temp_enable and not stall_in;
     end process;
 
     -- Scheduler entry controller
@@ -106,31 +105,31 @@ begin
                 end loop;
             else
                 -- Scheduler write control
-                if uop_in.valid = '1' and sched_full = '0' then
-                    M_scheduler(sched_write_index) <= uop_in;
+                if sched_in_port.valid = '1' and sched_full = '0' then
+                    M_scheduler(sched_write_index) <= sched_in_port;
                     -- Check whether an executed branch is on the CDB and clear
                     -- make sure that the uOP is put into the scheduler with
                     -- the corresponding branch mask bit cleared
                     if cdb.valid = '1' and
                        cdb.branch_mask /= BR_MASK_ZERO then
                         M_scheduler(sched_write_index).spec_branch_mask <=
-                          uop_in.spec_branch_mask and not cdb.branch_mask;
+                          sched_in_port.spec_branch_mask and not cdb.branch_mask;
                     end if;
 
                     -- We need to handle a case where the CDB contains
-                    -- the result which the current uop_in requires.
+                    -- the result which the current uOP requires.
                     -- If we don't include this then we could stumble on a case
                     -- where the operand's valid bit doesn't get set to 1
                     -- and the instruction gets stuck in the scheduler
                     if cdb.valid = '1' and
-                       uop_in.valid = '1' and
-                       uop_in.phys_src_reg_1 = cdb.phys_dst_reg then
+                       sched_in_port.valid = '1' and
+                       sched_in_port.phys_src_reg_1 = cdb.phys_dst_reg then
                        M_scheduler(sched_write_index).reg_read_1_ready <= '1';
                     end if;
 
                     if cdb.valid = '1' and
-                       uop_in.valid = '1' and
-                       uop_in.phys_src_reg_2 = cdb.phys_dst_reg then
+                       sched_in_port.valid = '1' and
+                       sched_in_port.phys_src_reg_2 = cdb.phys_dst_reg then
                        M_scheduler(sched_write_index).reg_read_2_ready <= '1';
                     end if;
                 end if;
@@ -162,17 +161,6 @@ begin
         uop_dispatch <= M_scheduler(sched_dispatch_index);
     end process;
 
-    -- Scheduler pipeline output register
-    P_uop_dispatch_reg : process(clk)
-    begin
-        if rising_edge(clk) then
-            if reset = '1' then
-                R_uop_dispatch <= UOP_ZERO;
-            else
-                R_uop_dispatch <= F_pipeline_reg_logic(uop_dispatch, R_uop_dispatch, cdb, stall_in);
-            end if;
-        end if;
-    end process;
-    uop_out <= R_uop_dispatch;
+    sched_out_port <= uop_dispatch;
     stall_out <= sched_full;
 end rtl;

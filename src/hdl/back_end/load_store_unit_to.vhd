@@ -10,7 +10,8 @@ use WORK.CPU_PKG.ALL;
 entity load_store_unit_to is
     port(
         uop_in : in T_uop;
-        uop_out : out T_uop;
+        sq_index : out unsigned(SQ_TAG_WIDTH - 1 downto 0);
+        lq_index : out unsigned(SQ_TAG_WIDTH - 1 downto 0);
 
         cdb_in : in T_uop;
         cdb_out : out T_uop;
@@ -357,8 +358,11 @@ begin
     cdb_out.phys_dst_reg <= lq_head_uop.phys_dst_reg;
     cdb_out.reg_write_data <= R_load_data;
     cdb_out.valid <= R_load_valid;
-    
     cdb_request <= R_load_valid;
 
-    stall_out <= sq_full;
+    sq_index <= R_sq_tail;
+    lq_index <= R_lq_tail;
+
+    stall_out <= '1' when ((sq_full = '1' and uop_in.op_type = OPTYPE_LDST and uop_in.op_sel(0) = '1') or
+                          (lq_full = '1' and uop_in.op_type = OPTYPE_LDST and uop_in.op_sel(0) = '0')) and uop_in.valid = '1' else '0';
 end rtl;

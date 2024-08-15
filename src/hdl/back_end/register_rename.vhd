@@ -6,8 +6,8 @@ use WORK.CPU_PKG.ALL;
 
 entity register_rename is
     port(
-        uop_in : in T_uop;
-        uop_out : out T_uop;
+        rr_in_port : in T_rr_in_port;
+        rr_out_port : out T_rr_out_port;
         cdb : in T_uop;
 
         stall_in : in std_logic;
@@ -38,12 +38,12 @@ architecture rtl of register_rename is
 
     signal stall : std_logic;
 begin
-    take_snapshot_enable <= '1' when uop_in.branch_mask /= BR_MASK_ZERO and uop_in.valid = '1' and stall = '0' else '0';
-    F_priority_encoder(uop_in.branch_mask, take_snapshot_index);
+    take_snapshot_enable <= '1' when rr_in_port.branch_mask /= BR_MASK_ZERO and rr_in_port.valid = '1' and stall_in = '0' else '0';
+    F_priority_encoder(rr_in_port.branch_mask, take_snapshot_index);
     recover_snapshot_enable <= cdb.branch_mispredicted and cdb.valid;
     F_priority_encoder(cdb.branch_mask, recover_snapshot_index);
 
-    raa_get_enable <= '1' when uop_in.valid = '1' and uop_in.arch_dst_reg /= ARCH_REG_ZERO and stall = '0' else '0';
+    raa_get_enable <= '1' when rr_in_port.valid = '1' and rr_in_port.arch_dst_reg /= ARCH_REG_ZERO and stall_in = '0' else '0';
     raa_inst : entity work.register_alias_allocator
     generic map(MAX_SNAPSHOTS => MAX_SPEC_BRANCHES,
                 MASK_LENGTH => PHYS_REGFILE_ENTRIES)
@@ -62,11 +62,11 @@ begin
     rat_write_enable_1 <= raa_get_enable;
     execution_rat_inst : entity work.register_alias_table
     generic map(ENABLE_MISPREDICT_RECOVERY => true)
-    port map(arch_read_tag_1 => uop_in.arch_src_reg_1,
-             arch_read_tag_2 => uop_in.arch_src_reg_2,
+    port map(arch_read_tag_1 => rr_in_port.arch_src_reg_1,
+             arch_read_tag_2 => rr_in_port.arch_src_reg_2,
              phys_read_tag_1 => rat_phys_src_reg_1,
              phys_read_tag_2 => rat_phys_src_reg_2,
-             arch_write_tag_1 => uop_in.arch_dst_reg,
+             arch_write_tag_1 => rr_in_port.arch_dst_reg,
              phys_write_tag_1 => raa_get_tag,
              write_enable_1 => rat_write_enable_1,
              take_snapshot_enable => take_snapshot_enable,
@@ -75,40 +75,10 @@ begin
              recover_snapshot_index => recover_snapshot_index,
              clk => clk,
              reset => reset);
+    
+    rr_out_port.phys_dst_reg <= raa_get_tag;
+    rr_out_port.phys_src_reg_1 <= rat_phys_src_reg_1;
+    rr_out_port.phys_src_reg_2 <= rat_phys_src_reg_2;
 
-    pipeline_next.id <= uop_in.id;
-    pipeline_next.pc <= uop_in.pc;
-    pipeline_next.op_type <= uop_in.op_type;
-    pipeline_next.op_sel <= uop_in.op_sel;
-    pipeline_next.arch_src_reg_1 <= uop_in.arch_src_reg_1;
-    pipeline_next.arch_src_reg_2 <= uop_in.arch_src_reg_2;
-    pipeline_next.arch_dst_reg <= uop_in.arch_dst_reg;
-    pipeline_next.phys_src_reg_1 <= rat_phys_src_reg_1;
-    pipeline_next.phys_src_reg_2 <= rat_phys_src_reg_2;
-    pipeline_next.phys_dst_reg <= raa_get_tag;
-    pipeline_next.immediate <= uop_in.immediate;
-    pipeline_next.reg_read_1_data <= uop_in.reg_read_1_data;
-    pipeline_next.reg_read_2_data <= uop_in.reg_read_2_data;
-    pipeline_next.reg_write_data <= uop_in.reg_write_data;
-    pipeline_next.reg_read_1_ready <= uop_in.reg_read_1_ready;
-    pipeline_next.reg_read_2_ready <= uop_in.reg_read_2_ready;
-    pipeline_next.branch_mispredicted <= uop_in.branch_mispredicted;
-    pipeline_next.branch_mask <= uop_in.branch_mask;
-    pipeline_next.spec_branch_mask <= uop_in.spec_branch_mask;
-    pipeline_next.valid <= uop_in.valid and not raa_empty;
-
-    P_pipeline_reg_cntrl : process(clk)
-    begin
-        if rising_edge(clk) then
-            if reset = '1' then
-                R_pipeline.valid <= '0';
-            else
-                R_pipeline <= F_pipeline_reg_logic(pipeline_next, R_pipeline, cdb, stall_in);
-            end if;
-        end if;
-    end process;
-
-    uop_out <= R_pipeline;
-    stall <= (R_pipeline.valid and stall_in) or raa_empty;
-    stall_out <= stall;
+    stall_out <= raa_empty;
 end rtl;

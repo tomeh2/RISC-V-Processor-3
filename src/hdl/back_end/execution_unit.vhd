@@ -33,8 +33,7 @@ entity execution_unit is
 end execution_unit;
 
 architecture rtl of execution_unit is
-    signal R_pipeline : T_uop;
-    signal pipeline_next : T_uop;
+    signal cdb_next : T_uop;
 
     signal alu_operand_1 : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal alu_operand_2 : std_logic_vector(DATA_WIDTH - 1 downto 0);
@@ -50,22 +49,11 @@ begin
 
     process(uop, alu_result)
     begin
-        pipeline_next <= uop;
-        pipeline_next.reg_write_data <= alu_result;
-        pipeline_next.branch_mispredicted <= '0';
+        cdb_next <= uop;
+        cdb_next.reg_write_data <= alu_result;
+        cdb_next.branch_mispredicted <= '0';
     end process;
 
-    P_cdb_reg_cntrl : process(clk)
-    begin
-        if rising_edge(clk) then
-            if reset = '1' then
-                R_pipeline <= UOP_ZERO;
-            else
-                R_pipeline <= F_pipeline_reg_logic(pipeline_next, R_pipeline, cdb, stall_in);
-            end if;
-        end if;
-    end process;
-
-    cdb <= R_pipeline;
-    stall_out <= R_pipeline.valid and stall_in;
+    cdb <= cdb_next;
+    stall_out <= '0';
 end rtl;
