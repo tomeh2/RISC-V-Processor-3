@@ -5,14 +5,31 @@ use WORK.CPU_PKG.ALL;
 
 entity back_end is
     port(
-        uop_1   : in T_uop;
+        -- uOP from decoder
+        uop_1       : in T_uop;
 
-        clk     : in std_logic;
-        reset   : in std_logic
+        -- External bus / cache signals
+        bus_req     : out T_bus_request;
+        bus_resp    : in T_bus_response;
+        bus_ready   : in std_logic;
+
+        clk         : in std_logic;
+        reset       : in std_logic
     );
 end back_end;
 
 architecture rtl of back_end is
+    signal cdb_request_lsu : std_logic;
+    signal cdb_granted_lsu : std_logic;
+    signal cdb_request_eu0 : std_logic;
+    signal cdb_granted_eu0 : std_logic;
+    signal cdb_out_eu0 : T_uop;
+    signal cdb_out_lsu : T_uop;
+
+    signal agu_temp : T_lsu_agu_port;
+
+    signal lsu_in_port : T_lsu_in_port;
+    signal lsu_out_port : T_lsu_out_port;
     signal rr_in_port : T_rr_in_port;
     signal rr_out_port : T_rr_out_port;
     signal rob_in_port : T_rob_in_port;
@@ -31,7 +48,6 @@ architecture rtl of back_end is
     signal R_pipeline_3 : T_uop;
     signal pipeline_4_next : T_uop;
     signal R_pipeline_4 : T_uop;
-    signal R_cdb_eu0 : T_uop;
 
     signal rob_retired_uop : T_rob;
     signal rob_retired_uop_valid : std_logic;
@@ -47,10 +63,11 @@ architecture rtl of back_end is
     signal sched_stall_out : std_logic;
     signal rr_stall_out : std_logic;
     signal rob_stall_out : std_logic;
+    signal lsu_stall_out : std_logic;
 
     signal cdb : T_uop;
 begin
-    -- TODO: ADD BLOCK STALL SIGNALS INTO LOGIC
+    -- TODO: REWORK STALL SIGNALS
 
     -- ===========================================
     --             PIPELINE STAGE 0
@@ -93,6 +110,36 @@ begin
     -- ===========================================
     --             PIPELINE STAGE 1
     -- ===========================================
+    lsu_in_port.op_type <= R_pipeline_0.op_type;
+    lsu_in_port.op_sel <= R_pipeline_0.op_sel;
+    lsu_in_port.phys_dst_reg <= R_pipeline_0.phys_dst_reg;
+    lsu_in_port.branch_mask <= R_pipeline_0.branch_mask;
+    lsu_in_port.valid <= R_pipeline_0.valid;
+
+    agu_temp.address <= (others => '0');
+    agu_temp.address_valid <= '0';
+    agu_temp.data <= (others => '0');
+    agu_temp.data_valid <= '0';
+    agu_temp.rw <= '0';
+    agu_temp.sq_tag <= (others => '0');
+    agu_temp.lq_tag <= (others => '0');
+
+    lsu_inst : entity work.load_store_unit_to
+    port map(lsu_in_port    => lsu_in_port,
+             lsu_out_port   => lsu_out_port,
+             cdb_in         => cdb,
+             cdb_out        => cdb_out_lsu,
+             cdb_request    => cdb_request_lsu,
+             cdb_granted    => cdb_granted_lsu,
+             agu_in_port    => agu_temp,
+             bus_req        => bus_req,
+             bus_resp       => bus_resp,
+             bus_ready      => bus_ready,
+             stall_in       => R_pipeline_1.valid and pipeline_2_stall,
+             stall_out      => lsu_stall_out,
+             clk            => clk,
+             reset          => reset);
+    
     rob_in_port.arch_dst_reg <= R_pipeline_0.arch_dst_reg;
     rob_in_port.phys_dst_reg <= R_pipeline_0.phys_dst_reg;
     rob_in_port.branch_mask <= R_pipeline_0.branch_mask;
@@ -109,10 +156,12 @@ begin
              clk                => clk,
              reset              => reset);
 
-    P_pipeline_1_next : process(R_pipeline_0, rob_out_port)
+    P_pipeline_1_next : process(R_pipeline_0, rob_out_port, lsu_out_port)
     begin
         pipeline_1_next <= R_pipeline_0;
         pipeline_1_next.id <= rob_out_port.id;
+        pipeline_1_next.sq_index <= lsu_out_port.sq_index;
+        pipeline_1_next.lq_index <= lsu_out_port.lq_index;
     end process;
 
     P_pipeline_1 : process(clk)
@@ -126,7 +175,7 @@ begin
         end if;
     end process;
 
-    pipeline_1_stall <= (R_pipeline_1.valid and pipeline_2_stall) or rob_stall_out;
+    pipeline_1_stall <= (R_pipeline_1.valid and pipeline_2_stall) or rob_stall_out or lsu_stall_out;
     -- ===========================================
     --             PIPELINE STAGE 2
     -- ===========================================
@@ -191,12 +240,12 @@ begin
     --             PIPELINE STAGE 4
     -- ===========================================
     eu0_inst : entity work.execution_unit
-    port map(uop        => R_pipeline_3,
-             cdb        => pipeline_4_next,
-             stall_in   => '0',
-             stall_out  => eu0_stall_out,
-             clk        => clk,
-             reset      => reset);
+    port map(eu_in_port     => R_pipeline_3,
+             eu_out_port    => pipeline_4_next,
+             stall_in       => '0',
+             stall_out      => eu0_stall_out,
+             clk            => clk,
+             reset          => reset);
 
     P_pipeline_4 : process(clk)
     begin
@@ -211,21 +260,5 @@ begin
 
     pipeline_4_stall <= '0'; 
 
---    lsu_inst : entity work.load_store_unit_to
---    port map(uop_in         => ,
---             sq_index       => ,
---             lq_index       => ,
---             cdb_in         => ,
---             cdb_out        => ,
---             cdb_request    => ,
---             cdb_granted    => ,
---             agu_port       => ,
---             bus_req        => ,
---             bus_resp       => ,
---             bus_ready      => ,
---             stall_in       => ,
---             stall_out      => ,
---             clk            => ,
---             reset          => );
-    cdb <= R_cdb_eu0;
+    cdb_out_eu0 <= R_pipeline_4;
 end rtl;

@@ -112,7 +112,7 @@ package cpu_pkg is
         op_type             : std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0);
         -- These bits are passed to execution units and identify which
         -- operation needs to be performed
-        op_sel             : std_logic_vector(UOP_OP_SEL_WIDTH - 1 downto 0);
+        op_sel              : std_logic_vector(UOP_OP_SEL_WIDTH - 1 downto 0);
         -- Architectural registers
         arch_src_reg_1      : std_logic_vector(ARCH_REG_ADDR_WIDTH - 1 downto 0);
         arch_src_reg_2      : std_logic_vector(ARCH_REG_ADDR_WIDTH - 1 downto 0);
@@ -129,6 +129,9 @@ package cpu_pkg is
         -- Operand status signals
         reg_read_1_ready    : std_logic;
         reg_read_2_ready    : std_logic;
+        -- Load / Store Unit specific data
+        sq_index            : unsigned(SQ_TAG_WIDTH - 1 downto 0);
+        lq_index            : unsigned(LQ_TAG_WIDTH - 1 downto 0);
         -- Branch speculation masks
         branch_mispredicted : std_logic;
         branch_mask         : std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0);
@@ -225,7 +228,7 @@ package cpu_pkg is
         done                : std_logic;
     end record;
 
-    type T_lsu_gen_port is record
+    type T_lsu_agu_port is record
         address         : std_logic_vector(ADDR_WIDTH - 1 downto 0);
         address_valid   : std_logic;
         data            : std_logic_vector(ADDR_WIDTH - 1 downto 0);
@@ -233,6 +236,19 @@ package cpu_pkg is
         rw              : std_logic;
         sq_tag          : unsigned(SQ_TAG_WIDTH - 1 downto 0);
         lq_tag          : unsigned(LQ_TAG_WIDTH - 1 downto 0);
+    end record;
+    
+    type T_lsu_in_port is record
+        op_type             : std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0);
+        op_sel             : std_logic_vector(UOP_OP_SEL_WIDTH - 1 downto 0);
+        phys_dst_reg        : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
+        branch_mask         : std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0);
+        valid             : std_logic;
+    end record;
+    
+    type T_lsu_out_port is record
+        sq_index    : unsigned(SQ_TAG_WIDTH - 1 downto 0);
+        lq_index    : unsigned(LQ_TAG_WIDTH - 1 downto 0);
     end record;
 
     -- This data type contains all data that the LSU gives the bus controller
@@ -278,6 +294,8 @@ package cpu_pkg is
         (others => '0'),
         '0',
         '0',
+        (others => '0'),
+        (others => '0'),
         '0',
         (others => '0'),
         (others => '0'),
