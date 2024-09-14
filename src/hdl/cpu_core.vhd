@@ -21,6 +21,8 @@ begin
     fe_inst : entity work.front_end
     port map(clk        => clk,
              reset      => reset,
+             stall_be   => '0',
+             cdb_in     => UOP_ZERO,
              bus_req    => bus_req,
              bus_resp   => bus_resp,
              bus_ready  => bus_ready);
