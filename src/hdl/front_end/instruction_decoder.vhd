@@ -27,37 +27,41 @@ begin
     P_decode_type : process(instruction, instruction_valid)
     begin
         invalid_instruction <= '0';
-        case instruction(6 downto 2) is
-        when OPCODE_LOAD =>
-            instruction_type <= I_TYPE;
-            exec_unit_id <= to_unsigned(1, EXEC_UNIT_ID_WIDTH);
-        when OPCODE_STORE =>
-            instruction_type <= S_TYPE;
-            exec_unit_id <= to_unsigned(1, EXEC_UNIT_ID_WIDTH);
-        when OPCODE_BRANCH =>
-            instruction_type <= B_TYPE;
-            exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
-        when OPCODE_OP =>
-            instruction_type <= R_TYPE;
-            exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
-        when OPCODE_OP_IMM =>
-            instruction_type <= I_TYPE;
-            exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
-        when OPCODE_AUIPC =>
-            instruction_type <= U_TYPE;
-            exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
-        when OPCODE_LUI =>
-            instruction_type <= U_TYPE;
-            exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
-        when OPCODE_JAL =>
-            instruction_type <= J_TYPE;
-            exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
-        when OPCODE_JALR =>
-            instruction_type <= I_TYPE;
-            exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
-        when others =>
+        if instruction(1 downto 0) /= "11" then
             invalid_instruction <= instruction_valid;
-        end case;
+        else
+            case instruction(6 downto 2) is
+            when OPCODE_LOAD =>
+                instruction_type <= I_TYPE;
+                exec_unit_id <= to_unsigned(1, EXEC_UNIT_ID_WIDTH);
+            when OPCODE_STORE =>
+                instruction_type <= S_TYPE;
+                exec_unit_id <= to_unsigned(1, EXEC_UNIT_ID_WIDTH);
+            when OPCODE_BRANCH =>
+                instruction_type <= B_TYPE;
+                exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
+            when OPCODE_OP =>
+                instruction_type <= R_TYPE;
+                exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
+            when OPCODE_OP_IMM =>
+                instruction_type <= I_TYPE;
+                exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
+            when OPCODE_AUIPC =>
+                instruction_type <= U_TYPE;
+                exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
+            when OPCODE_LUI =>
+                instruction_type <= U_TYPE;
+                exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
+            when OPCODE_JAL =>
+                instruction_type <= J_TYPE;
+                exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
+            when OPCODE_JALR =>
+                instruction_type <= I_TYPE;
+                exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
+            when others =>
+                invalid_instruction <= instruction_valid;
+            end case;
+        end if;
     end process;
 
     P_decode_immediate : process(instruction, instruction_type)
