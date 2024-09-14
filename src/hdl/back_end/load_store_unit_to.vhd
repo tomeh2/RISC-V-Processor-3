@@ -96,7 +96,7 @@ begin
     uop_in_brmask_index <= F_brmask_to_index(lsu_in_port.branch_mask);
     cdb_in_brmask_index <= F_brmask_to_index(cdb_in.branch_mask);
 
-    sq_enqueue <= '1' when sq_full = '0' and lsu_in_port.op_type = OPTYPE_LDST and lsu_in_port.op_sel(0) = '1' and lsu_in_port.valid = '1' else '0';
+    sq_enqueue <= '1' when sq_full = '0' and lsu_in_port.is_store = '1' and lsu_in_port.valid = '1' else '0';
     sq_dequeue <= not sq_empty and sq_head_uop.retired and sq_head_uop.done;
 
     P_sq_next_calc : process(R_sq_head, R_sq_tail, R_sq_util, sq_enqueue, sq_dequeue)
@@ -211,7 +211,7 @@ begin
     -- ======================================
     --              LOAD QUEUE
     -- ======================================
-    lq_enqueue <= '1' when lq_full = '0' and lsu_in_port.op_type = OPTYPE_LDST and lsu_in_port.op_sel(0) = '0' and lsu_in_port.valid = '1' and
+    lq_enqueue <= '1' when lq_full = '0' and lsu_in_port.is_load = '1' and lsu_in_port.valid = '1' and
         not (cdb_in.valid = '1' and cdb_in.branch_mispredicted = '1') else '0';
     lq_dequeue <= not lq_empty and lq_head_uop.done;
 
@@ -362,6 +362,6 @@ begin
     lsu_out_port.sq_index <= R_sq_tail;
     lsu_out_port.lq_index <= R_lq_tail;
 
-    stall_out <= '1' when ((sq_full = '1' and lsu_in_port.op_type = OPTYPE_LDST and lsu_in_port.op_sel(0) = '1') or
-                          (lq_full = '1' and lsu_in_port.op_type = OPTYPE_LDST and lsu_in_port.op_sel(0) = '0')) and lsu_in_port.valid = '1' else '0';
+    stall_out <= '1' when ((sq_full = '1' and lsu_in_port.is_store = '1') or
+                          (lq_full = '1' and lsu_in_port.is_load = '1')) and lsu_in_port.valid = '1' else '0';
 end rtl;

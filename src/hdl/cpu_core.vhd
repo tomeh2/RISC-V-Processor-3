@@ -18,11 +18,18 @@ end cpu_core;
 architecture rtl of cpu_core is
    
 begin
-    be_inst : entity work.back_end
-    port map(uop_1       => UOP_ZERO,
-             bus_req     => bus_req,
-             bus_resp    => bus_resp,
-             bus_ready   => bus_ready,
-             clk         => clk,
-             reset       => reset);
+    fe_inst : entity work.front_end
+    port map(clk        => clk,
+             reset      => reset,
+             bus_req    => bus_req,
+             bus_resp   => bus_resp,
+             bus_ready  => bus_ready);
+
+--    be_inst : entity work.back_end
+--    port map(uop_1       => UOP_ZERO,
+--             bus_req     => bus_req,
+--             bus_resp    => bus_resp,
+--             bus_ready   => bus_ready,
+--             clk         => clk,
+--             reset       => reset);
 end rtl;

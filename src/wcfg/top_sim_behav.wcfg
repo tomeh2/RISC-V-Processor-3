@@ -11,22 +11,66 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="999,989 ps"></ZoomStartTime>
-      <ZoomEndTime time="1,000,003 ps"></ZoomEndTime>
-      <Cursor1Time time="1,000,000 ps"></Cursor1Time>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="1,333.001 ns"></ZoomEndTime>
+      <Cursor1Time time="1,000.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="194"></NameColumnWidth>
-      <ValueColumnWidth column_width="168"></ValueColumnWidth>
+      <ValueColumnWidth column_width="144"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="5" />
+   <WVObjectSize size="20" />
+   <wvobject fp_name="/top_sim/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
    <wvobject fp_name="/top_sim/reset" type="logic">
       <obj_property name="ElementShortName">reset</obj_property>
       <obj_property name="ObjectShortName">reset</obj_property>
    </wvobject>
-   <wvobject fp_name="/top_sim/clk" type="logic">
-      <obj_property name="ElementShortName">clk</obj_property>
-      <obj_property name="ObjectShortName">clk</obj_property>
+   <wvobject fp_name="/top_sim/bus_req" type="array">
+      <obj_property name="ElementShortName">bus_req</obj_property>
+      <obj_property name="ObjectShortName">bus_req</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_sim/bus_resp" type="array">
+      <obj_property name="ElementShortName">bus_resp</obj_property>
+      <obj_property name="ObjectShortName">bus_resp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_sim/bus_ready" type="logic">
+      <obj_property name="ElementShortName">bus_ready</obj_property>
+      <obj_property name="ObjectShortName">bus_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_sim/adr_o" type="array">
+      <obj_property name="ElementShortName">adr_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">adr_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_sim/dat_i" type="array">
+      <obj_property name="ElementShortName">dat_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">dat_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_sim/dat_o" type="array">
+      <obj_property name="ElementShortName">dat_o[31:0]</obj_property>
+      <obj_property name="ObjectShortName">dat_o[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_sim/we_o" type="logic">
+      <obj_property name="ElementShortName">we_o</obj_property>
+      <obj_property name="ObjectShortName">we_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_sim/sel_o" type="array">
+      <obj_property name="ElementShortName">sel_o[3:0]</obj_property>
+      <obj_property name="ObjectShortName">sel_o[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_sim/stb_o" type="logic">
+      <obj_property name="ElementShortName">stb_o</obj_property>
+      <obj_property name="ObjectShortName">stb_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_sim/ack_i" type="logic">
+      <obj_property name="ElementShortName">ack_i</obj_property>
+      <obj_property name="ObjectShortName">ack_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_sim/cyc_o" type="logic">
+      <obj_property name="ElementShortName">cyc_o</obj_property>
+      <obj_property name="ObjectShortName">cyc_o</obj_property>
    </wvobject>
    <wvobject fp_name="/top_sim/CLK_PERIOD" type="other">
       <obj_property name="ElementShortName">CLK_PERIOD</obj_property>
@@ -35,7 +79,6 @@
    <wvobject fp_name="group191" type="group">
       <obj_property name="label">EXT BUS</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/top_sim/bus_req" type="array">
          <obj_property name="ElementShortName">bus_req</obj_property>
          <obj_property name="ObjectShortName">bus_req</obj_property>
@@ -52,170 +95,180 @@
    <wvobject fp_name="group198" type="group">
       <obj_property name="label">BACK_END</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="group50" type="group">
+      <obj_property name="label">FRONT_END</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
       <obj_property name="isExpanded"></obj_property>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/uop_1" type="array">
-         <obj_property name="ElementShortName">uop_1</obj_property>
-         <obj_property name="ObjectShortName">uop_1</obj_property>
+      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/bus_req" type="array">
+         <obj_property name="ElementShortName">bus_req</obj_property>
+         <obj_property name="ObjectShortName">bus_req</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/cdb_request_lsu" type="logic">
-         <obj_property name="ElementShortName">cdb_request_lsu</obj_property>
-         <obj_property name="ObjectShortName">cdb_request_lsu</obj_property>
+      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/bus_resp" type="array">
+         <obj_property name="ElementShortName">bus_resp</obj_property>
+         <obj_property name="ObjectShortName">bus_resp</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/cdb_granted_lsu" type="logic">
-         <obj_property name="ElementShortName">cdb_granted_lsu</obj_property>
-         <obj_property name="ObjectShortName">cdb_granted_lsu</obj_property>
+      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/bus_ready" type="logic">
+         <obj_property name="ElementShortName">bus_ready</obj_property>
+         <obj_property name="ObjectShortName">bus_ready</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/cdb_request_eu0" type="logic">
-         <obj_property name="ElementShortName">cdb_request_eu0</obj_property>
-         <obj_property name="ObjectShortName">cdb_request_eu0</obj_property>
+      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/R_program_counter" type="array">
+         <obj_property name="ElementShortName">R_program_counter[31:0]</obj_property>
+         <obj_property name="ObjectShortName">R_program_counter[31:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/cdb_granted_eu0" type="logic">
-         <obj_property name="ElementShortName">cdb_granted_eu0</obj_property>
-         <obj_property name="ObjectShortName">cdb_granted_eu0</obj_property>
+      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/decoded_uop" type="array">
+         <obj_property name="ElementShortName">decoded_uop</obj_property>
+         <obj_property name="ObjectShortName">decoded_uop</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/cdb_out_eu0" type="array">
-         <obj_property name="ElementShortName">cdb_out_eu0</obj_property>
-         <obj_property name="ObjectShortName">cdb_out_eu0</obj_property>
+   </wvobject>
+   <wvobject fp_name="group169" type="group">
+      <obj_property name="label">BUS_CONTROLLER</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/top_sim/wb_cntrlr_inst/bus_req" type="array">
+         <obj_property name="ElementShortName">bus_req</obj_property>
+         <obj_property name="ObjectShortName">bus_req</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/cdb_out_lsu" type="array">
-         <obj_property name="ElementShortName">cdb_out_lsu</obj_property>
-         <obj_property name="ObjectShortName">cdb_out_lsu</obj_property>
+      <wvobject fp_name="/top_sim/wb_cntrlr_inst/bus_resp" type="array">
+         <obj_property name="ElementShortName">bus_resp</obj_property>
+         <obj_property name="ObjectShortName">bus_resp</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/agu_temp" type="array">
-         <obj_property name="ElementShortName">agu_temp</obj_property>
-         <obj_property name="ObjectShortName">agu_temp</obj_property>
+      <wvobject fp_name="/top_sim/wb_cntrlr_inst/bus_ready" type="logic">
+         <obj_property name="ElementShortName">bus_ready</obj_property>
+         <obj_property name="ObjectShortName">bus_ready</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/lsu_in_port" type="array">
-         <obj_property name="ElementShortName">lsu_in_port</obj_property>
-         <obj_property name="ObjectShortName">lsu_in_port</obj_property>
+      <wvobject fp_name="/top_sim/wb_cntrlr_inst/adr_o" type="array">
+         <obj_property name="ElementShortName">adr_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">adr_o[31:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/lsu_out_port" type="array">
-         <obj_property name="ElementShortName">lsu_out_port</obj_property>
-         <obj_property name="ObjectShortName">lsu_out_port</obj_property>
+      <wvobject fp_name="/top_sim/wb_cntrlr_inst/dat_i" type="array">
+         <obj_property name="ElementShortName">dat_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">dat_i[31:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/rr_in_port" type="array">
-         <obj_property name="ElementShortName">rr_in_port</obj_property>
-         <obj_property name="ObjectShortName">rr_in_port</obj_property>
+      <wvobject fp_name="/top_sim/wb_cntrlr_inst/dat_o" type="array">
+         <obj_property name="ElementShortName">dat_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">dat_o[31:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/rr_out_port" type="array">
-         <obj_property name="ElementShortName">rr_out_port</obj_property>
-         <obj_property name="ObjectShortName">rr_out_port</obj_property>
+      <wvobject fp_name="/top_sim/wb_cntrlr_inst/we_o" type="logic">
+         <obj_property name="ElementShortName">we_o</obj_property>
+         <obj_property name="ObjectShortName">we_o</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/rob_in_port" type="array">
-         <obj_property name="ElementShortName">rob_in_port</obj_property>
-         <obj_property name="ObjectShortName">rob_in_port</obj_property>
+      <wvobject fp_name="/top_sim/wb_cntrlr_inst/sel_o" type="array">
+         <obj_property name="ElementShortName">sel_o[3:0]</obj_property>
+         <obj_property name="ObjectShortName">sel_o[3:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/rob_out_port" type="array">
-         <obj_property name="ElementShortName">rob_out_port</obj_property>
-         <obj_property name="ObjectShortName">rob_out_port</obj_property>
+      <wvobject fp_name="/top_sim/wb_cntrlr_inst/stb_o" type="logic">
+         <obj_property name="ElementShortName">stb_o</obj_property>
+         <obj_property name="ObjectShortName">stb_o</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/rf_in_port" type="array">
-         <obj_property name="ElementShortName">rf_in_port</obj_property>
-         <obj_property name="ObjectShortName">rf_in_port</obj_property>
+      <wvobject fp_name="/top_sim/wb_cntrlr_inst/ack_i" type="logic">
+         <obj_property name="ElementShortName">ack_i</obj_property>
+         <obj_property name="ObjectShortName">ack_i</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/rf_out_port" type="array">
-         <obj_property name="ElementShortName">rf_out_port</obj_property>
-         <obj_property name="ObjectShortName">rf_out_port</obj_property>
+      <wvobject fp_name="/top_sim/wb_cntrlr_inst/cyc_o" type="logic">
+         <obj_property name="ElementShortName">cyc_o</obj_property>
+         <obj_property name="ObjectShortName">cyc_o</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/sched_out_port" type="array">
-         <obj_property name="ElementShortName">sched_out_port</obj_property>
-         <obj_property name="ObjectShortName">sched_out_port</obj_property>
+      <wvobject fp_name="/top_sim/wb_cntrlr_inst/R_wb_state" type="other">
+         <obj_property name="ElementShortName">R_wb_state</obj_property>
+         <obj_property name="ObjectShortName">R_wb_state</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/pipeline_0_next" type="array">
-         <obj_property name="ElementShortName">pipeline_0_next</obj_property>
-         <obj_property name="ObjectShortName">pipeline_0_next</obj_property>
+      <wvobject fp_name="/top_sim/wb_cntrlr_inst/R_addr" type="array">
+         <obj_property name="ElementShortName">R_addr[31:0]</obj_property>
+         <obj_property name="ObjectShortName">R_addr[31:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/R_pipeline_0" type="array">
-         <obj_property name="ElementShortName">R_pipeline_0</obj_property>
-         <obj_property name="ObjectShortName">R_pipeline_0</obj_property>
+      <wvobject fp_name="/top_sim/wb_cntrlr_inst/R_tag" type="array">
+         <obj_property name="ElementShortName">R_tag[7:0]</obj_property>
+         <obj_property name="ObjectShortName">R_tag[7:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/pipeline_1_next" type="array">
-         <obj_property name="ElementShortName">pipeline_1_next</obj_property>
-         <obj_property name="ObjectShortName">pipeline_1_next</obj_property>
+      <wvobject fp_name="/top_sim/wb_cntrlr_inst/R_wr_data" type="array">
+         <obj_property name="ElementShortName">R_wr_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">R_wr_data[31:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/R_pipeline_1" type="array">
-         <obj_property name="ElementShortName">R_pipeline_1</obj_property>
-         <obj_property name="ObjectShortName">R_pipeline_1</obj_property>
+      <wvobject fp_name="/top_sim/wb_cntrlr_inst/R_rd_data" type="array">
+         <obj_property name="ElementShortName">R_rd_data[31:0]</obj_property>
+         <obj_property name="ObjectShortName">R_rd_data[31:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/pipeline_2_next" type="array">
-         <obj_property name="ElementShortName">pipeline_2_next</obj_property>
-         <obj_property name="ObjectShortName">pipeline_2_next</obj_property>
+   </wvobject>
+   <wvobject fp_name="group409" type="group">
+      <obj_property name="label">INSTRUCTION_DECODER</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_instr_dec/instruction" type="array">
+         <obj_property name="ElementShortName">instruction[31:0]</obj_property>
+         <obj_property name="ObjectShortName">instruction[31:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/R_pipeline_2" type="array">
-         <obj_property name="ElementShortName">R_pipeline_2</obj_property>
-         <obj_property name="ObjectShortName">R_pipeline_2</obj_property>
+      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_instr_dec/instruction_valid" type="logic">
+         <obj_property name="ElementShortName">instruction_valid</obj_property>
+         <obj_property name="ObjectShortName">instruction_valid</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/pipeline_3_next" type="array">
-         <obj_property name="ElementShortName">pipeline_3_next</obj_property>
-         <obj_property name="ObjectShortName">pipeline_3_next</obj_property>
+      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_instr_dec/pc" type="array">
+         <obj_property name="ElementShortName">pc[31:0]</obj_property>
+         <obj_property name="ObjectShortName">pc[31:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/R_pipeline_3" type="array">
-         <obj_property name="ElementShortName">R_pipeline_3</obj_property>
-         <obj_property name="ObjectShortName">R_pipeline_3</obj_property>
+      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_instr_dec/invalid_instruction" type="logic">
+         <obj_property name="ElementShortName">invalid_instruction</obj_property>
+         <obj_property name="ObjectShortName">invalid_instruction</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/pipeline_4_next" type="array">
-         <obj_property name="ElementShortName">pipeline_4_next</obj_property>
-         <obj_property name="ObjectShortName">pipeline_4_next</obj_property>
+      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_instr_dec/decoded_uop" type="array">
+         <obj_property name="ElementShortName">decoded_uop</obj_property>
+         <obj_property name="ObjectShortName">decoded_uop</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/R_pipeline_4" type="array">
-         <obj_property name="ElementShortName">R_pipeline_4</obj_property>
-         <obj_property name="ObjectShortName">R_pipeline_4</obj_property>
+      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_instr_dec/instruction_type" type="other">
+         <obj_property name="ElementShortName">instruction_type</obj_property>
+         <obj_property name="ObjectShortName">instruction_type</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/rob_retired_uop" type="array">
-         <obj_property name="ElementShortName">rob_retired_uop</obj_property>
-         <obj_property name="ObjectShortName">rob_retired_uop</obj_property>
+      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_instr_dec/exec_unit_id" type="array">
+         <obj_property name="ElementShortName">exec_unit_id[1:0]</obj_property>
+         <obj_property name="ObjectShortName">exec_unit_id[1:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/rob_retired_uop_valid" type="logic">
-         <obj_property name="ElementShortName">rob_retired_uop_valid</obj_property>
-         <obj_property name="ObjectShortName">rob_retired_uop_valid</obj_property>
+      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_instr_dec/immediate" type="array">
+         <obj_property name="ElementShortName">immediate[31:0]</obj_property>
+         <obj_property name="ObjectShortName">immediate[31:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/pipeline_0_stall" type="logic">
-         <obj_property name="ElementShortName">pipeline_0_stall</obj_property>
-         <obj_property name="ObjectShortName">pipeline_0_stall</obj_property>
+   </wvobject>
+   <wvobject fp_name="group103" type="group">
+      <obj_property name="label">ROM</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/top_sim/I_rom/clk" type="logic">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/pipeline_1_stall" type="logic">
-         <obj_property name="ElementShortName">pipeline_1_stall</obj_property>
-         <obj_property name="ObjectShortName">pipeline_1_stall</obj_property>
+      <wvobject fp_name="/top_sim/I_rom/reset" type="logic">
+         <obj_property name="ElementShortName">reset</obj_property>
+         <obj_property name="ObjectShortName">reset</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/pipeline_2_stall" type="logic">
-         <obj_property name="ElementShortName">pipeline_2_stall</obj_property>
-         <obj_property name="ObjectShortName">pipeline_2_stall</obj_property>
+      <wvobject fp_name="/top_sim/I_rom/wb_addr" type="array">
+         <obj_property name="ElementShortName">wb_addr[31:0]</obj_property>
+         <obj_property name="ObjectShortName">wb_addr[31:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/pipeline_3_stall" type="logic">
-         <obj_property name="ElementShortName">pipeline_3_stall</obj_property>
-         <obj_property name="ObjectShortName">pipeline_3_stall</obj_property>
+      <wvobject fp_name="/top_sim/I_rom/wb_rdata" type="array">
+         <obj_property name="ElementShortName">wb_rdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">wb_rdata[31:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/pipeline_4_stall" type="logic">
-         <obj_property name="ElementShortName">pipeline_4_stall</obj_property>
-         <obj_property name="ObjectShortName">pipeline_4_stall</obj_property>
+      <wvobject fp_name="/top_sim/I_rom/wb_cyc" type="logic">
+         <obj_property name="ElementShortName">wb_cyc</obj_property>
+         <obj_property name="ObjectShortName">wb_cyc</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/eu0_stall_out" type="logic">
-         <obj_property name="ElementShortName">eu0_stall_out</obj_property>
-         <obj_property name="ObjectShortName">eu0_stall_out</obj_property>
+      <wvobject fp_name="/top_sim/I_rom/wb_stb" type="logic">
+         <obj_property name="ElementShortName">wb_stb</obj_property>
+         <obj_property name="ObjectShortName">wb_stb</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/rf_stall_out" type="logic">
-         <obj_property name="ElementShortName">rf_stall_out</obj_property>
-         <obj_property name="ObjectShortName">rf_stall_out</obj_property>
+      <wvobject fp_name="/top_sim/I_rom/wb_ack" type="logic">
+         <obj_property name="ElementShortName">wb_ack</obj_property>
+         <obj_property name="ObjectShortName">wb_ack</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/sched_stall_out" type="logic">
-         <obj_property name="ElementShortName">sched_stall_out</obj_property>
-         <obj_property name="ObjectShortName">sched_stall_out</obj_property>
+      <wvobject fp_name="/top_sim/I_rom/M_rom" type="array">
+         <obj_property name="ElementShortName">M_rom[0:1024][31:0]</obj_property>
+         <obj_property name="ObjectShortName">M_rom[0:1024][31:0]</obj_property>
+         <obj_property name="isExpanded"></obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/rr_stall_out" type="logic">
-         <obj_property name="ElementShortName">rr_stall_out</obj_property>
-         <obj_property name="ObjectShortName">rr_stall_out</obj_property>
+      <wvobject fp_name="/top_sim/I_rom/C_size_kb" type="other">
+         <obj_property name="ElementShortName">C_size_kb</obj_property>
+         <obj_property name="ObjectShortName">C_size_kb</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/rob_stall_out" type="logic">
-         <obj_property name="ElementShortName">rob_stall_out</obj_property>
-         <obj_property name="ObjectShortName">rob_stall_out</obj_property>
-      </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/lsu_stall_out" type="logic">
-         <obj_property name="ElementShortName">lsu_stall_out</obj_property>
-         <obj_property name="ObjectShortName">lsu_stall_out</obj_property>
-      </wvobject>
-      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/be_inst/cdb" type="array">
-         <obj_property name="ElementShortName">cdb</obj_property>
-         <obj_property name="ObjectShortName">cdb</obj_property>
+      <wvobject fp_name="/top_sim/I_rom/C_ROM_ADDR_BITS" type="other">
+         <obj_property name="ElementShortName">C_ROM_ADDR_BITS</obj_property>
+         <obj_property name="ObjectShortName">C_ROM_ADDR_BITS</obj_property>
       </wvobject>
    </wvobject>
 </wave_config>

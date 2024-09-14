@@ -40,8 +40,10 @@ package cpu_pkg is
     constant LQ_ENTRIES             : integer := 8;
 
     -- Fixed Constants
-    constant UOP_OP_TYPE_WIDTH    : integer := 4;
-    constant UOP_OP_SEL_WIDTH     : integer := 8;
+    constant EXEC_UNIT_ID_WIDTH   : integer := 2;
+    constant FUNCT3_WIDTH         : integer := 3;
+    constant FUNCT7_WIDTH         : integer := 7;
+    constant FUNCT_WIDTH         : integer := FUNCT3_WIDTH + FUNCT7_WIDTH;
     constant PHYS_REG_ADDR_WIDTH  : integer := F_min_bits(PHYS_REGFILE_ENTRIES);
     constant ARCH_REG_ADDR_WIDTH  : integer := F_min_bits(ARCH_REGFILE_ENTRIES);
     constant UOP_INDEX_WIDTH      : integer := F_min_bits(REORDER_BUFFER_ENTRIES);
@@ -55,30 +57,18 @@ package cpu_pkg is
       := (others => '0');
 
     -- ==================
-    -- OPTYPE DEFINITIONS
-    -- ==================
-    constant OPTYPE_ARIT    : std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0)
-        := std_logic_vector(to_unsigned(0, UOP_OP_TYPE_WIDTH));
-    constant OPTYPE_LDST    : std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0)
-        := std_logic_vector(to_unsigned(1, UOP_OP_TYPE_WIDTH));
-
-    -- ==================
     -- OPCODE DEFINITIONS
     -- ==================
     -- RV32I
-    constant OPCODE_LUI     :  std_logic_vector(6 downto 0) := "0110111";
-    constant OPCODE_AUIPC   :  std_logic_vector(6 downto 0) := "0010111";
-    constant OPCODE_JAL     :  std_logic_vector(6 downto 0) := "1101111";
-    constant OPCODE_JALR    :  std_logic_vector(6 downto 0) := "1100111";
-    constant OPCODE_BRANCH  :  std_logic_vector(6 downto 0) := "1100011";
-    constant OPCODE_LOAD    :  std_logic_vector(6 downto 0) := "0000011";
-    constant OPCODE_STORE   :  std_logic_vector(6 downto 0) := "0100011";
-    constant OPCODE_IMM     :  std_logic_vector(6 downto 0) := "0010011";
-    constant OPCODE_ARITH   :  std_logic_vector(6 downto 0) := "0110011";
-    constant OPCODE_FENCE   :  std_logic_vector(6 downto 0) := "0001111";
-    constant OPCODE_ENV     :  std_logic_vector(6 downto 0) := "1110011";
-    -- Zicsr
-    constant OPCODE_ZICSR   :  std_logic_vector(6 downto 0) := "1110011";
+    constant OPCODE_LOAD    : std_logic_vector(4 downto 0) := "00000";
+    constant OPCODE_STORE   : std_logic_vector(4 downto 0) := "01000";
+    constant OPCODE_BRANCH  : std_logic_vector(4 downto 0) := "11000";
+    constant OPCODE_OP      : std_logic_vector(4 downto 0) := "01100";
+    constant OPCODE_OP_IMM  : std_logic_vector(4 downto 0) := "00100";
+    constant OPCODE_AUIPC   : std_logic_vector(4 downto 0) := "00101";
+    constant OPCODE_LUI     : std_logic_vector(4 downto 0) := "01101";
+    constant OPCODE_JAL     : std_logic_vector(4 downto 0) := "11011";
+    constant OPCODE_JALR    : std_logic_vector(4 downto 0) := "11001";
 
     -- ====================
     -- ALU OPERATION SELECT
@@ -106,13 +96,12 @@ package cpu_pkg is
         -- uOP ID
         id                  : unsigned(UOP_INDEX_WIDTH - 1 downto 0);
         -- Program counter of the instruction
-        pc                  : std_logic_vector(DATA_WIDTH - 1 downto 0);
+        pc                  : unsigned(DATA_WIDTH - 1 downto 0);
         -- Identifies which group of operations this instruction belongs to
         -- Scheduler uses this data to determine where to send the operation
-        op_type             : std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0);
-        -- These bits are passed to execution units and identify which
-        -- operation needs to be performed
-        op_sel              : std_logic_vector(UOP_OP_SEL_WIDTH - 1 downto 0);
+        exec_unit_id        : unsigned(EXEC_UNIT_ID_WIDTH - 1 downto 0);
+        -- Specifies 
+        funct               : std_logic_vector(FUNCT_WIDTH - 1 downto 0);
         -- Architectural registers
         arch_src_reg_1      : std_logic_vector(ARCH_REG_ADDR_WIDTH - 1 downto 0);
         arch_src_reg_2      : std_logic_vector(ARCH_REG_ADDR_WIDTH - 1 downto 0);
@@ -239,11 +228,12 @@ package cpu_pkg is
     end record;
     
     type T_lsu_in_port is record
-        op_type             : std_logic_vector(UOP_OP_TYPE_WIDTH - 1 downto 0);
-        op_sel             : std_logic_vector(UOP_OP_SEL_WIDTH - 1 downto 0);
+        is_load             : std_logic;
+        is_store            : std_logic;
+        funct               : std_logic_vector(FUNCT_WIDTH - 1 downto 0);
         phys_dst_reg        : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
         branch_mask         : std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0);
-        valid             : std_logic;
+        valid               : std_logic;
     end record;
     
     type T_lsu_out_port is record

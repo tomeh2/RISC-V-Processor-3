@@ -40,12 +40,12 @@ architecture rtl of execution_unit is
     signal alu_result : std_logic_vector(DATA_WIDTH - 1 downto 0);
 begin
     alu_operand_1 <= eu_in_port.reg_read_1_data;
-    alu_operand_2 <= eu_in_port.immediate when eu_in_port.op_sel(4) = '1' else eu_in_port.reg_read_2_data;
+    alu_operand_2 <= eu_in_port.immediate when eu_in_port.funct(4) = '1' else eu_in_port.reg_read_2_data;
     alu_inst : entity work.arithmetic_logic_unit
     port map(operand_1 => alu_operand_1,
              operand_2 => alu_operand_2,
              result    => alu_result,
-             op_sel    => eu_in_port.op_sel(3 downto 0));
+             op_sel    => eu_in_port.funct(3 downto 0));
 
     process(eu_in_port, alu_result)
     begin

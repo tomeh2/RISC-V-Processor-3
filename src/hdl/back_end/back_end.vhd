@@ -110,8 +110,7 @@ begin
     -- ===========================================
     --             PIPELINE STAGE 1
     -- ===========================================
-    lsu_in_port.op_type <= R_pipeline_0.op_type;
-    lsu_in_port.op_sel <= R_pipeline_0.op_sel;
+    lsu_in_port.funct <= R_pipeline_0.funct;
     lsu_in_port.phys_dst_reg <= R_pipeline_0.phys_dst_reg;
     lsu_in_port.branch_mask <= R_pipeline_0.branch_mask;
     lsu_in_port.valid <= R_pipeline_0.valid;
