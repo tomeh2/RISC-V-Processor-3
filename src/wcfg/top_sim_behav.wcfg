@@ -6,18 +6,19 @@
       <db_ref path="top_sim_behav.wdb" id="1">
          <top_modules>
             <top_module name="cpu_pkg" />
+            <top_module name="elf_pkg" />
             <top_module name="top_sim" />
          </top_modules>
       </db_ref>
    </db_ref_list>
    <zoom_setting>
       <ZoomStartTime time="0.000 ns"></ZoomStartTime>
-      <ZoomEndTime time="1,333.001 ns"></ZoomEndTime>
-      <Cursor1Time time="1,000.000 ns"></Cursor1Time>
+      <ZoomEndTime time="200.380 ns"></ZoomEndTime>
+      <Cursor1Time time="89.057 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="194"></NameColumnWidth>
-      <ValueColumnWidth column_width="144"></ValueColumnWidth>
+      <ValueColumnWidth column_width="136"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="20" />
    <wvobject fp_name="/top_sim/clk" type="logic">
@@ -100,6 +101,71 @@
       <obj_property name="label">FRONT_END</obj_property>
       <obj_property name="DisplayName">label</obj_property>
       <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="group14203" type="group">
+         <obj_property name="label">FETCH FIFO</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+         <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_fetch_fifo/data_in" type="array">
+            <obj_property name="ElementShortName">data_in[31:0]</obj_property>
+            <obj_property name="ObjectShortName">data_in[31:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_fetch_fifo/data_out" type="array">
+            <obj_property name="ElementShortName">data_out[31:0]</obj_property>
+            <obj_property name="ObjectShortName">data_out[31:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_fetch_fifo/get_en" type="logic">
+            <obj_property name="ElementShortName">get_en</obj_property>
+            <obj_property name="ObjectShortName">get_en</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_fetch_fifo/put_en" type="logic">
+            <obj_property name="ElementShortName">put_en</obj_property>
+            <obj_property name="ObjectShortName">put_en</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_fetch_fifo/full" type="logic">
+            <obj_property name="ElementShortName">full</obj_property>
+            <obj_property name="ObjectShortName">full</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_fetch_fifo/empty" type="logic">
+            <obj_property name="ElementShortName">empty</obj_property>
+            <obj_property name="ObjectShortName">empty</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_fetch_fifo/M_fifo" type="array">
+            <obj_property name="ElementShortName">M_fifo[0:3][31:0]</obj_property>
+            <obj_property name="ObjectShortName">M_fifo[0:3][31:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_fetch_fifo/R_head" type="array">
+            <obj_property name="ElementShortName">R_head[1:0]</obj_property>
+            <obj_property name="ObjectShortName">R_head[1:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_fetch_fifo/R_head_next" type="array">
+            <obj_property name="ElementShortName">R_head_next[1:0]</obj_property>
+            <obj_property name="ObjectShortName">R_head_next[1:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_fetch_fifo/R_tail" type="array">
+            <obj_property name="ElementShortName">R_tail[1:0]</obj_property>
+            <obj_property name="ObjectShortName">R_tail[1:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_fetch_fifo/R_tail_next" type="array">
+            <obj_property name="ElementShortName">R_tail_next[1:0]</obj_property>
+            <obj_property name="ObjectShortName">R_tail_next[1:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_fetch_fifo/R_util" type="array">
+            <obj_property name="ElementShortName">R_util[2:0]</obj_property>
+            <obj_property name="ObjectShortName">R_util[2:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_fetch_fifo/i_full" type="logic">
+            <obj_property name="ElementShortName">i_full</obj_property>
+            <obj_property name="ObjectShortName">i_full</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_fetch_fifo/i_empty" type="logic">
+            <obj_property name="ElementShortName">i_empty</obj_property>
+            <obj_property name="ObjectShortName">i_empty</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_fetch_fifo/R_data_out" type="array">
+            <obj_property name="ElementShortName">R_data_out[31:0]</obj_property>
+            <obj_property name="ObjectShortName">R_data_out[31:0]</obj_property>
+         </wvobject>
+      </wvobject>
       <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/bus_req" type="array">
          <obj_property name="ElementShortName">bus_req</obj_property>
          <obj_property name="ObjectShortName">bus_req</obj_property>
@@ -228,7 +294,6 @@
    <wvobject fp_name="group103" type="group">
       <obj_property name="label">ROM</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/top_sim/I_rom/clk" type="logic">
          <obj_property name="ElementShortName">clk</obj_property>
          <obj_property name="ObjectShortName">clk</obj_property>
@@ -258,8 +323,8 @@
          <obj_property name="ObjectShortName">wb_ack</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_rom/M_rom" type="array">
-         <obj_property name="ElementShortName">M_rom[0:1024][31:0]</obj_property>
-         <obj_property name="ObjectShortName">M_rom[0:1024][31:0]</obj_property>
+         <obj_property name="ElementShortName">M_rom[0:1023][31:0]</obj_property>
+         <obj_property name="ObjectShortName">M_rom[0:1023][31:0]</obj_property>
          <obj_property name="isExpanded"></obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_rom/C_size_kb" type="other">
