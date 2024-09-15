@@ -42,10 +42,9 @@ architecture rtl of back_end is
     signal sched_out_port : T_uop;
 
     signal uop_rr_out : T_uop;
+    signal uop_sched_out : T_uop;
     signal pipeline_1_next : T_uop;
     signal R_pipeline_1 : T_uop;
-    signal pipeline_2_next : T_uop;
-    signal R_pipeline_2 : T_uop;
     signal pipeline_3_next : T_uop;
     signal R_pipeline_3 : T_uop;
     signal pipeline_4_next : T_uop;
@@ -158,32 +157,23 @@ begin
     -- ===========================================
     scheduler_inst : entity work.scheduler
     generic map(ENTRIES => 8)
-    port map(sched_in_port     => R_pipeline_1,
-             sched_out_port    => pipeline_2_next,
-             cdb               => cdb,
-             stall_in          => R_pipeline_2.valid and pipeline_3_stall,
+    port map(uop_in            => R_pipeline_1,
+             uop_out           => uop_sched_out,
+             cdb_in            => cdb,
+             stall_in          => pipeline_3_stall,
              stall_out         => sched_stall_out,
              clk               => clk,
              reset             => reset);
 
-    P_pipeline_2 : process(clk)
-    begin
-        if rising_edge(clk) then
-            if reset = '1' then
-                R_pipeline_2.valid <= '0';
-            else
-                R_pipeline_2 <= F_pipeline_reg_logic(pipeline_2_next, R_pipeline_2, cdb, pipeline_3_stall);
-            end if;
-        end if;
-    end process;
+    
     
     pipeline_2_stall <= sched_stall_out;
     -- ===========================================
     --             PIPELINE STAGE 3
     -- ===========================================
-    rf_in_port.phys_src_reg_1 <= R_pipeline_2.phys_src_reg_1;
-    rf_in_port.phys_src_reg_2 <= R_pipeline_2.phys_src_reg_2;
-    rf_in_port.valid <= R_pipeline_2.valid;
+    rf_in_port.phys_src_reg_1 <= uop_sched_out.phys_src_reg_1;
+    rf_in_port.phys_src_reg_2 <= uop_sched_out.phys_src_reg_2;
+    rf_in_port.valid <= uop_sched_out.valid;
     
     regfile_inst : entity work.register_file
     port map(rf_in_port   => rf_in_port,
@@ -194,9 +184,9 @@ begin
              clk        => clk,
              reset      => reset);
 
-    P_pipeline_3_next : process(R_pipeline_2, rf_out_port)
+    P_pipeline_3_next : process(uop_sched_out, rf_out_port)
     begin
-        pipeline_3_next <= R_pipeline_2;
+        pipeline_3_next <= uop_sched_out;
         pipeline_3_next.reg_read_1_data <= rf_out_port.reg_data_1;
         pipeline_3_next.reg_read_2_data <= rf_out_port.reg_data_2;
     end process;

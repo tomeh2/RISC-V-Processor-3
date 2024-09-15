@@ -13,9 +13,9 @@ entity scheduler is
         ENTRIES : integer
     );
     port(
-        sched_in_port : in T_uop;
-        sched_out_port : out T_uop;
-        cdb : in T_uop;
+        uop_in : in T_uop;
+        uop_out : out T_uop;
+        cdb_in : in T_uop;
 
         -- ============
         -- FLOW CONTROL
@@ -33,6 +33,9 @@ entity scheduler is
 end scheduler;
 
 architecture rtl of scheduler is
+    -- Pipeline
+    signal R_pipeline_0 : T_uop;
+
     type T_sched_array is array (0 to ENTRIES - 1) of T_uop;
     signal M_scheduler : T_sched_array;
 
@@ -90,7 +93,7 @@ begin
             end if;
         end loop;
         sched_dispatch_index <= temp_index;
-        sched_dispatch_enable <= temp_enable and not stall_in;
+        sched_dispatch_enable <= temp_enable and not (stall_in and R_pipeline_0.valid);
     end process;
 
     -- Scheduler entry controller
@@ -105,15 +108,15 @@ begin
                 end loop;
             else
                 -- Scheduler write control
-                if sched_in_port.valid = '1' and sched_full = '0' then
-                    M_scheduler(sched_write_index) <= sched_in_port;
+                if uop_in.valid = '1' and sched_full = '0' then
+                    M_scheduler(sched_write_index) <= uop_in;
                     -- Check whether an executed branch is on the CDB and clear
                     -- make sure that the uOP is put into the scheduler with
                     -- the corresponding branch mask bit cleared
-                    if cdb.valid = '1' and
-                       cdb.branch_mask /= BR_MASK_ZERO then
+                    if cdb_in.valid = '1' and
+                       cdb_in.branch_mask /= BR_MASK_ZERO then
                         M_scheduler(sched_write_index).spec_branch_mask <=
-                          sched_in_port.spec_branch_mask and not cdb.branch_mask;
+                          uop_in.spec_branch_mask and not cdb_in.branch_mask;
                     end if;
 
                     -- We need to handle a case where the CDB contains
@@ -121,15 +124,15 @@ begin
                     -- If we don't include this then we could stumble on a case
                     -- where the operand's valid bit doesn't get set to 1
                     -- and the instruction gets stuck in the scheduler
-                    if cdb.valid = '1' and
-                       sched_in_port.valid = '1' and
-                       sched_in_port.phys_src_reg_1 = cdb.phys_dst_reg then
+                    if cdb_in.valid = '1' and
+                       uop_in.valid = '1' and
+                       uop_in.phys_src_reg_1 = cdb_in.phys_dst_reg then
                        M_scheduler(sched_write_index).reg_read_1_ready <= '1';
                     end if;
 
-                    if cdb.valid = '1' and
-                       sched_in_port.valid = '1' and
-                       sched_in_port.phys_src_reg_2 = cdb.phys_dst_reg then
+                    if cdb_in.valid = '1' and
+                       uop_in.valid = '1' and
+                       uop_in.phys_src_reg_2 = cdb_in.phys_dst_reg then
                        M_scheduler(sched_write_index).reg_read_2_ready <= '1';
                     end if;
                 end if;
@@ -139,10 +142,10 @@ begin
                 -- entries
                 for i in 0 to ENTRIES - 1 loop
                     if (M_scheduler(i).valid = '1' and
-                          cdb.valid = '1' and
-                          cdb.branch_mask /= BR_MASK_ZERO) then
+                          cdb_in.valid = '1' and
+                          cdb_in.branch_mask /= BR_MASK_ZERO) then
                         M_scheduler(i).spec_branch_mask <=
-                          M_scheduler(i).spec_branch_mask and not cdb.branch_mask;
+                          M_scheduler(i).spec_branch_mask and not cdb_in.branch_mask;
                     end if;
                 end loop;
 
@@ -161,6 +164,17 @@ begin
         uop_dispatch <= M_scheduler(sched_dispatch_index);
     end process;
 
-    sched_out_port <= uop_dispatch;
+    P_pipeline_0_cntrl : process(clk)
+    begin
+        if rising_edge(clk) then
+            if reset = '1' then
+                R_pipeline_0.valid <= '0';
+            else
+                R_pipeline_0 <= F_pipeline_reg_logic(uop_dispatch, R_pipeline_0, cdb_in, stall_in);
+            end if;
+        end if;
+    end process;
+
+    uop_out <= R_pipeline_0;
     stall_out <= sched_full;
 end rtl;
