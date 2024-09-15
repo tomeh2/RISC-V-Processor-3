@@ -41,8 +41,7 @@ architecture rtl of back_end is
     signal rf_out_port : T_rf_out_port;
     signal sched_out_port : T_uop;
 
-    signal pipeline_0_next : T_uop;
-    signal R_pipeline_0 : T_uop;
+    signal uop_rr_out : T_uop;
     signal pipeline_1_next : T_uop;
     signal R_pipeline_1 : T_uop;
     signal pipeline_2_next : T_uop;
@@ -71,55 +70,28 @@ architecture rtl of back_end is
 
     signal cdb : T_uop;
 begin
-    stall_be <= pipeline_0_stall;
+    stall_be <= rr_stall_out;
 
     -- ===========================================
     --             PIPELINE STAGE 0
     -- ===========================================
-    rr_in_port.arch_src_reg_1 <= uop_1.arch_src_reg_1;
-    rr_in_port.arch_src_reg_2 <= uop_1.arch_src_reg_2;
-    rr_in_port.arch_dst_reg <= uop_1.arch_dst_reg;
-    rr_in_port.branch_mask <= uop_1.branch_mask;
-    rr_in_port.valid <= uop_1.valid;
 
     register_rename_inst : entity work.register_rename
-    port map(rr_in_port             => rr_in_port,
-             rr_out_port            => rr_out_port,
-             cdb                    => cdb,
-             stall_in               => R_pipeline_0.valid and pipeline_1_stall,
+    port map(uop_in                 => uop_1,
+             uop_out                => uop_rr_out,
+             cdb_in                 => cdb,
+             stall_in               => pipeline_1_stall,
              stall_out              => rr_stall_out,
              clk                    => clk,
              reset                  => reset);
-             
-    P_pipeline_0_next : process(uop_1, rr_out_port)
-    begin
-        pipeline_0_next <= uop_1;
-        pipeline_0_next.phys_dst_reg <= rr_out_port.phys_dst_reg;
-        pipeline_0_next.phys_src_reg_1 <= rr_out_port.phys_src_reg_1;
-        pipeline_0_next.phys_src_reg_2 <= rr_out_port.phys_src_reg_2;
-        pipeline_0_next.reg_read_1_ready <= rr_out_port.phys_src_reg_1_v;
-        pipeline_0_next.reg_read_2_ready <= rr_out_port.phys_src_reg_2_v;
-    end process;
 
-    P_pipeline_0 : process(clk)
-    begin
-        if rising_edge(clk) then
-            if reset = '1' then
-                R_pipeline_0.valid <= '0';
-            else
-                R_pipeline_0 <= F_pipeline_reg_logic(pipeline_0_next, R_pipeline_0, cdb, pipeline_1_stall);
-            end if;
-        end if;
-    end process;
-
-    pipeline_0_stall <= (R_pipeline_0.valid and pipeline_1_stall) or rr_stall_out;
     -- ===========================================
     --             PIPELINE STAGE 1
     -- ===========================================
-    lsu_in_port.funct <= R_pipeline_0.funct;
-    lsu_in_port.phys_dst_reg <= R_pipeline_0.phys_dst_reg;
-    lsu_in_port.branch_mask <= R_pipeline_0.branch_mask;
-    lsu_in_port.valid <= R_pipeline_0.valid;
+    lsu_in_port.funct <= uop_rr_out.funct;
+    lsu_in_port.phys_dst_reg <= uop_rr_out.phys_dst_reg;
+    lsu_in_port.branch_mask <= uop_rr_out.branch_mask;
+    lsu_in_port.valid <= uop_rr_out.valid;
 
     agu_temp.address <= (others => '0');
     agu_temp.address_valid <= '0';
@@ -145,10 +117,10 @@ begin
              clk            => clk,
              reset          => reset);
     
-    rob_in_port.arch_dst_reg <= R_pipeline_0.arch_dst_reg;
-    rob_in_port.phys_dst_reg <= R_pipeline_0.phys_dst_reg;
-    rob_in_port.branch_mask <= R_pipeline_0.branch_mask;
-    rob_in_port.valid <= R_pipeline_0.valid;
+    rob_in_port.arch_dst_reg <= uop_rr_out.arch_dst_reg;
+    rob_in_port.phys_dst_reg <= uop_rr_out.phys_dst_reg;
+    rob_in_port.branch_mask <= uop_rr_out.branch_mask;
+    rob_in_port.valid <= uop_rr_out.valid;
 
     reorder_buffer_inst : entity work.reorder_buffer
     port map(rob_in_port        => rob_in_port,
@@ -161,9 +133,9 @@ begin
              clk                => clk,
              reset              => reset);
 
-    P_pipeline_1_next : process(R_pipeline_0, rob_out_port, lsu_out_port)
+    P_pipeline_1_next : process(uop_rr_out, rob_out_port, lsu_out_port)
     begin
-        pipeline_1_next <= R_pipeline_0;
+        pipeline_1_next <= uop_rr_out;
         pipeline_1_next.id <= rob_out_port.id;
         pipeline_1_next.sq_index <= lsu_out_port.sq_index;
         pipeline_1_next.lq_index <= lsu_out_port.lq_index;

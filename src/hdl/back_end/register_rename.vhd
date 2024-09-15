@@ -6,9 +6,10 @@ use WORK.CPU_PKG.ALL;
 
 entity register_rename is
     port(
-        rr_in_port : in T_rr_in_port;
-        rr_out_port : out T_rr_out_port;
-        cdb : in T_uop;
+        uop_in : in T_uop;
+        uop_out : out T_uop;
+        
+        cdb_in : in T_uop;
 
         stall_in : in std_logic;
         stall_out : out std_logic;
@@ -19,8 +20,8 @@ entity register_rename is
 end register_rename;
 
 architecture rtl of register_rename is
-    signal R_pipeline : T_uop;
-    signal pipeline_next : T_uop;
+    signal R_pipeline_0 : T_uop;
+    signal pipeline_0_next : T_uop;
 
     signal raa_get_enable : std_logic;
     signal raa_get_tag : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
@@ -40,12 +41,12 @@ architecture rtl of register_rename is
 
     signal stall : std_logic;
 begin
-    take_snapshot_enable <= '1' when rr_in_port.branch_mask /= BR_MASK_ZERO and rr_in_port.valid = '1' and stall_in = '0' else '0';
-    F_priority_encoder(rr_in_port.branch_mask, take_snapshot_index);
-    recover_snapshot_enable <= cdb.branch_mispredicted and cdb.valid;
-    F_priority_encoder(cdb.branch_mask, recover_snapshot_index);
+    take_snapshot_enable <= '1' when uop_in.branch_mask /= BR_MASK_ZERO and uop_in.valid = '1' and stall_in = '0' else '0';
+    F_priority_encoder(uop_in.branch_mask, take_snapshot_index);
+    recover_snapshot_enable <= cdb_in.branch_mispredicted and cdb_in.valid;
+    F_priority_encoder(cdb_in.branch_mask, recover_snapshot_index);
 
-    raa_get_enable <= '1' when rr_in_port.valid = '1' and rr_in_port.arch_dst_reg /= ARCH_REG_ZERO and stall_in = '0' else '0';
+    raa_get_enable <= '1' when uop_in.valid = '1' and uop_in.arch_dst_reg /= ARCH_REG_ZERO and stall_in = '0' else '0';
     raa_inst : entity work.register_alias_allocator
     generic map(MAX_SNAPSHOTS => MAX_SPEC_BRANCHES,
                 MASK_LENGTH => PHYS_REGFILE_ENTRIES)
@@ -64,11 +65,11 @@ begin
     rat_write_enable_1 <= raa_get_enable;
     execution_rat_inst : entity work.register_alias_table
     generic map(ENABLE_MISPREDICT_RECOVERY => true)
-    port map(arch_read_tag_1 => rr_in_port.arch_src_reg_1,
-             arch_read_tag_2 => rr_in_port.arch_src_reg_2,
+    port map(arch_read_tag_1 => uop_in.arch_src_reg_1,
+             arch_read_tag_2 => uop_in.arch_src_reg_2,
              phys_read_tag_1 => rat_phys_src_reg_1,
              phys_read_tag_2 => rat_phys_src_reg_2,
-             arch_write_tag_1 => rr_in_port.arch_dst_reg,
+             arch_write_tag_1 => uop_in.arch_dst_reg,
              phys_write_tag_1 => raa_get_tag,
              write_enable_1 => rat_write_enable_1,
              take_snapshot_enable => take_snapshot_enable,
@@ -85,16 +86,32 @@ begin
              read_addr_2 => rat_phys_src_reg_2,
              read_out_1 => phys_src_reg_1_valid,
              read_out_2 => phys_src_reg_2_valid,
-             set_addr => cdb.phys_dst_reg,
-             set_en => cdb.valid,
+             set_addr => cdb_in.phys_dst_reg,
+             set_en => cdb_in.valid,
              unset_addr => raa_get_tag,
              unset_en => rat_write_enable_1);
 
-    rr_out_port.phys_dst_reg <= raa_get_tag;
-    rr_out_port.phys_src_reg_1 <= rat_phys_src_reg_1;
-    rr_out_port.phys_src_reg_2 <= rat_phys_src_reg_2;
-    rr_out_port.phys_src_reg_1_v <= phys_src_reg_1_valid;
-    rr_out_port.phys_src_reg_2_v <= phys_src_reg_2_valid;
+    process(uop_in, raa_get_tag, rat_phys_src_reg_1, rat_phys_src_reg_2, phys_src_reg_1_valid, phys_src_reg_2_valid)
+    begin
+        pipeline_0_next <= uop_in;
+        pipeline_0_next.phys_dst_reg <= raa_get_tag;
+        pipeline_0_next.phys_src_reg_1 <= rat_phys_src_reg_1;
+        pipeline_0_next.phys_src_reg_2 <= rat_phys_src_reg_2;
+        pipeline_0_next.reg_read_1_ready <= phys_src_reg_1_valid;
+        pipeline_0_next.reg_read_2_ready <= phys_src_reg_2_valid;
+    end process;
 
-    stall_out <= raa_empty;
+    P_pipeline_0 : process(clk)
+    begin
+        if rising_edge(clk) then
+            if reset = '1' then
+                R_pipeline_0.valid <= '0';
+            else
+                R_pipeline_0 <= F_pipeline_reg_logic(pipeline_0_next, R_pipeline_0, cdb_in, stall_in);
+            end if;
+        end if;
+    end process;
+    
+    uop_out <= R_pipeline_0;
+    stall_out <= raa_empty or (stall_in and R_pipeline_0.valid);
 end rtl;
