@@ -41,7 +41,6 @@ end register_file;
 architecture rtl of register_file is
     type T_regfile_entry is record
         data : std_logic_vector(DATA_WIDTH - 1 downto 0);
-        valid : std_logic;
     end record;
 
     type T_regfile is array(0 to PHYS_REGFILE_ENTRIES - 1) of T_regfile_entry;
@@ -68,7 +67,6 @@ begin
             if reset = '1' then
                 for i in 0 to PHYS_REGFILE_ENTRIES - 1 loop
                     M_regfile(i).data <= (others => '0');
-                    M_regfile(i).valid <= '1';
                 end loop;
                 R_pipeline <= UOP_ZERO;
             else
@@ -76,7 +74,6 @@ begin
                 -- Physical register 0 always contains the value 0
                 if cdb.valid = '1' and cdb.phys_dst_reg /= std_logic_vector(to_unsigned(0, PHYS_REG_ADDR_WIDTH)) then
                     M_regfile(to_integer(unsigned(cdb.phys_dst_reg))).data <= cdb.reg_write_data;
-                    M_regfile(to_integer(unsigned(cdb.phys_dst_reg))).valid <= '1';
                 end if;
             end if;
         end if;

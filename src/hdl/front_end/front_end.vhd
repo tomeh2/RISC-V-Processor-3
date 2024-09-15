@@ -9,6 +9,7 @@ entity front_end is
         clk             : in std_logic;
         reset           : in std_logic;
 
+        uop_out         : out T_uop;
         cdb_in          : in T_uop;
         stall_be        : in std_logic;
 
@@ -19,7 +20,9 @@ entity front_end is
 end front_end;
 
 architecture rtl of front_end is
-    signal fetch_fifo_instruction : std_logic_vector(31 downto 0);
+    
+    signal fetch_fifo_instruction_write : std_logic_vector(63 downto 0);
+    signal fetch_fifo_instruction_read : std_logic_vector(63 downto 0);
     signal fetch_fifo_full : std_logic;
     signal fetch_fifo_empty : std_logic;
 
@@ -30,19 +33,23 @@ architecture rtl of front_end is
     signal stall_fetch : std_logic;
 
     signal R_program_counter : unsigned(ADDR_WIDTH - 1 downto 0);
-    signal decoded_uop : T_uop;
 begin
+    -- ===================================
+    --      INSTRUCTION FETCH LOGIC
+    -- ===================================
     I_fetch_fifo : entity work.fifo
-    generic map(BITS_PER_ENTRY => 32,
+    generic map(BITS_PER_ENTRY => 64,
                 ENTRIES => 4)
     port map(clk        => clk,
              reset      => reset,
-             data_in    => bus_resp.data,
-             data_out   => fetch_fifo_instruction,
-             get_en     => '0',
+             data_in    => fetch_fifo_instruction_write,
+             data_out   => fetch_fifo_instruction_read,
+             get_en     => not stall_be,
              put_en     => bus_resp.valid,
              full       => fetch_fifo_full,
              empty      => fetch_fifo_empty);
+    fetch_fifo_instruction_write(63 downto 32) <= std_logic_vector(R_program_counter);
+    fetch_fifo_instruction_write(31 downto 0) <= bus_resp.data;
 
     P_pc_cntrl : process(clk)
     begin
@@ -61,12 +68,13 @@ begin
     bus_req.tag <= (others => '0');
     bus_req.valid <= not reset and not fetch_fifo_full;
     
-
-    
+    -- ===================================
+    --      INSTRUCTION DECODE LOGIC
+    -- ===================================
     I_instr_dec : entity work.instruction_decoder
-    port map(instruction            => fetch_fifo_instruction,
+    port map(instruction            => fetch_fifo_instruction_read(31 downto 0),
              instruction_valid      => not fetch_fifo_empty,
-             pc                     => (others => '0'),
+             pc                     => unsigned(fetch_fifo_instruction_read(63 downto 32)),
              invalid_instruction    => open,
-             decoded_uop            => decoded_uop);
+             decoded_uop            => uop_out);
 end rtl;

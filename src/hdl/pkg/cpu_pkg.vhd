@@ -160,9 +160,11 @@ package cpu_pkg is
     end record;
     
     type T_rr_out_port is record
-        phys_dst_reg        : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0); 
-        phys_src_reg_1      : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0); 
-        phys_src_reg_2      : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0); 
+        phys_dst_reg        : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
+        phys_src_reg_1      : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
+        phys_src_reg_1_v    : std_logic;
+        phys_src_reg_2      : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
+        phys_src_reg_2_v    : std_logic;
     end record;
     
     type T_rob_in_port is record
@@ -294,6 +296,13 @@ package cpu_pkg is
 
     constant ROB_ZERO : T_rob := (
         (others => '0'),
+        (others => '0'),
+        '0'
+    );
+    
+    constant BUS_RESP_ZERO : T_bus_response := (
+        (others => '0'),
+        '0',
         (others => '0'),
         '0'
     );

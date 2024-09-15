@@ -16,22 +16,25 @@ entity cpu_core is
 end cpu_core;
 
 architecture rtl of cpu_core is
-   
+    signal uop : T_uop;
+    signal stall_be : std_logic;
 begin
     fe_inst : entity work.front_end
     port map(clk        => clk,
              reset      => reset,
-             stall_be   => '0',
+             uop_out    => uop,
+             stall_be   => stall_be,
              cdb_in     => UOP_ZERO,
              bus_req    => bus_req,
              bus_resp   => bus_resp,
              bus_ready  => bus_ready);
 
---    be_inst : entity work.back_end
---    port map(uop_1       => UOP_ZERO,
---             bus_req     => bus_req,
---             bus_resp    => bus_resp,
---             bus_ready   => bus_ready,
---             clk         => clk,
---             reset       => reset);
+    be_inst : entity work.back_end
+    port map(uop_1       => uop,
+             stall_be    => stall_be,
+             bus_req     => open,
+             bus_resp    => BUS_RESP_ZERO,
+             bus_ready   => bus_ready,
+             clk         => clk,
+             reset       => reset);
 end rtl;

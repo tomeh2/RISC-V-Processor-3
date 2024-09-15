@@ -19,12 +19,19 @@ architecture rtl of instruction_decoder is
     type T_instruction_type is (R_TYPE, I_TYPE, S_TYPE, B_TYPE, U_TYPE, J_TYPE);
     signal instruction_type : T_instruction_type;
 
+    signal funct3 : std_logic_vector(2 downto 0);
+    signal funct7 : std_logic_vector(6 downto 0);
+
     signal exec_unit_id : unsigned(EXEC_UNIT_ID_WIDTH - 1 downto 0);
     signal immediate : std_logic_vector(31 downto 0);
+    signal funct : std_logic_vector(9 downto 0);
 begin
+    funct3 <= instruction(14 downto 12);
+    funct7 <= instruction(31 downto 25);
+
     -- See table 70. in Chapter 34. of RISC-V unprivileged spec
     -- for decoding table
-    P_decode_type : process(instruction, instruction_valid)
+    P_decode_type : process(instruction, instruction_valid, funct3, funct7)
     begin
         invalid_instruction <= '0';
         if instruction(1 downto 0) /= "11" then
@@ -43,9 +50,15 @@ begin
             when OPCODE_OP =>
                 instruction_type <= R_TYPE;
                 exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
+                funct <= "000000" & funct7(6) & funct3;
             when OPCODE_OP_IMM =>
                 instruction_type <= I_TYPE;
                 exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
+                if funct3 = "001" or funct3 = "101" then
+                    funct <= "100000" & funct7(6) & funct3;
+                else
+                    funct <= "1000000" & funct3;
+                end if;
             when OPCODE_AUIPC =>
                 instruction_type <= U_TYPE;
                 exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
@@ -106,7 +119,7 @@ begin
 
     decoded_uop.pc <= pc;
     decoded_uop.exec_unit_id <= exec_unit_id;
-    decoded_uop.funct <= instruction(31 downto 25) & instruction(14 downto 12);
+    decoded_uop.funct <= funct;
     decoded_uop.arch_src_reg_1 <= instruction(19 downto 15);
     decoded_uop.arch_src_reg_2 <= instruction(24 downto 20);
     decoded_uop.arch_dst_reg <= instruction(11 downto 7);

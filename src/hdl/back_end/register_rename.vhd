@@ -30,6 +30,8 @@ architecture rtl of register_rename is
     signal rat_empty : std_logic;
     signal rat_phys_src_reg_1 : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
     signal rat_phys_src_reg_2 : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
+    signal phys_src_reg_1_valid : std_logic;
+    signal phys_src_reg_2_valid : std_logic;
 
     signal take_snapshot_enable : std_logic;
     signal take_snapshot_index : natural range 0 to MAX_SPEC_BRANCHES - 1;
@@ -75,10 +77,24 @@ begin
              recover_snapshot_index => recover_snapshot_index,
              clk => clk,
              reset => reset);
-    
+
+    register_validity_table : entity work.register_validity_table
+    port map(clk => clk,
+             reset => reset,
+             read_addr_1 => rat_phys_src_reg_1,
+             read_addr_2 => rat_phys_src_reg_2,
+             read_out_1 => phys_src_reg_1_valid,
+             read_out_2 => phys_src_reg_2_valid,
+             set_addr => cdb.phys_dst_reg,
+             set_en => cdb.valid,
+             unset_addr => raa_get_tag,
+             unset_en => rat_write_enable_1);
+
     rr_out_port.phys_dst_reg <= raa_get_tag;
     rr_out_port.phys_src_reg_1 <= rat_phys_src_reg_1;
     rr_out_port.phys_src_reg_2 <= rat_phys_src_reg_2;
+    rr_out_port.phys_src_reg_1_v <= phys_src_reg_1_valid;
+    rr_out_port.phys_src_reg_2_v <= phys_src_reg_2_valid;
 
     stall_out <= raa_empty;
 end rtl;

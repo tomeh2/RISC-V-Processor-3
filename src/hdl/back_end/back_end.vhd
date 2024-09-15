@@ -8,6 +8,9 @@ entity back_end is
         -- uOP from decoder
         uop_1       : in T_uop;
 
+        -- Flow control
+        stall_be    : out std_logic;
+
         -- External bus / cache signals
         bus_req     : out T_bus_request;
         bus_resp    : in T_bus_response;
@@ -58,6 +61,7 @@ architecture rtl of back_end is
     signal pipeline_3_stall : std_logic;
     signal pipeline_4_stall : std_logic;
 
+    signal eu0_stall_in : std_logic;
     signal eu0_stall_out : std_logic;
     signal rf_stall_out : std_logic;
     signal sched_stall_out : std_logic;
@@ -67,7 +71,7 @@ architecture rtl of back_end is
 
     signal cdb : T_uop;
 begin
-    -- TODO: REWORK STALL SIGNALS
+    stall_be <= pipeline_0_stall;
 
     -- ===========================================
     --             PIPELINE STAGE 0
@@ -93,6 +97,8 @@ begin
         pipeline_0_next.phys_dst_reg <= rr_out_port.phys_dst_reg;
         pipeline_0_next.phys_src_reg_1 <= rr_out_port.phys_src_reg_1;
         pipeline_0_next.phys_src_reg_2 <= rr_out_port.phys_src_reg_2;
+        pipeline_0_next.reg_read_1_ready <= rr_out_port.phys_src_reg_1_v;
+        pipeline_0_next.reg_read_2_ready <= rr_out_port.phys_src_reg_2_v;
     end process;
 
     P_pipeline_0 : process(clk)
@@ -240,8 +246,8 @@ begin
     -- ===========================================
     eu0_inst : entity work.execution_unit
     port map(eu_in_port     => R_pipeline_3,
-             eu_out_port    => pipeline_4_next,
-             stall_in       => '0',
+             eu_out_port    => cdb_out_eu0,
+             stall_in       => eu0_stall_in,
              stall_out      => eu0_stall_out,
              clk            => clk,
              reset          => reset);
@@ -258,6 +264,18 @@ begin
     end process;
 
     pipeline_4_stall <= '0'; 
-
-    cdb_out_eu0 <= R_pipeline_4;
+    cdb <= R_pipeline_4;
+    
+    process(cdb_request_lsu, cdb_out_lsu, cdb_out_eu0)
+    begin
+        eu0_stall_in <= '1';
+        pipeline_4_next <= UOP_ZERO;
+        if cdb_out_lsu.valid = '1' then
+            pipeline_4_next <= cdb_out_lsu;
+        elsif cdb_out_eu0.valid = '1' then
+            eu0_stall_in <= '0';
+            pipeline_4_next <= cdb_out_eu0;
+        end if;
+    end process;
+    
 end rtl;
