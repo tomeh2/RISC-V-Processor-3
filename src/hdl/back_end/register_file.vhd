@@ -18,9 +18,10 @@ use WORK.CPU_PKG.ALL;
 
 entity register_file is
     port(
-        rf_in_port : in T_rf_in_port;
-        rf_out_port : out T_rf_out_port;
+        uop_in : in T_uop;
+        uop_out : out T_uop;
 
+        cdb_in : in T_uop;
         -- ============
         -- FLOW CONTROL
         -- ============
@@ -30,8 +31,6 @@ entity register_file is
         -- yet ready to receive new data
         stall_in    : in std_logic;
         stall_out   : out std_logic;
-
-        cdb : in T_uop;
 
         clk : in std_logic;
         reset : in std_logic
@@ -46,19 +45,20 @@ architecture rtl of register_file is
     type T_regfile is array(0 to PHYS_REGFILE_ENTRIES - 1) of T_regfile_entry;
     signal M_regfile : T_regfile;
 
-    signal R_pipeline : T_uop;
-    signal pipeline_next : T_uop;
+    signal R_pipeline_0 : T_uop;
+    signal pipeline_0_next : T_uop;
 begin
     -- Regfile read logic
     -- Note that the read is done asynchronously with this code, but the idea
     -- is that the synthesis tool will realize that this immediately goes into
     -- a register and synthesize synchronous logic anyway
-    pipeline_next_cntrl : process(M_regfile, rf_in_port)
+    pipeline_next_cntrl : process(M_regfile, uop_in)
     begin
-        rf_out_port.reg_data_1 <=
-            M_regfile(to_integer(unsigned(rf_in_port.phys_src_reg_1))).data;
-        rf_out_port.reg_data_2 <=
-            M_regfile(to_integer(unsigned(rf_in_port.phys_src_reg_2))).data;
+        pipeline_0_next <= uop_in;
+        pipeline_0_next.reg_read_1_data <=
+            M_regfile(to_integer(unsigned(uop_in.phys_src_reg_1))).data;
+        pipeline_0_next.reg_read_2_data <=
+            M_regfile(to_integer(unsigned(uop_in.phys_src_reg_2))).data;
     end process;
 
     process(clk)
@@ -68,16 +68,27 @@ begin
                 for i in 0 to PHYS_REGFILE_ENTRIES - 1 loop
                     M_regfile(i).data <= (others => '0');
                 end loop;
-                R_pipeline <= UOP_ZERO;
             else
                 -- Register write logic
                 -- Physical register 0 always contains the value 0
-                if cdb.valid = '1' and cdb.phys_dst_reg /= std_logic_vector(to_unsigned(0, PHYS_REG_ADDR_WIDTH)) then
-                    M_regfile(to_integer(unsigned(cdb.phys_dst_reg))).data <= cdb.reg_write_data;
+                if cdb_in.valid = '1' and cdb_in.phys_dst_reg /= std_logic_vector(to_unsigned(0, PHYS_REG_ADDR_WIDTH)) then
+                    M_regfile(to_integer(unsigned(cdb_in.phys_dst_reg))).data <= cdb_in.reg_write_data;
                 end if;
             end if;
         end if;
     end process;
+    
+    P_pipeline_0_cntrl : process(clk)
+    begin
+        if rising_edge(clk) then
+            if reset = '1' then
+                R_pipeline_0.valid <= '0';
+            else
+                R_pipeline_0 <= F_pipeline_reg_logic(pipeline_0_next, R_pipeline_0, cdb_in, stall_in);
+            end if;
+        end if;
+    end process;
 
-    stall_out <= '0';
+    uop_out <= R_pipeline_0;
+    stall_out <= stall_in and R_pipeline_0.valid;
 end rtl;

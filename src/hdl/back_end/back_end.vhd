@@ -43,21 +43,16 @@ architecture rtl of back_end is
 
     signal uop_rr_out : T_uop;
     signal uop_sched_out : T_uop;
+    signal uop_rf_out : T_uop;
     signal pipeline_1_next : T_uop;
     signal R_pipeline_1 : T_uop;
-    signal pipeline_3_next : T_uop;
-    signal R_pipeline_3 : T_uop;
     signal pipeline_4_next : T_uop;
     signal R_pipeline_4 : T_uop;
 
     signal rob_retired_uop : T_rob;
     signal rob_retired_uop_valid : std_logic;
 
-    signal pipeline_0_stall : std_logic;
     signal pipeline_1_stall : std_logic;
-    signal pipeline_2_stall : std_logic;
-    signal pipeline_3_stall : std_logic;
-    signal pipeline_4_stall : std_logic;
 
     signal eu0_stall_in : std_logic;
     signal eu0_stall_out : std_logic;
@@ -111,7 +106,7 @@ begin
              bus_req        => bus_req,
              bus_resp       => bus_resp,
              bus_ready      => bus_ready,
-             stall_in       => R_pipeline_1.valid and pipeline_2_stall,
+             stall_in       => R_pipeline_1.valid and sched_stall_out,
              stall_out      => lsu_stall_out,
              clk            => clk,
              reset          => reset);
@@ -127,7 +122,7 @@ begin
              cdb                => cdb,
              retired_uop        => rob_retired_uop,
              retired_uop_valid  => rob_retired_uop_valid,
-             stall_in           => R_pipeline_1.valid and pipeline_2_stall,
+             stall_in           => R_pipeline_1.valid and sched_stall_out,
              stall_out          => rob_stall_out,
              clk                => clk,
              reset              => reset);
@@ -146,12 +141,11 @@ begin
             if reset = '1' then
                 R_pipeline_1.valid <= '0';
             else
-                R_pipeline_1 <= F_pipeline_reg_logic(pipeline_1_next, R_pipeline_1, cdb, pipeline_2_stall);
+                R_pipeline_1 <= F_pipeline_reg_logic(pipeline_1_next, R_pipeline_1, cdb, sched_stall_out);
             end if;
         end if;
     end process;
-
-    pipeline_1_stall <= (R_pipeline_1.valid and pipeline_2_stall) or rob_stall_out or lsu_stall_out;
+    pipeline_1_stall <= R_pipeline_1.valid and sched_stall_out;
     -- ===========================================
     --             PIPELINE STAGE 2
     -- ===========================================
@@ -160,54 +154,26 @@ begin
     port map(uop_in            => R_pipeline_1,
              uop_out           => uop_sched_out,
              cdb_in            => cdb,
-             stall_in          => pipeline_3_stall,
+             stall_in          => rf_stall_out,
              stall_out         => sched_stall_out,
              clk               => clk,
              reset             => reset);
-
-    
-    
-    pipeline_2_stall <= sched_stall_out;
     -- ===========================================
     --             PIPELINE STAGE 3
     -- ===========================================
-    rf_in_port.phys_src_reg_1 <= uop_sched_out.phys_src_reg_1;
-    rf_in_port.phys_src_reg_2 <= uop_sched_out.phys_src_reg_2;
-    rf_in_port.valid <= uop_sched_out.valid;
-    
     regfile_inst : entity work.register_file
-    port map(rf_in_port   => rf_in_port,
-             rf_out_port  => rf_out_port,
-             cdb        => cdb,
-             stall_in   => R_pipeline_3.valid and pipeline_4_stall,
+    port map(uop_in     => uop_sched_out,
+             uop_out    => uop_rf_out,
+             cdb_in     => cdb,
+             stall_in   => eu0_stall_out,
              stall_out  => rf_stall_out,
              clk        => clk,
              reset      => reset);
-
-    P_pipeline_3_next : process(uop_sched_out, rf_out_port)
-    begin
-        pipeline_3_next <= uop_sched_out;
-        pipeline_3_next.reg_read_1_data <= rf_out_port.reg_data_1;
-        pipeline_3_next.reg_read_2_data <= rf_out_port.reg_data_2;
-    end process;
-
-    P_pipeline_3 : process(clk)
-    begin
-        if rising_edge(clk) then
-            if reset = '1' then
-                R_pipeline_3.valid <= '0';
-            else
-                R_pipeline_3 <= F_pipeline_reg_logic(pipeline_3_next, R_pipeline_3, cdb, pipeline_4_stall);
-            end if;
-        end if;
-    end process;
-
-    pipeline_3_stall <= (R_pipeline_3.valid and pipeline_4_stall) or rf_stall_out;
     -- ===========================================
     --             PIPELINE STAGE 4
     -- ===========================================
     eu0_inst : entity work.execution_unit
-    port map(eu_in_port     => R_pipeline_3,
+    port map(eu_in_port     => uop_rf_out,
              eu_out_port    => cdb_out_eu0,
              stall_in       => eu0_stall_in,
              stall_out      => eu0_stall_out,
@@ -225,7 +191,6 @@ begin
         end if;
     end process;
 
-    pipeline_4_stall <= '0'; 
     cdb <= R_pipeline_4;
     
     process(cdb_request_lsu, cdb_out_lsu, cdb_out_eu0)
