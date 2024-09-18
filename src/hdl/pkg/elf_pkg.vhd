@@ -356,6 +356,7 @@ package body elf_pkg is
                                        variable mem_image : out T_byte_array) is
         file fp : T_char_file;
         variable fos : file_open_status;
+        variable mem_image_index : natural := 0;
     begin
         file_open(fp, elf_struct.filename, read_mode);
         if fos /= open_ok then
@@ -367,7 +368,8 @@ package body elf_pkg is
             if elf_struct.sect_headers(i).sh_type = X"0000_0001" then
                 F_seek(fp, elf_struct, to_integer(unsigned(elf_struct.sect_headers(i).sh_offset)));
                 for j in 0 to to_integer(unsigned(elf_struct.sect_headers(i).sh_size)) - 1 loop
-                    F_read_bytes(fp, 1, mem_image(j));
+                    F_read_bytes(fp, 1, mem_image(mem_image_index));
+                    mem_image_index := mem_image_index + 1;
                 end loop;
             end if;
         end loop;
