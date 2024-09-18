@@ -37,13 +37,16 @@ begin
         if instruction(1 downto 0) /= "11" then
             invalid_instruction <= instruction_valid;
         else
+            funct <= funct7 & funct3; 
             case instruction(6 downto 2) is
             when OPCODE_LOAD =>
                 instruction_type <= I_TYPE;
                 exec_unit_id <= to_unsigned(1, EXEC_UNIT_ID_WIDTH);
+                funct <= "0000000" & funct3;
             when OPCODE_STORE =>
                 instruction_type <= S_TYPE;
                 exec_unit_id <= to_unsigned(1, EXEC_UNIT_ID_WIDTH);
+                funct <= "0000001" & funct3;
             when OPCODE_BRANCH =>
                 instruction_type <= B_TYPE;
                 exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);

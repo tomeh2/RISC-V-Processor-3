@@ -151,45 +151,6 @@ package cpu_pkg is
         executed            : std_logic;
     end record;
     
-    type T_rr_in_port is record
-        arch_dst_reg        : std_logic_vector(ARCH_REG_ADDR_WIDTH - 1 downto 0); 
-        arch_src_reg_1      : std_logic_vector(ARCH_REG_ADDR_WIDTH - 1 downto 0); 
-        arch_src_reg_2      : std_logic_vector(ARCH_REG_ADDR_WIDTH - 1 downto 0);
-        branch_mask         : std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0);
-        valid : std_logic;
-    end record;
-    
-    type T_rr_out_port is record
-        phys_dst_reg        : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
-        phys_src_reg_1      : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
-        phys_src_reg_1_v    : std_logic;
-        phys_src_reg_2      : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
-        phys_src_reg_2_v    : std_logic;
-    end record;
-    
-    type T_rob_in_port is record
-        arch_dst_reg        : std_logic_vector(ARCH_REG_ADDR_WIDTH - 1 downto 0);
-        phys_dst_reg        : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
-        branch_mask         : std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0);
-        valid               : std_logic;
-    end record;
-    
-    type T_rob_out_port is record
-        id     : unsigned(UOP_INDEX_WIDTH - 1 downto 0);
-    end record;
-    
-    type T_rf_in_port is record
-        phys_src_reg_1        : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
-        phys_src_reg_2        : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
-        phys_dst_reg          : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
-        valid                 : std_logic;
-    end record;
-    
-    type T_rf_out_port is record
-        reg_data_1      : std_logic_vector(DATA_WIDTH - 1 downto 0);
-        reg_data_2      : std_logic_vector(DATA_WIDTH - 1 downto 0);
-    end record;
-
     type T_lsu_store is record
         -- Store address
         address             : std_logic_vector(ADDR_WIDTH - 1 downto 0);
@@ -228,20 +189,6 @@ package cpu_pkg is
         sq_tag          : unsigned(SQ_TAG_WIDTH - 1 downto 0);
         lq_tag          : unsigned(LQ_TAG_WIDTH - 1 downto 0);
     end record;
-    
-    type T_lsu_in_port is record
-        is_load             : std_logic;
-        is_store            : std_logic;
-        funct               : std_logic_vector(FUNCT_WIDTH - 1 downto 0);
-        phys_dst_reg        : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
-        branch_mask         : std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0);
-        valid               : std_logic;
-    end record;
-    
-    type T_lsu_out_port is record
-        sq_index    : unsigned(SQ_TAG_WIDTH - 1 downto 0);
-        lq_index    : unsigned(LQ_TAG_WIDTH - 1 downto 0);
-    end record;
 
     -- This data type contains all data that the LSU gives the bus controller
     -- so that it can perform a R/W operation
@@ -253,6 +200,7 @@ package cpu_pkg is
         tag             : unsigned(7 downto 0);
         valid           : std_logic;
     end record;
+    type T_bus_request_array is array (natural range<>) of T_bus_request;
 
     -- This data type contails all data the the bus controller has to send
     -- back to the LSU once the R/W operation has been processed
@@ -262,6 +210,7 @@ package cpu_pkg is
         tag             : unsigned(7 downto 0);
         valid           : std_logic;
     end record;
+    type T_bus_response_array is array (natural range<>) of T_bus_response;
 
     constant CDB_ZERO : T_cdb := (
         (others => '0'),

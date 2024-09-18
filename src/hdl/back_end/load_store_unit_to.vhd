@@ -9,25 +9,26 @@ use WORK.CPU_PKG.ALL;
 
 entity load_store_unit_to is
     port(
-        lsu_in_port     : in T_lsu_in_port;
-        lsu_out_port    : out T_lsu_out_port;
+        uop_in              : in T_uop;
+        uop_allocated_sq    : out unsigned(SQ_TAG_WIDTH - 1 downto 0);
+        uop_allocated_lq    : out unsigned(LQ_TAG_WIDTH - 1 downto 0);
 
-        cdb_in          : in T_uop;
-        cdb_out         : out T_uop;
-        cdb_request     : out std_logic;
-        cdb_granted     : in std_logic;
+        cdb_in              : in T_uop;
+        cdb_out             : out T_uop;
+        cdb_request         : out std_logic;
+        cdb_granted         : in std_logic;
 
-        agu_in_port     : in T_lsu_agu_port;
+        agu_in_port         : in T_lsu_agu_port;
 
-        bus_req         : out T_bus_request;
-        bus_resp        : in T_bus_response;
-        bus_ready       : in std_logic;
+        bus_req             : out T_bus_request;
+        bus_resp            : in T_bus_response;
+        bus_ready           : in std_logic;
 
-        stall_in        : in std_logic;
-        stall_out       : out std_logic;
+        stall_in            : in std_logic;
+        stall_out           : out std_logic;
 
-        clk             : in std_logic;
-        reset           : in std_logic
+        clk                 : in std_logic;
+        reset               : in std_logic
     );
 end load_store_unit_to;
 
@@ -93,10 +94,10 @@ architecture rtl of load_store_unit_to is
     signal uop_in_brmask_index : natural range 0 to MAX_SPEC_BRANCHES - 1;
     signal cdb_in_brmask_index : natural range 0 to MAX_SPEC_BRANCHES - 1;
 begin
-    uop_in_brmask_index <= F_brmask_to_index(lsu_in_port.branch_mask);
+    uop_in_brmask_index <= F_brmask_to_index(uop_in.branch_mask);
     cdb_in_brmask_index <= F_brmask_to_index(cdb_in.branch_mask);
 
-    sq_enqueue <= '1' when sq_full = '0' and lsu_in_port.is_store = '1' and lsu_in_port.valid = '1' else '0';
+    sq_enqueue <= '1' when sq_full = '0' and uop_in.funct(3) = '1' and uop_in.valid = '1' else '0';
     sq_dequeue <= not sq_empty and sq_head_uop.retired and sq_head_uop.done;
 
     P_sq_next_calc : process(R_sq_head, R_sq_tail, R_sq_util, sq_enqueue, sq_dequeue)
@@ -142,7 +143,7 @@ begin
                         R_sq_util <= M_sq_util_snapshot(cdb_in_brmask_index);
                     end if;
                 else
-                    if lsu_in_port.valid = '1' and lsu_in_port.branch_mask /= BR_MASK_ZERO then
+                    if uop_in.valid = '1' and uop_in.branch_mask /= BR_MASK_ZERO then
                         M_sq_tail_snapshot(uop_in_brmask_index) <= R_sq_tail;
                         M_sq_util_snapshot(uop_in_brmask_index) <= sq_util_next;
                     end if;
@@ -211,7 +212,7 @@ begin
     -- ======================================
     --              LOAD QUEUE
     -- ======================================
-    lq_enqueue <= '1' when lq_full = '0' and lsu_in_port.is_load = '1' and lsu_in_port.valid = '1' and
+    lq_enqueue <= '1' when lq_full = '0' and uop_in.funct(3) = '0' and uop_in.valid = '1' and
         not (cdb_in.valid = '1' and cdb_in.branch_mispredicted = '1') else '0';
     lq_dequeue <= not lq_empty and lq_head_uop.done;
 
@@ -256,7 +257,7 @@ begin
                         R_lq_util <= M_lq_util_snapshot(cdb_in_brmask_index);
                     end if;
                 else
-                    if lsu_in_port.valid = '1' and lsu_in_port.branch_mask /= BR_MASK_ZERO then
+                    if uop_in.valid = '1' and uop_in.branch_mask /= BR_MASK_ZERO then
                         M_lq_tail_snapshot(uop_in_brmask_index) <= R_lq_tail;
                         M_lq_util_snapshot(uop_in_brmask_index) <= lq_util_next;
                     end if;
@@ -275,7 +276,7 @@ begin
 
                     M_load_queue(to_integer(R_lq_tail)).address <= (others => '0');
                     M_load_queue(to_integer(R_lq_tail)).address_valid <= '0';
-                    M_load_queue(to_integer(R_lq_tail)).phys_dst_reg <= lsu_in_port.phys_dst_reg;
+                    M_load_queue(to_integer(R_lq_tail)).phys_dst_reg <= uop_in.phys_dst_reg;
                     M_load_queue(to_integer(R_lq_tail)).store_mask <= sq_valid;
                     M_load_queue(to_integer(R_lq_tail)).dispatched <= '0';
                     M_load_queue(to_integer(R_lq_tail)).done <= '0';
@@ -359,9 +360,9 @@ begin
     cdb_out.valid <= R_load_valid;
     cdb_request <= R_load_valid;
 
-    lsu_out_port.sq_index <= R_sq_tail;
-    lsu_out_port.lq_index <= R_lq_tail;
+    uop_allocated_sq <= R_sq_tail;
+    uop_allocated_lq <= R_lq_tail;
 
-    stall_out <= '1' when ((sq_full = '1' and lsu_in_port.is_store = '1') or
-                          (lq_full = '1' and lsu_in_port.is_load = '1')) and lsu_in_port.valid = '1' else '0';
+    stall_out <= '1' when ((sq_full = '1' and uop_in.funct(3) = '1') or
+                          (lq_full = '1' and uop_in.funct(3) = '0')) and uop_in.valid = '1' else '0';
 end rtl;

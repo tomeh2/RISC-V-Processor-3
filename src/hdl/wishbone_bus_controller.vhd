@@ -4,10 +4,13 @@ use IEEE.NUMERIC_STD.ALL;
 use WORK.CPU_PKG.ALL;
 
 entity wishbone_bus_controller is
+    generic(
+        NUM_MASTERS : natural
+    );
     port(
         -- CPU SIDE BUS
-        bus_req : in T_bus_request;
-        bus_resp : out T_bus_response;
+        bus_req : in T_bus_request_array(0 to NUM_MASTERS - 1);
+        bus_resp : out T_bus_response_array(0 to NUM_MASTERS - 1);
         bus_ready : out std_logic;
 
         adr_o : out std_logic_vector(31 downto 0);
@@ -27,6 +30,7 @@ end wishbone_bus_controller;
 architecture rtl of wishbone_bus_controller is
     type T_wb_state is (IDLE, READ_LOCK, WRITE_LOCK);
     signal R_wb_state : T_wb_state;
+    signal R_lock_bus_id : natural range 0 to NUM_MASTERS - 1;
     
     signal R_addr : std_logic_vector(31 downto 0);
     signal R_tag : unsigned(7 downto 0);
@@ -41,64 +45,73 @@ begin
             else
                 case R_wb_state is
                 when IDLE =>
-                    if bus_req.valid = '1' then
-                        R_addr <= bus_req.address;
-                        R_wr_data <= bus_req.data;
-                        R_tag <= bus_req.tag;
-
-                        if bus_req.rw = '1' then
-                            R_wb_state <= WRITE_LOCK;
-                        else
-                            R_wb_state <= READ_LOCK;
+                    for i in NUM_MASTERS - 1 downto 0 loop
+                        if bus_req(i).valid = '1' then
+                            R_addr <= bus_req(i).address;
+                            R_wr_data <= bus_req(i).data;
+                            R_tag <= bus_req(i).tag;
+                            
+                            if bus_req(i).rw = '1' then
+                                R_wb_state <= WRITE_LOCK;
+                            else
+                                R_wb_state <= READ_LOCK;
+                            end if;
+                            R_lock_bus_id <= i;
                         end if;
-                    end if;
+                    end loop;
                 when READ_LOCK =>
                     if ack_i = '1' then
                         R_wb_state <= IDLE;
+                        R_lock_bus_id <= 0;
                     end if;
                 when WRITE_LOCK =>
                     if ack_i = '1' then
                         R_wb_state <= IDLE;
+                        R_lock_bus_id <= 0;
                     end if;
                 end case;
             end if;
         end if;
     end process;
 
-    process(R_wb_state, ack_i, R_tag)
+    process(R_wb_state, ack_i, R_tag, dat_i)
     begin
         sel_o <= "0000";
         stb_o <= '0';
         cyc_o <= '0';
         we_o <= '0';
         bus_ready <= '1';
+        for i in 0 to NUM_MASTERS - 1 loop
+            bus_resp(i).rw <= '0';
+            bus_resp(i).valid <= '0';
+            bus_resp(i).tag <= (others => '0');
+        end loop;
 
-        bus_resp.rw <= '0';
-        bus_resp.valid <= '0';
-        bus_resp.tag <= (others => '0');
         case R_wb_state is
         when IDLE =>
             
         when READ_LOCK =>
+            bus_ready <= '0';
             sel_o <= "1111";
             stb_o <= '1';
             cyc_o <= '1';
 
-            bus_resp.data <= dat_i;
-            bus_resp.rw <= '0';
-            bus_resp.valid <= ack_i;
-            bus_resp.tag <= R_tag;
+            bus_resp(R_lock_bus_id).data <= dat_i;
+            bus_resp(R_lock_bus_id).rw <= '0';
+            bus_resp(R_lock_bus_id).valid <= ack_i;
+            bus_resp(R_lock_bus_id).tag <= R_tag;
         when WRITE_LOCK =>
+            bus_ready <= '0';
             sel_o <= "1111";
             stb_o <= '1';
             cyc_o <= '1';
             we_o <= '1';
 
-            bus_resp.rw <= '1';
-            bus_resp.valid <= ack_i;
-            bus_resp.tag <= R_tag;
+            bus_resp(R_lock_bus_id).rw <= '1';
+            bus_resp(R_lock_bus_id).valid <= ack_i;
+            bus_resp(R_lock_bus_id).tag <= R_tag;
         when others =>
-            
+            bus_ready <= '0';
         end case;
     end process;
     adr_o <= R_addr;

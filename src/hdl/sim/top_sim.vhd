@@ -12,8 +12,10 @@ architecture Behavioral of top_sim is
 
     signal clk, reset : std_logic;
 
-    signal bus_req : T_bus_request;
-    signal bus_resp : T_bus_response;
+    signal bus_req_fe   : T_bus_request;
+    signal bus_resp_fe  : T_bus_response;
+    signal bus_req_lsu  : T_bus_request;
+    signal bus_resp_lsu : T_bus_response;
     signal bus_ready : std_logic;
 
     signal adr_o : std_logic_vector(31 downto 0);
@@ -47,15 +49,20 @@ begin
     end process;
 
     cpu_top_inst : entity work.cpu
-    port map(bus_req     => bus_req,
-             bus_resp    => bus_resp,
-             bus_ready   => bus_ready,
-             clk         => clk,
-             reset       => reset);
+    port map(bus_req_fe     => bus_req_fe,
+             bus_resp_fe    => bus_resp_fe,
+             bus_req_lsu    => bus_req_lsu,
+             bus_resp_lsu   => bus_resp_lsu,
+             bus_ready      => bus_ready,
+             clk            => clk,
+             reset          => reset);
              
     wb_cntrlr_inst : entity work.wishbone_bus_controller
-    port map(bus_req => bus_req,
-             bus_resp => bus_resp,
+    generic map(NUM_MASTERS => 2)
+    port map(bus_req(0) => bus_req_fe,
+             bus_req(1) => bus_req_lsu,
+             bus_resp(0) => bus_resp_fe,
+             bus_resp(1) => bus_resp_lsu,
              bus_ready => bus_ready,
 
              adr_o => adr_o,

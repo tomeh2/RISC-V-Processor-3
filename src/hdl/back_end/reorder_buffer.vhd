@@ -5,8 +5,9 @@ use WORK.CPU_PKG.ALL;
 
 entity reorder_buffer is
     port(
-        rob_in_port : in T_rob_in_port;
-        rob_out_port : out T_rob_out_port;
+        uop_in : in T_uop;
+        uop_allocated_id : out unsigned(UOP_INDEX_WIDTH - 1 downto 0);
+
         cdb : in T_uop;
 
         retired_uop : out T_rob;
@@ -44,19 +45,19 @@ architecture rtl of reorder_buffer is
     signal full : std_logic;
     signal empty : std_logic;
 begin
-    uop_in_brmask_index <= F_brmask_to_index(rob_in_port.branch_mask);
+    uop_in_brmask_index <= F_brmask_to_index(uop_in.branch_mask);
     cdb_brmask_index <= F_brmask_to_index(cdb.branch_mask);
     full <= '1' when tail_index_next = R_head_index else '0';
     empty <= '1' when R_head_index = R_tail_index else '0';
 
     insert_enable <= '1' when 
-        (rob_in_port.valid = '1' and full = '0') and (stall_in = '0' or R_pipeline.valid = '0') and
+        (uop_in.valid = '1' and full = '0') and (stall_in = '0' or R_pipeline.valid = '0') and
         (cdb.branch_mispredicted = '0' or cdb.valid = '0') else '0';
     retire_enable <= '1' when empty = '0' and R_uop_head.executed = '1' and
         not (cdb.valid = '1' and cdb.branch_mispredicted = '1') else '0';
 
-    rob_write_entry.arch_dst_reg <= rob_in_port.arch_dst_reg;
-    rob_write_entry.phys_dst_reg <= rob_in_port.phys_dst_reg;
+    rob_write_entry.arch_dst_reg <= uop_in.arch_dst_reg;
+    rob_write_entry.phys_dst_reg <= uop_in.phys_dst_reg;
     rob_write_entry.executed <= '0';
 
     -- This process generates the next value which pointer registers have to
@@ -114,11 +115,11 @@ begin
                 if cdb.valid = '1' and cdb.branch_mispredicted = '1' then
 
                 else
-                    if rob_in_port.valid = '1' and stall_in = '0' and full = '0' then
+                    if uop_in.valid = '1' and stall_in = '0' and full = '0' then
                         -- Update ROB memory
                         M_rob(to_integer(R_tail_index)) <= rob_write_entry;
 
-                        if rob_in_port.branch_mask /= BR_MASK_ZERO then
+                        if uop_in.branch_mask /= BR_MASK_ZERO then
                             M_tail_snapshots(uop_in_brmask_index) <= tail_index_next;
                         end if;
                     end if;
@@ -138,7 +139,7 @@ begin
         end if;
     end process;
 
-    rob_out_port.id <= R_tail_index;
+    uop_allocated_id <= R_tail_index;
 
     retired_uop <= R_uop_head;
     retired_uop_valid <= retire_enable;
