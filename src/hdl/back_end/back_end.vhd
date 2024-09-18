@@ -9,6 +9,9 @@ entity back_end is
         -- uOP from decoder
         uop_1       : in T_uop;
 
+        -- CDB
+        cdb_out     : out T_uop;
+
         -- Flow control
         stall_be    : out std_logic;
 
@@ -144,7 +147,7 @@ begin
              stall_out      => eu0_stall_out,
              clk            => clk,
              reset          => reset);
-    
+
     process(eu0_out, cdb_out_lsu)
     begin
         eu0_stall_in <= '1';
@@ -176,5 +179,6 @@ begin
              stall_out          => lsu_stall_out,
              clk                => clk,
              reset              => reset);
-    
+
+    cdb_out <= cdb;
 end rtl;
