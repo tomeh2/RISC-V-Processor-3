@@ -12,15 +12,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
-      <ZoomEndTime time="266.205 ns"></ZoomEndTime>
-      <Cursor1Time time="110.852 ns"></Cursor1Time>
+      <ZoomStartTime time="342.953 ns"></ZoomStartTime>
+      <ZoomEndTime time="538.899 ns"></ZoomEndTime>
+      <Cursor1Time time="395.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="263"></NameColumnWidth>
-      <ValueColumnWidth column_width="80"></ValueColumnWidth>
+      <ValueColumnWidth column_width="64"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="15" />
+   <WVObjectSize size="16" />
    <wvobject fp_name="/top_sim/clk" type="logic">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
@@ -161,6 +161,7 @@
    <wvobject fp_name="group50" type="group">
       <obj_property name="label">FRONT_END</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="group14203" type="group">
          <obj_property name="label">FETCH FIFO</obj_property>
          <obj_property name="DisplayName">label</obj_property>
@@ -358,6 +359,7 @@
    <wvobject fp_name="group409" type="group">
       <obj_property name="label">INSTRUCTION_DECODER</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_instr_dec/instruction" type="array">
          <obj_property name="ElementShortName">instruction[31:0]</obj_property>
          <obj_property name="ObjectShortName">instruction[31:0]</obj_property>
@@ -377,6 +379,7 @@
       <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_instr_dec/decoded_uop" type="array">
          <obj_property name="ElementShortName">decoded_uop</obj_property>
          <obj_property name="ObjectShortName">decoded_uop</obj_property>
+         <obj_property name="isExpanded"></obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_instr_dec/instruction_type" type="other">
          <obj_property name="ElementShortName">instruction_type</obj_property>
@@ -740,7 +743,6 @@
    <wvobject fp_name="group216" type="group">
       <obj_property name="label">WISHBONE CONTROLLER</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/top_sim/wb_cntrlr_inst/bus_req" type="array">
          <obj_property name="ElementShortName">bus_req[0:1]</obj_property>
          <obj_property name="ObjectShortName">bus_req[0:1]</obj_property>
@@ -812,6 +814,44 @@
       <wvobject fp_name="/top_sim/wb_cntrlr_inst/NUM_MASTERS" type="other">
          <obj_property name="ElementShortName">NUM_MASTERS</obj_property>
          <obj_property name="ObjectShortName">NUM_MASTERS</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group3456" type="group">
+      <obj_property name="label">BRANCH CONTROLLER</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_branch_controller/cdb_in" type="array">
+         <obj_property name="ElementShortName">cdb_in</obj_property>
+         <obj_property name="ObjectShortName">cdb_in</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_branch_controller/uop_in" type="array">
+         <obj_property name="ElementShortName">uop_in</obj_property>
+         <obj_property name="ObjectShortName">uop_in</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_branch_controller/stall_in" type="logic">
+         <obj_property name="ElementShortName">stall_in</obj_property>
+         <obj_property name="ObjectShortName">stall_in</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_branch_controller/stall_out" type="logic">
+         <obj_property name="ElementShortName">stall_out</obj_property>
+         <obj_property name="ObjectShortName">stall_out</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_branch_controller/free_branch_mask" type="array">
+         <obj_property name="ElementShortName">free_branch_mask[3:0]</obj_property>
+         <obj_property name="ObjectShortName">free_branch_mask[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_branch_controller/R_used_brmasks_bitmap" type="array">
+         <obj_property name="ElementShortName">R_used_brmasks_bitmap[3:0]</obj_property>
+         <obj_property name="ObjectShortName">R_used_brmasks_bitmap[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_branch_controller/full" type="logic">
+         <obj_property name="ElementShortName">full</obj_property>
+         <obj_property name="ObjectShortName">full</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/cpu_top_inst/cpu_core_0_inst/fe_inst/I_branch_controller/BRANCHING_DEPTH" type="other">
+         <obj_property name="ElementShortName">BRANCHING_DEPTH</obj_property>
+         <obj_property name="ObjectShortName">BRANCHING_DEPTH</obj_property>
       </wvobject>
    </wvobject>
 </wave_config>

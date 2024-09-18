@@ -20,7 +20,6 @@ entity front_end is
 end front_end;
 
 architecture rtl of front_end is
-    
     signal fetch_fifo_instruction_write : std_logic_vector(63 downto 0);
     signal fetch_fifo_instruction_read : std_logic_vector(63 downto 0);
     signal fetch_fifo_full : std_logic;
@@ -33,6 +32,9 @@ architecture rtl of front_end is
     signal stall_fetch : std_logic;
 
     signal R_program_counter : unsigned(ADDR_WIDTH - 1 downto 0);
+
+    signal bc_stall : std_logic;
+    signal bc_free_branch_mask : std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0);
 begin
     -- ===================================
     --      INSTRUCTION FETCH LOGIC
@@ -77,4 +79,15 @@ begin
              pc                     => unsigned(fetch_fifo_instruction_read(63 downto 32)),
              invalid_instruction    => open,
              decoded_uop            => uop_out);
+
+    I_branch_controller : entity work.branch_controller
+    generic map(BRANCHING_DEPTH => MAX_SPEC_BRANCHES)
+    port map(clk                => clk,
+             reset              => reset,
+             cdb_in             => cdb_in,
+             uop_in             => uop_out,
+             stall_in           => stall_be,
+             stall_out          => bc_stall,
+             free_branch_mask   => bc_free_branch_mask);
+    uop_out.branch_mask <= bc_free_branch_mask;
 end rtl;
