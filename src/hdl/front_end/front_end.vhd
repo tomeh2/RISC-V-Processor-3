@@ -30,6 +30,7 @@ architecture rtl of front_end is
     signal R_pipeline_0_valid : std_logic;
 
     signal stall_fetch : std_logic;
+    signal flush_all : std_logic;
 
     signal R_program_counter : unsigned(ADDR_WIDTH - 1 downto 0);
 
@@ -38,6 +39,7 @@ architecture rtl of front_end is
     signal bc_stall : std_logic;
     signal bc_free_branch_mask : std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0);
 begin
+    flush_all <= cdb_in.valid and cdb_in.branch_mispredicted;
     -- ===================================
     --      INSTRUCTION FETCH LOGIC
     -- ===================================
@@ -45,7 +47,7 @@ begin
     generic map(BITS_PER_ENTRY => 64,
                 ENTRIES => 4)
     port map(clk        => clk,
-             reset      => reset,
+             reset      => reset or flush_all,
              data_in    => fetch_fifo_instruction_write,
              data_out   => fetch_fifo_instruction_read,
              get_en     => not stall_be,
@@ -61,7 +63,9 @@ begin
             if reset = '1' then
                 R_program_counter <= to_unsigned(0, ADDR_WIDTH); 
             else
-                if bus_resp.valid = '1' then
+                if flush_all = '1' and cdb_in.branch_taken = '1' then
+                    R_program_counter <= unsigned(cdb_in.reg_write_data);
+                elsif bus_resp.valid = '1' then
                     R_program_counter <= R_program_counter + 4;
                 end if;
             end if;
@@ -95,6 +99,7 @@ begin
     process(instdec_uop, bc_free_branch_mask)
     begin
         uop_out <= instdec_uop;
+        uop_out.branch_pred_taken <= '0';
         uop_out.branch_mask <= bc_free_branch_mask;
     end process;
     

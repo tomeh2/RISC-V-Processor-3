@@ -75,10 +75,12 @@ begin
                 instruction_type <= J_TYPE;
                 exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
                 is_speculative_br <= '1';
+                funct <= "1100000000";
             when OPCODE_JALR =>
                 instruction_type <= I_TYPE;
                 exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
                 is_speculative_br <= '1';
+                funct <= "0100000000";
             when others =>
                 invalid_instruction <= instruction_valid;
             end case;

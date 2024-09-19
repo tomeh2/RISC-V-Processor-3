@@ -123,6 +123,8 @@ package cpu_pkg is
         lq_index            : unsigned(LQ_TAG_WIDTH - 1 downto 0);
         -- Branch speculation masks
         is_speculative_br   : std_logic;
+        branch_pred_taken   : std_logic;
+        branch_taken        : std_logic;
         branch_mispredicted : std_logic;
         branch_mask         : std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0);
         spec_branch_mask    : std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0);
@@ -238,6 +240,8 @@ package cpu_pkg is
         '0',
         (others => '0'),
         (others => '0'),
+        '0',
+        '0',
         '0',
         '0',
         (others => '0'),
