@@ -28,7 +28,7 @@ architecture rtl of branch_controller is
     signal R_used_brmasks_bitmap : std_logic_vector(BRANCHING_DEPTH - 1 downto 0);
     signal full : std_logic; 
 begin
-    process(R_used_brmasks_bitmap)
+    process(R_used_brmasks_bitmap, uop_in.is_speculative_br)
         variable v_free_brmask : std_logic_vector(BRANCHING_DEPTH - 1 downto 0);
         variable v_full : std_logic;
     begin
@@ -40,7 +40,7 @@ begin
                 v_full := '0';
             end if;
         end loop;
-        free_branch_mask <= v_free_brmask;
+        free_branch_mask <= v_free_brmask when uop_in.is_speculative_br = '1' else (others => '0');
         full <= v_full;
     end process;
 

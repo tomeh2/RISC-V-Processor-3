@@ -33,6 +33,8 @@ architecture rtl of front_end is
 
     signal R_program_counter : unsigned(ADDR_WIDTH - 1 downto 0);
 
+    signal instdec_uop : T_uop;
+
     signal bc_stall : std_logic;
     signal bc_free_branch_mask : std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0);
 begin
@@ -78,16 +80,22 @@ begin
              instruction_valid      => not fetch_fifo_empty,
              pc                     => unsigned(fetch_fifo_instruction_read(63 downto 32)),
              invalid_instruction    => open,
-             decoded_uop            => uop_out);
+             decoded_uop            => instdec_uop);
 
     I_branch_controller : entity work.branch_controller
     generic map(BRANCHING_DEPTH => MAX_SPEC_BRANCHES)
     port map(clk                => clk,
              reset              => reset,
              cdb_in             => cdb_in,
-             uop_in             => uop_out,
+             uop_in             => instdec_uop,
              stall_in           => stall_be,
              stall_out          => bc_stall,
              free_branch_mask   => bc_free_branch_mask);
-    uop_out.branch_mask <= bc_free_branch_mask;
+
+    process(instdec_uop, bc_free_branch_mask)
+    begin
+        uop_out <= instdec_uop;
+        uop_out.branch_mask <= bc_free_branch_mask;
+    end process;
+    
 end rtl;
