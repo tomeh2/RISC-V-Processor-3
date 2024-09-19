@@ -28,7 +28,6 @@ architecture rtl of register_rename is
     signal raa_empty : std_logic;
 
     signal rat_write_enable_1 : std_logic;
-    signal rat_empty : std_logic;
     signal rat_phys_src_reg_1 : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
     signal rat_phys_src_reg_2 : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
     signal phys_src_reg_1_valid : std_logic;
@@ -38,8 +37,6 @@ architecture rtl of register_rename is
     signal take_snapshot_index : natural range 0 to MAX_SPEC_BRANCHES - 1;
     signal recover_snapshot_enable : std_logic;
     signal recover_snapshot_index : natural range 0 to MAX_SPEC_BRANCHES - 1;
-
-    signal stall : std_logic;
 begin
     take_snapshot_enable <= '1' when uop_in.branch_mask /= BR_MASK_ZERO and uop_in.valid = '1' and stall_in = '0' else '0';
     F_priority_encoder(uop_in.branch_mask, take_snapshot_index);

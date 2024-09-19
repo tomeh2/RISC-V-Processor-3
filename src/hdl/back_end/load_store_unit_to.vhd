@@ -97,7 +97,7 @@ begin
     uop_in_brmask_index <= F_brmask_to_index(uop_in.branch_mask);
     cdb_in_brmask_index <= F_brmask_to_index(cdb_in.branch_mask);
 
-    sq_enqueue <= '1' when sq_full = '0' and uop_in.funct(3) = '1' and uop_in.valid = '1' else '0';
+    sq_enqueue <= '1' when sq_full = '0' and uop_in.exec_unit_id = 1 and uop_in.funct(3) = '1' and uop_in.valid = '1' else '0';
     sq_dequeue <= not sq_empty and sq_head_uop.retired and sq_head_uop.done;
 
     P_sq_next_calc : process(R_sq_head, R_sq_tail, R_sq_util, sq_enqueue, sq_dequeue)
@@ -212,7 +212,7 @@ begin
     -- ======================================
     --              LOAD QUEUE
     -- ======================================
-    lq_enqueue <= '1' when lq_full = '0' and uop_in.funct(3) = '0' and uop_in.valid = '1' and
+    lq_enqueue <= '1' when lq_full = '0' and uop_in.exec_unit_id = 1 and uop_in.funct(3) = '0' and uop_in.valid = '1' and
         not (cdb_in.valid = '1' and cdb_in.branch_mispredicted = '1') else '0';
     lq_dequeue <= not lq_empty and lq_head_uop.done;
 

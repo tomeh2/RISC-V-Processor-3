@@ -89,7 +89,7 @@ begin
              cdb                => cdb,
              retired_uop        => rob_retired_uop,
              retired_uop_valid  => rob_retired_uop_valid,
-             stall_in           => R_pipeline_1.valid and sched_stall_out,
+             stall_in           => (R_pipeline_1.valid and sched_stall_out) or lsu_stall_out,
              stall_out          => rob_stall_out,
              clk                => clk,
              reset              => reset);
