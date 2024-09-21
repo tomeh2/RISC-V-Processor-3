@@ -57,6 +57,8 @@ architecture rtl of back_end is
     signal rob_stall_out : std_logic;
     signal lsu_stall_out : std_logic;
 
+    signal rat_debug : T_rr_debug;
+
     signal cdb : T_uop;
 begin
     stall_be <= rr_stall_out;
@@ -70,6 +72,7 @@ begin
              cdb_in                 => cdb,
              stall_in               => pipeline_1_stall,
              stall_out              => rr_stall_out,
+             debug_out              => rat_debug,
              clk                    => clk,
              reset                  => reset);
     -- ===========================================
@@ -129,13 +132,14 @@ begin
     --             PIPELINE STAGE 3
     -- ===========================================
     regfile_inst : entity work.register_file
-    port map(uop_in     => uop_sched_out,
-             uop_out    => uop_rf_out,
-             cdb_in     => cdb,
-             stall_in   => eu0_stall_out,
-             stall_out  => rf_stall_out,
-             clk        => clk,
-             reset      => reset);
+    port map(uop_in         => uop_sched_out,
+             uop_out        => uop_rf_out,
+             cdb_in         => cdb,
+             stall_in       => eu0_stall_out,
+             stall_out      => rf_stall_out,
+             debug_rat_in   => rat_debug,
+             clk            => clk,
+             reset          => reset);
     -- ===========================================
     --             PIPELINE STAGE 4
     -- ===========================================

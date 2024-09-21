@@ -215,6 +215,8 @@ package cpu_pkg is
     end record;
     type T_bus_response_array is array (natural range<>) of T_bus_response;
 
+    type T_rr_debug is array (0 to 31) of std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
+
     constant CDB_ZERO : T_cdb := (
         (others => '0'),
         (others => '0'),

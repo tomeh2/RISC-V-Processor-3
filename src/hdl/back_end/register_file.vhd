@@ -32,12 +32,17 @@ entity register_file is
         stall_in    : in std_logic;
         stall_out   : out std_logic;
 
+        debug_rat_in : in T_rr_debug;
+
         clk : in std_logic;
         reset : in std_logic
     );
 end register_file;
 
 architecture rtl of register_file is
+    type T_arch_regfile_debug is array (0 to 31) of std_logic_vector(DATA_WIDTH - 1 downto 0);
+    signal arch_regfile_debug : T_arch_regfile_debug;
+
     type T_regfile_entry is record
         data : std_logic_vector(DATA_WIDTH - 1 downto 0);
     end record;
@@ -91,4 +96,11 @@ begin
 
     uop_out <= R_pipeline_0;
     stall_out <= stall_in and R_pipeline_0.valid;
+
+    P_debug : process(M_regfile, debug_rat_in)
+    begin
+        for i in 0 to 31 loop
+            arch_regfile_debug(i) <= M_regfile(to_integer(unsigned(debug_rat_in(i)))).data;
+        end loop;
+    end process;
 end rtl;

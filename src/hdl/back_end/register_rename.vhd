@@ -14,6 +14,8 @@ entity register_rename is
         stall_in : in std_logic;
         stall_out : out std_logic;
 
+        debug_out : out T_rr_debug;
+
         clk : in std_logic;
         reset : in std_logic
     );
@@ -73,6 +75,7 @@ begin
              take_snapshot_index => take_snapshot_index,
              recover_snapshot_enable => recover_snapshot_enable,
              recover_snapshot_index => recover_snapshot_index,
+             debug_out => debug_out,
              clk => clk,
              reset => reset);
 

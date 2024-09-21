@@ -30,6 +30,8 @@ entity register_alias_table is
         recover_snapshot_enable : in std_logic;
         recover_snapshot_index : in integer;
 
+        debug_out : out T_rr_debug;
+
         clk : in std_logic;
         reset : in std_logic
     );
@@ -81,5 +83,12 @@ begin
     begin
         phys_read_tag_1 <= M_rat(F_vec_to_int(arch_read_tag_1));
         phys_read_tag_2 <= M_rat(F_vec_to_int(arch_read_tag_2));
+    end process;
+
+    P_debug : process(M_rat)
+    begin
+        for i in 0 to 31 loop
+            debug_out(i) <= M_rat(i);
+        end loop;
     end process;
 end rtl;
