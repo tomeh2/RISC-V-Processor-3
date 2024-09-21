@@ -22,6 +22,7 @@ end front_end;
 architecture rtl of front_end is
     signal fetch_fifo_instruction_write : std_logic_vector(63 downto 0);
     signal fetch_fifo_instruction_read : std_logic_vector(63 downto 0);
+    signal fetch_fifo_put_en : std_logic;
     signal fetch_fifo_full : std_logic;
     signal fetch_fifo_empty : std_logic;
 
@@ -51,12 +52,13 @@ begin
              data_in    => fetch_fifo_instruction_write,
              data_out   => fetch_fifo_instruction_read,
              get_en     => not stall_be,
-             put_en     => bus_resp.valid,
+             put_en     => fetch_fifo_put_en,
              full       => fetch_fifo_full,
              empty      => fetch_fifo_empty);
     fetch_fifo_instruction_write(63 downto 32) <= std_logic_vector(R_program_counter);
     fetch_fifo_instruction_write(31 downto 0) <= bus_resp.data;
 
+    fetch_fifo_put_en <= '1' when bus_resp.valid = '1' and unsigned(bus_resp.address) = R_program_counter else '0';
     P_pc_cntrl : process(clk)
     begin
         if rising_edge(clk) then
@@ -65,7 +67,7 @@ begin
             else
                 if flush_all = '1' and cdb_in.branch_taken = '1' then
                     R_program_counter <= unsigned(cdb_in.reg_write_data);
-                elsif bus_resp.valid = '1' then
+                elsif fetch_fifo_put_en = '1' then
                     R_program_counter <= R_program_counter + 4;
                 end if;
             end if;
@@ -73,7 +75,6 @@ begin
     end process;
 
     bus_req.address <= std_logic_vector(R_program_counter);
-    bus_req.tag <= (others => '0');
     bus_req.valid <= not reset and not fetch_fifo_full;
     
     -- ===================================

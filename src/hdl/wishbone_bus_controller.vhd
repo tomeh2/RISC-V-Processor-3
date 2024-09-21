@@ -33,7 +33,6 @@ architecture rtl of wishbone_bus_controller is
     signal R_lock_bus_id : natural range 0 to NUM_MASTERS - 1;
     
     signal R_addr : std_logic_vector(31 downto 0);
-    signal R_tag : unsigned(7 downto 0);
     signal R_wr_data : std_logic_vector(31 downto 0);
     signal R_rd_data : std_logic_vector(31 downto 0);
 begin
@@ -49,7 +48,6 @@ begin
                         if bus_req(i).valid = '1' then
                             R_addr <= bus_req(i).address;
                             R_wr_data <= bus_req(i).data;
-                            R_tag <= bus_req(i).tag;
                             
                             if bus_req(i).rw = '1' then
                                 R_wb_state <= WRITE_LOCK;
@@ -74,7 +72,7 @@ begin
         end if;
     end process;
 
-    process(R_wb_state, ack_i, R_tag, dat_i)
+    process(R_wb_state, ack_i, dat_i, R_addr)
     begin
         sel_o <= "0000";
         stb_o <= '0';
@@ -84,7 +82,7 @@ begin
         for i in 0 to NUM_MASTERS - 1 loop
             bus_resp(i).rw <= '0';
             bus_resp(i).valid <= '0';
-            bus_resp(i).tag <= (others => '0');
+            bus_resp(i).address <= (others => '0');
         end loop;
 
         case R_wb_state is
@@ -99,7 +97,7 @@ begin
             bus_resp(R_lock_bus_id).data <= dat_i;
             bus_resp(R_lock_bus_id).rw <= '0';
             bus_resp(R_lock_bus_id).valid <= ack_i;
-            bus_resp(R_lock_bus_id).tag <= R_tag;
+            bus_resp(R_lock_bus_id).address <= R_addr;
         when WRITE_LOCK =>
             bus_ready <= '0';
             sel_o <= "1111";
@@ -109,7 +107,7 @@ begin
 
             bus_resp(R_lock_bus_id).rw <= '1';
             bus_resp(R_lock_bus_id).valid <= ack_i;
-            bus_resp(R_lock_bus_id).tag <= R_tag;
+            bus_resp(R_lock_bus_id).address <= R_addr;
         when others =>
             bus_ready <= '0';
         end case;

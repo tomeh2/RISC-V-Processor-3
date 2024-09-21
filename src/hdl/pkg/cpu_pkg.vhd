@@ -200,7 +200,6 @@ package cpu_pkg is
         data            : std_logic_vector(DATA_WIDTH - 1 downto 0);
         data_size       : std_logic_vector(1 downto 0);
         rw              : std_logic;
-        tag             : unsigned(7 downto 0);
         valid           : std_logic;
     end record;
     type T_bus_request_array is array (natural range<>) of T_bus_request;
@@ -209,8 +208,8 @@ package cpu_pkg is
     -- back to the LSU once the R/W operation has been processed
     type T_bus_response is record
         data            : std_logic_vector(DATA_WIDTH - 1 downto 0);
+        address         : std_logic_vector(ADDR_WIDTH - 1 downto 0);
         rw              : std_logic;
-        tag             : unsigned(7 downto 0);
         valid           : std_logic;
     end record;
     type T_bus_response_array is array (natural range<>) of T_bus_response;
@@ -259,8 +258,8 @@ package cpu_pkg is
     
     constant BUS_RESP_ZERO : T_bus_response := (
         (others => '0'),
-        '0',
         (others => '0'),
+        '0',
         '0'
     );
 

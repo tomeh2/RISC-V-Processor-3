@@ -199,7 +199,7 @@ begin
                 end if;
 
                 if bus_resp.valid = '1' and bus_resp.rw = '1' then
-                    M_store_queue(to_integer(bus_resp.tag(SQ_TAG_WIDTH - 1 downto 0))).done <= '1';
+                    M_store_queue(to_integer(R_sq_head)).done <= '1';
                 end if;
             end if;
         end if;
@@ -335,22 +335,19 @@ begin
     assert lq_dispatch_enable = '0' or sq_dispatch_enable = '0'
         report "LQ Dispatch Enable and SQ Dispatch Enable both 1 at the same time" severity error;
     
-    process(lq_head_uop, lq_dispatch_enable, sq_head_uop, sq_dispatch_enable, R_lq_head, R_sq_head)
+    process(lq_head_uop, lq_dispatch_enable, sq_head_uop, sq_dispatch_enable)
     begin
-        bus_req.tag <= (others => '0');
         if lq_dispatch_enable = '1' then
             bus_req.address <= lq_head_uop.address;
             bus_req.data <= (others => '0');
             bus_req.data_size <= "00";
             bus_req.rw <= '0';
-            bus_req.tag(LQ_TAG_WIDTH - 1 downto 0) <= R_lq_head;
             bus_req.valid <= '1';
         else
             bus_req.address <= sq_head_uop.address;
             bus_req.data <= sq_head_uop.data;
             bus_req.data_size <= "00";
             bus_req.rw <= '1';
-            bus_req.tag(SQ_TAG_WIDTH - 1 downto 0) <= R_sq_head;
             bus_req.valid <= sq_dispatch_enable;
         end if;
     end process;
