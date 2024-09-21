@@ -11,6 +11,9 @@ entity register_rename is
         
         cdb_in : in T_uop;
 
+        rob_in : in T_rob;
+        rob_in_valid : in std_logic;
+
         stall_in : in std_logic;
         stall_out : out std_logic;
 
@@ -34,6 +37,7 @@ architecture rtl of register_rename is
     signal rat_phys_src_reg_2 : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
     signal phys_src_reg_1_valid : std_logic;
     signal phys_src_reg_2_valid : std_logic;
+    signal phys_dst_reg_retire : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
 
     signal take_snapshot_enable : std_logic;
     signal take_snapshot_index : natural range 0 to MAX_SPEC_BRANCHES - 1;
@@ -51,8 +55,8 @@ begin
                 MASK_LENGTH => PHYS_REGFILE_ENTRIES)
     port map(get_tag => raa_get_tag,
              get_enable => raa_get_enable,
-             put_tag => (others => '0'),
-             put_enable => '0',
+             put_tag => phys_dst_reg_retire,
+             put_enable => rob_in_valid,
              take_snapshot_enable => take_snapshot_enable,
              take_snapshot_index => take_snapshot_index,
              recover_snapshot_enable => recover_snapshot_enable,
@@ -75,6 +79,23 @@ begin
              take_snapshot_index => take_snapshot_index,
              recover_snapshot_enable => recover_snapshot_enable,
              recover_snapshot_index => recover_snapshot_index,
+             debug_out => open,
+             clk => clk,
+             reset => reset);
+
+    retirement_rat_inst : entity work.register_alias_table
+    generic map(ENABLE_MISPREDICT_RECOVERY => false)
+    port map(arch_read_tag_1 => rob_in.arch_dst_reg,
+             arch_read_tag_2 => (others => '0'),
+             phys_read_tag_1 => phys_dst_reg_retire,
+             phys_read_tag_2 => open,
+             arch_write_tag_1 => rob_in.arch_dst_reg,
+             phys_write_tag_1 => rob_in.phys_dst_reg,
+             write_enable_1 => rob_in_valid,
+             take_snapshot_enable => '0',
+             take_snapshot_index => 0,
+             recover_snapshot_enable => '0',
+             recover_snapshot_index => 0,
              debug_out => debug_out,
              clk => clk,
              reset => reset);

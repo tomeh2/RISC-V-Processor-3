@@ -70,6 +70,8 @@ begin
     port map(uop_in                 => uop_1,
              uop_out                => uop_rr_out,
              cdb_in                 => cdb,
+             rob_in                 => rob_retired_uop,
+             rob_in_valid           => rob_retired_uop_valid,
              stall_in               => pipeline_1_stall,
              stall_out              => rr_stall_out,
              debug_out              => rat_debug,

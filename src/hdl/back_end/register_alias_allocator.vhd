@@ -82,7 +82,7 @@ begin
                         end loop;
                     end if;
     
-                    if put_enable = '1' then
+                    if put_enable = '1' and unsigned(put_tag) /= 0 then
                         R_active_mask(F_vec_to_int(put_tag)) <= '1';
                     end if;
                 end if;
