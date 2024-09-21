@@ -25,6 +25,11 @@ end branch_controller;
 -- TODO: FINISH THIS MODULE
 
 architecture rtl of branch_controller is
+    type T_bc_mispredict_recovery_memory is array (0 to BRANCHING_DEPTH - 1) of std_logic_vector(BRANCHING_DEPTH - 1 downto 0);
+    signal M_mispredict_recovery_memory : T_bc_mispredict_recovery_memory;
+
+    signal cdb_in_branch_mask_index : natural range 0 to BRANCHING_DEPTH - 1;
+    signal free_branch_mask_index : natural range 0 to BRANCHING_DEPTH - 1;
     signal R_used_brmasks_bitmap : std_logic_vector(BRANCHING_DEPTH - 1 downto 0);
     signal full : std_logic; 
 begin
@@ -43,19 +48,34 @@ begin
         free_branch_mask <= v_free_brmask when uop_in.is_speculative_br = '1' else (others => '0');
         full <= v_full;
     end process;
+    F_priority_encoder(free_branch_mask, free_branch_mask_index);
+    F_priority_encoder(cdb_in.branch_mask, cdb_in_branch_mask_index);
 
     process(clk)
+        
     begin
         if rising_edge(clk) then
             if reset = '1' then
                 R_used_brmasks_bitmap <= (others => '0');
             else
-                if uop_in.valid = '1' and uop_in.is_speculative_br = '1' and stall_in = '0' then
-                    R_used_brmasks_bitmap <= R_used_brmasks_bitmap or free_branch_mask;
-                end if;
-
                 if cdb_in.valid = '1' then
                     R_used_brmasks_bitmap <= R_used_brmasks_bitmap and not cdb_in.branch_mask;
+
+                    for i in 0 to BRANCHING_DEPTH - 1 loop
+                        M_mispredict_recovery_memory(i) <= M_mispredict_recovery_memory(i) and not cdb_in.branch_mask;
+                    end loop;
+                end if;
+
+                if cdb_in.valid = '1' and cdb_in.branch_mispredicted = '1' then
+                    R_used_brmasks_bitmap <= M_mispredict_recovery_memory(cdb_in_branch_mask_index);
+                elsif uop_in.valid = '1' and uop_in.is_speculative_br = '1' and stall_in = '0' then
+                    R_used_brmasks_bitmap <= R_used_brmasks_bitmap or free_branch_mask;
+
+                    if cdb_in.valid = '1' then
+                        M_mispredict_recovery_memory(free_branch_mask_index) <= R_used_brmasks_bitmap and not cdb_in.branch_mask;
+                    else
+                        M_mispredict_recovery_memory(free_branch_mask_index) <= R_used_brmasks_bitmap;
+                    end if;
                 end if;
             end if;
         end if;
