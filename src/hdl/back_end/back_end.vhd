@@ -173,7 +173,7 @@ begin
              bus_req            => bus_req,
              bus_resp           => bus_resp,
              bus_ready          => bus_ready,
-             stall_in           => R_pipeline_1.valid and sched_stall_out,
+             stall_in           => pipeline_1_stall_reg,
              stall_out          => lsu_stall_out,
              clk                => clk,
              reset              => reset);
