@@ -268,8 +268,13 @@ package cpu_pkg is
     -- ===============================
     -- This code contains definitions for functions which depend on previously
     -- defined data types which are not available at the beginning
-    function F_pipeline_reg_logic (input : T_uop; reg : T_uop; cdb : T_uop; stall : std_logic)
-        return T_uop;
+    procedure F_pipeline_reg(signal uop_in : in T_uop;
+                             signal R_uop_out : inout T_uop;
+                             signal cdb : in T_uop;
+                             signal clk : in std_logic;
+                             signal reset : in std_logic;
+                             signal stall_in : in std_logic;
+                             signal stall_out : out std_logic);
     -- This function takes a uOP as an input and returns a type which can be
     -- put into the ROB
     function F_uop_to_rob_type (uop : T_uop) return T_rob;
@@ -342,30 +347,62 @@ package body cpu_pkg is
         return result;
     end function;
 
-    function F_pipeline_reg_logic (input : T_uop; reg : T_uop; cdb : T_uop; stall : std_logic) return T_uop is
-        variable R_pipeline : T_uop;
+    procedure F_pipeline_reg(signal uop_in : in T_uop;
+                             signal R_uop_out : inout T_uop;
+                             signal cdb : in T_uop;
+                             signal clk : in std_logic;
+                             signal reset : in std_logic;
+                             signal stall_in : in std_logic;
+                             signal stall_out : out std_logic) is
     begin
-        if stall = '0' or reg.valid = '0' then
-            R_pipeline := input;
-            if cdb.valid = '1' and cdb.branch_mispredicted = '1' then
-                if (input.spec_branch_mask and cdb.branch_mask) /= BR_MASK_ZERO then
-                    R_pipeline.valid := '0';
-                end if;
+        stall_out <= stall_in and R_uop_out.valid;
+        if rising_edge(clk) then
+            if reset = '1' then
+                R_uop_out.valid <= '0';
             else
-                R_pipeline.spec_branch_mask := input.spec_branch_mask and not cdb.branch_mask;
-            end if;
-        else
-            R_pipeline := reg;
-            if cdb.branch_mispredicted = '1' then
-                if (reg.spec_branch_mask and cdb.branch_mask) /= BR_MASK_ZERO then
-                    R_pipeline.valid := '0';
+                if stall_in = '0' or R_uop_out.valid = '0' then     -- Next instruction can pass
+                    R_uop_out <= uop_in;
+                    if cdb.valid = '1' then
+                        -- Handle branch mispredicts
+                        if cdb.branch_mispredicted = '1' then
+                            if (uop_in.spec_branch_mask and cdb.branch_mask) /= BR_MASK_ZERO then
+                                R_uop_out.valid <= '0';
+                            end if;
+                        end if;
+                        -- Clear speculated branches bit when a branch executes
+                        R_uop_out.spec_branch_mask <= uop_in.spec_branch_mask and not cdb.branch_mask;
+
+                        -- Handle register value production
+                        if uop_in.phys_src_reg_1 = cdb.phys_dst_reg then
+                            R_uop_out.reg_read_1_ready <= '1';
+                        end if;
+
+                        if uop_in.phys_src_reg_2 = cdb.phys_dst_reg then
+                            R_uop_out.reg_read_2_ready <= '1';
+                        end if;
+                    end if;
+                else
+                    if cdb.valid = '1' then
+                        if cdb.branch_mispredicted = '1' then
+                            if (R_uop_out.spec_branch_mask and cdb.branch_mask) /= BR_MASK_ZERO then
+                                R_uop_out.valid <= '0';
+                            end if;
+                        end if;
+                        R_uop_out.spec_branch_mask <= R_uop_out.spec_branch_mask and not cdb.branch_mask;
+
+                        -- Handle register value production
+                        if R_uop_out.phys_src_reg_1 = cdb.phys_dst_reg then
+                            R_uop_out.reg_read_1_ready <= '1';
+                        end if;
+
+                        if R_uop_out.phys_src_reg_2 = cdb.phys_dst_reg then
+                            R_uop_out.reg_read_2_ready <= '1';
+                        end if;
+                    end if;
                 end if;
-            else
-                R_pipeline.spec_branch_mask := reg.spec_branch_mask and not cdb.branch_mask;
             end if;
         end if;
-        return R_pipeline;
-    end function;
+    end procedure;
 
     function F_uop_to_rob_type (uop : T_uop) return T_rob is
         variable rob_var : T_rob;
