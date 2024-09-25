@@ -75,6 +75,7 @@ begin
             when OPCODE_LUI =>
                 instruction_type <= U_TYPE;
                 exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
+                funct <= "1000000000";
             when OPCODE_JAL =>
                 instruction_type <= J_TYPE;
                 exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
