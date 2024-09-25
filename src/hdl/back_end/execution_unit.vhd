@@ -1,5 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 -- ============
 -- UOP ENCODING
@@ -37,6 +38,7 @@ architecture rtl of execution_unit is
     signal branch_taken : std_logic;
     signal branch_mispredicted : std_logic;
 
+    signal alu_funct : std_logic_vector(3 downto 0);
     signal alu_operand_1 : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal alu_operand_2 : std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal alu_result : std_logic_vector(DATA_WIDTH - 1 downto 0);
@@ -57,13 +59,32 @@ begin
         end if;
     end process;
 
-    P_br_eval : process(uop_in.is_speculative_br, uop_in.funct)
+    P_br_eval : process(uop_in.is_speculative_br, uop_in.funct, uop_in.reg_read_1_data, uop_in.reg_read_2_data)
+        variable branch_cond_eval : std_logic;
     begin
         if uop_in.is_speculative_br = '1' then
             if uop_in.funct(8) = '1' then   -- JAL and JALR always jump
                 branch_taken <= '1';
             else                            -- Conditional branches
-                branch_taken <= '0';
+                case uop_in.funct(2 downto 1) is
+                when "00" =>    -- EQUALS
+                    branch_cond_eval := '1' when 
+                        (signed(uop_in.reg_read_1_data) = signed(uop_in.reg_read_2_data)) else '0';
+                when "10" =>    -- LESS THEN
+                    branch_cond_eval := '1' when 
+                        (signed(uop_in.reg_read_1_data) < signed(uop_in.reg_read_2_data)) else '0';
+                when "11" =>    -- LESS THEN UNSIGNED
+                    branch_cond_eval := '1' when 
+                        (unsigned(uop_in.reg_read_1_data) < unsigned(uop_in.reg_read_2_data)) else '0';
+                when others =>
+                    branch_cond_eval := '0';
+                end case;
+
+                if uop_in.funct(0) = '1' then
+                    branch_taken <= not branch_cond_eval;
+                else
+                    branch_taken <= branch_cond_eval;
+                end if;
             end if;
         else
             branch_taken <= '0';
@@ -76,7 +97,8 @@ begin
     port map(operand_1 => alu_operand_1,
              operand_2 => alu_operand_2,
              result    => alu_result,
-             op_sel    => uop_in.funct(3 downto 0));
+             op_sel    => alu_funct);
+    alu_funct <= uop_in.funct(3 downto 0) when uop_in.is_speculative_br = '0' else "0000";
 
     process(uop_in, alu_result, branch_taken, branch_mispredicted)
     begin

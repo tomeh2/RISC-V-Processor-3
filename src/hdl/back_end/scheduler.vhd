@@ -120,22 +120,37 @@ begin
                     end if;
 
                     -- We need to handle a case where the CDB contains
-                    -- the result which the current uOP requires.
-                    -- If we don't include this then we could stumble on a case
-                    -- where the operand's valid bit doesn't get set to 1
-                    -- and the instruction gets stuck in the scheduler
+                    -- the result which the next uOP that will be put
+                    -- into the scheduler needs. We need to ensure that
+                    -- the corresponding register's valid bit is set to
+                    -- 1 so that the instruction doesn't get stuck in
+                    -- the scheduler
                     if cdb_in.valid = '1' and
-                       uop_in.valid = '1' and
                        uop_in.phys_src_reg_1 = cdb_in.phys_dst_reg then
                        M_scheduler(sched_write_index).reg_read_1_ready <= '1';
                     end if;
 
                     if cdb_in.valid = '1' and
-                       uop_in.valid = '1' and
                        uop_in.phys_src_reg_2 = cdb_in.phys_dst_reg then
                        M_scheduler(sched_write_index).reg_read_2_ready <= '1';
                     end if;
                 end if;
+
+                -- Monitor the CDB and set register valid bits when
+                -- corresponding register's value is generated
+                for i in 0 to ENTRIES - 1 loop
+                    if M_scheduler(i).valid = '1' then
+                        if cdb_in.valid = '1' and
+                           cdb_in.phys_dst_reg = M_scheduler(i).phys_src_reg_1 then
+                            M_scheduler(i).reg_read_1_ready <= '1';
+                        end if;
+
+                        if cdb_in.valid = '1' and
+                           cdb_in.phys_dst_reg = M_scheduler(i).phys_src_reg_2 then
+                            M_scheduler(i).reg_read_2_ready <= '1';
+                        end if;
+                    end if;
+                end loop;
 
                 -- Check whether an executed branch is on the CDB and clear
                 -- the corresponding speculated branches mask bit in all

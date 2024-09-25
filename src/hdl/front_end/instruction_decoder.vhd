@@ -26,6 +26,7 @@ architecture rtl of instruction_decoder is
     signal exec_unit_id : unsigned(EXEC_UNIT_ID_WIDTH - 1 downto 0);
     signal immediate : std_logic_vector(31 downto 0);
     signal funct : std_logic_vector(9 downto 0);
+    signal arch_dest_reg : std_logic_vector(4 downto 0);
 begin
     funct3 <= instruction(14 downto 12);
     funct7 <= instruction(31 downto 25);
@@ -34,6 +35,7 @@ begin
     -- for decoding table
     P_decode_type : process(instruction, instruction_valid, funct3, funct7)
     begin
+        arch_dest_reg <= instruction(11 downto 7);
         invalid_instruction <= '0';
         is_speculative_br <= '0';
         if instruction(1 downto 0) /= "11" then
@@ -53,6 +55,8 @@ begin
                 instruction_type <= B_TYPE;
                 exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
                 is_speculative_br <= '1';
+                funct <= "1000000" & funct3;
+                arch_dest_reg <= (others => '0');
             when OPCODE_OP =>
                 instruction_type <= R_TYPE;
                 exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
@@ -132,7 +136,7 @@ begin
     decoded_uop.funct <= funct;
     decoded_uop.arch_src_reg_1 <= instruction(19 downto 15);
     decoded_uop.arch_src_reg_2 <= instruction(24 downto 20);
-    decoded_uop.arch_dst_reg <= instruction(11 downto 7);
+    decoded_uop.arch_dst_reg <= arch_dest_reg;
     decoded_uop.immediate <= immediate;
     decoded_uop.is_speculative_br <= is_speculative_br;
     decoded_uop.valid <= instruction_valid;

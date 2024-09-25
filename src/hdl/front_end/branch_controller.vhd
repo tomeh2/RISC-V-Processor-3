@@ -22,8 +22,6 @@ entity branch_controller is
     );
 end branch_controller;
 
--- TODO: FINISH THIS MODULE
-
 architecture rtl of branch_controller is
     type T_bc_mispredict_recovery_memory is array (0 to BRANCHING_DEPTH - 1) of std_logic_vector(BRANCHING_DEPTH - 1 downto 0);
     signal M_mispredict_recovery_memory : T_bc_mispredict_recovery_memory;
