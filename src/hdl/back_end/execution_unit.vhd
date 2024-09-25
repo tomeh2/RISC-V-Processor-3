@@ -34,6 +34,8 @@ end execution_unit;
 architecture rtl of execution_unit is
     signal R_pipeline_0 : T_uop;
     signal pipeline_0_next : T_uop;
+    signal pipeline_0_stall : std_logic;
+    signal pipeline_0_stall_in : std_logic;
 
     signal branch_taken : std_logic;
     signal branch_mispredicted : std_logic;
@@ -108,17 +110,9 @@ begin
         pipeline_0_next.branch_mispredicted <= branch_mispredicted;
     end process;
 
-    P_pipeline_4 : process(clk)
-    begin
-        if rising_edge(clk) then
-            if reset = '1' then
-                R_pipeline_0.valid <= '0';
-            else
-                R_pipeline_0 <= F_pipeline_reg_logic(pipeline_0_next, R_pipeline_0, cdb_in, '0');
-            end if;
-        end if;
-    end process;
+    pipeline_0_stall_in <= '0';
+    F_pipeline_reg(pipeline_0_next, R_pipeline_0, cdb_in, clk, reset, pipeline_0_stall_in, pipeline_0_stall);
 
     uop_out <= R_pipeline_0;
-    stall_out <= stall_in and R_pipeline_0.valid;
+    stall_out <= pipeline_0_stall;
 end rtl;

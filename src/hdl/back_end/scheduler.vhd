@@ -35,6 +35,7 @@ end scheduler;
 architecture rtl of scheduler is
     -- Pipeline
     signal R_pipeline_0 : T_uop;
+    signal pipeline_0_stall : std_logic;
 
     type T_sched_array is array (0 to ENTRIES - 1) of T_uop;
     signal M_scheduler : T_sched_array;
@@ -78,7 +79,7 @@ begin
     -- The instruction is picked randomly within the subset of valid
     -- instructions. Valid instructions are ones where all operands are
     -- ready and the uOP itself is valid
-    P_sched_dispatch_prio_enc : process(M_scheduler, stall_in)
+    P_sched_dispatch_prio_enc : process(M_scheduler, pipeline_0_stall)
         variable temp_index : integer;
         variable temp_enable : std_logic;
     begin
@@ -93,7 +94,7 @@ begin
             end if;
         end loop;
         sched_dispatch_index <= temp_index;
-        sched_dispatch_enable <= temp_enable and not (stall_in and R_pipeline_0.valid);
+        sched_dispatch_enable <= temp_enable and not pipeline_0_stall;
     end process;
 
     -- Scheduler entry controller
@@ -179,16 +180,7 @@ begin
         uop_dispatch <= M_scheduler(sched_dispatch_index);
     end process;
 
-    P_pipeline_0_cntrl : process(clk)
-    begin
-        if rising_edge(clk) then
-            if reset = '1' then
-                R_pipeline_0.valid <= '0';
-            else
-                R_pipeline_0 <= F_pipeline_reg_logic(uop_dispatch, R_pipeline_0, cdb_in, stall_in);
-            end if;
-        end if;
-    end process;
+    F_pipeline_reg(uop_dispatch, R_pipeline_0, cdb_in, clk, reset, stall_in, pipeline_0_stall);
 
     uop_out <= R_pipeline_0;
     stall_out <= sched_full;

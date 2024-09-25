@@ -43,6 +43,7 @@ architecture rtl of back_end is
     signal eu0_out : T_uop;
     signal pipeline_1_next : T_uop;
     signal R_pipeline_1 : T_uop;
+    signal pipeline_1_stall_reg : std_logic;
 
     signal rob_retired_uop : T_rob;
     signal rob_retired_uop_valid : std_logic;
@@ -107,17 +108,8 @@ begin
         pipeline_1_next.lq_index <= lsu_allocated_lq;
     end process;
 
-    P_pipeline_1 : process(clk)
-    begin
-        if rising_edge(clk) then
-            if reset = '1' then
-                R_pipeline_1.valid <= '0';
-            else
-                R_pipeline_1 <= F_pipeline_reg_logic(pipeline_1_next, R_pipeline_1, cdb, sched_stall_out);
-            end if;
-        end if;
-    end process;
-    pipeline_1_stall <= rob_stall_out or lsu_stall_out;
+    F_pipeline_reg(pipeline_1_next, R_pipeline_1, cdb, clk, reset, sched_stall_out, pipeline_1_stall_reg);
+    pipeline_1_stall <= rob_stall_out or lsu_stall_out or pipeline_1_stall_reg;
     -- ===========================================
     --             PIPELINE STAGE 2
     -- ===========================================

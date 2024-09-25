@@ -52,6 +52,7 @@ architecture rtl of register_file is
 
     signal R_pipeline_0 : T_uop;
     signal pipeline_0_next : T_uop;
+    signal pipeline_0_stall : std_logic;
 begin
     -- Regfile read logic
     -- Note that the read is done asynchronously with this code, but the idea
@@ -83,19 +84,10 @@ begin
         end if;
     end process;
     
-    P_pipeline_0_cntrl : process(clk)
-    begin
-        if rising_edge(clk) then
-            if reset = '1' then
-                R_pipeline_0.valid <= '0';
-            else
-                R_pipeline_0 <= F_pipeline_reg_logic(pipeline_0_next, R_pipeline_0, cdb_in, stall_in);
-            end if;
-        end if;
-    end process;
+    F_pipeline_reg(pipeline_0_next, R_pipeline_0, cdb_in, clk, reset, stall_in, pipeline_0_stall);
 
     uop_out <= R_pipeline_0;
-    stall_out <= stall_in and R_pipeline_0.valid;
+    stall_out <= pipeline_0_stall;
 
     P_debug : process(M_regfile, debug_rat_in)
     begin

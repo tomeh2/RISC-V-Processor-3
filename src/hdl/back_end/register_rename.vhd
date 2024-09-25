@@ -27,6 +27,7 @@ end register_rename;
 architecture rtl of register_rename is
     signal R_pipeline_0 : T_uop;
     signal pipeline_0_next : T_uop;
+    signal pipeline_0_stall : std_logic;
 
     signal raa_get_enable : std_logic;
     signal raa_get_tag : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
@@ -44,12 +45,12 @@ architecture rtl of register_rename is
     signal recover_snapshot_enable : std_logic;
     signal recover_snapshot_index : natural range 0 to MAX_SPEC_BRANCHES - 1;
 begin
-    take_snapshot_enable <= '1' when uop_in.branch_mask /= BR_MASK_ZERO and uop_in.valid = '1' and stall_in = '0' else '0';
+    take_snapshot_enable <= '1' when uop_in.branch_mask /= BR_MASK_ZERO and uop_in.valid = '1' and pipeline_0_stall = '0' else '0';
     F_priority_encoder(uop_in.branch_mask, take_snapshot_index);
     recover_snapshot_enable <= cdb_in.branch_mispredicted and cdb_in.valid;
     F_priority_encoder(cdb_in.branch_mask, recover_snapshot_index);
 
-    raa_get_enable <= '1' when uop_in.valid = '1' and uop_in.arch_dst_reg /= ARCH_REG_ZERO and stall_in = '0' else '0';
+    raa_get_enable <= '1' when uop_in.valid = '1' and uop_in.arch_dst_reg /= ARCH_REG_ZERO and pipeline_0_stall = '0' else '0';
     raa_inst : entity work.register_alias_allocator
     generic map(MAX_SNAPSHOTS => MAX_SPEC_BRANCHES,
                 MASK_LENGTH => PHYS_REGFILE_ENTRIES)
@@ -122,17 +123,8 @@ begin
         pipeline_0_next.reg_read_2_ready <= phys_src_reg_2_valid;
     end process;
 
-    P_pipeline_0 : process(clk)
-    begin
-        if rising_edge(clk) then
-            if reset = '1' then
-                R_pipeline_0.valid <= '0';
-            else
-                R_pipeline_0 <= F_pipeline_reg_logic(pipeline_0_next, R_pipeline_0, cdb_in, stall_in);
-            end if;
-        end if;
-    end process;
+    F_pipeline_reg(pipeline_0_next, R_pipeline_0, cdb_in, clk, reset, stall_in, pipeline_0_stall);
     
     uop_out <= R_pipeline_0;
-    stall_out <= raa_empty or (stall_in and R_pipeline_0.valid);
+    stall_out <= raa_empty or pipeline_0_stall;
 end rtl;
