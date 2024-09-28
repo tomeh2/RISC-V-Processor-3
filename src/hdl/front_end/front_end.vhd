@@ -14,8 +14,7 @@ entity front_end is
         stall_be        : in std_logic;
 
         bus_req         : out T_bus_request;
-        bus_resp        : in T_bus_response;
-        bus_ready       : in std_logic
+        bus_resp        : in T_bus_response
     );
 end front_end;
 
@@ -75,6 +74,8 @@ begin
     end process;
 
     bus_req.address <= std_logic_vector(R_program_counter);
+    bus_req.rw <= '0';
+    bus_req.data_size <= "10";
     bus_req.valid <= not reset and not fetch_fifo_full;
     
     -- ===================================

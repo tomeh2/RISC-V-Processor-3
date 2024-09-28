@@ -10,8 +10,7 @@ entity reorder_buffer is
 
         cdb : in T_uop;
 
-        retired_uop : out T_rob;
-        retired_uop_valid : out std_logic;
+        retired_uop : out T_retired_uop;
 
         stall_in : in std_logic;
         stall_out : out std_logic;
@@ -22,12 +21,8 @@ entity reorder_buffer is
 end reorder_buffer;
 
 architecture rtl of reorder_buffer is
-    type T_rob_memory is array (0 to REORDER_BUFFER_ENTRIES - 1) of T_rob;
-    signal M_rob : T_rob_memory;
-
-    signal R_pipeline : T_uop;
-    signal pipeline_next : T_uop;
-    signal R_uop_head : T_rob;
+    type T_rob is array (0 to REORDER_BUFFER_ENTRIES - 1) of T_rob_entry;
+    signal M_rob : T_rob;
 
     signal R_head_index : unsigned(UOP_INDEX_WIDTH - 1 downto 0);
     signal head_index_next : unsigned(UOP_INDEX_WIDTH - 1 downto 0);
@@ -36,7 +31,7 @@ architecture rtl of reorder_buffer is
     type T_pointer_snapshots is array (0 to MAX_SPEC_BRANCHES - 1) of unsigned(UOP_INDEX_WIDTH - 1 downto 0);
     signal M_tail_snapshots : T_pointer_snapshots;
 
-    signal rob_write_entry : T_rob;
+    signal rob_write_entry : T_rob_entry;
     signal uop_in_brmask_index : natural range 0 to MAX_SPEC_BRANCHES - 1;
     signal cdb_brmask_index : natural range 0 to MAX_SPEC_BRANCHES - 1;
     signal insert_enable : std_logic;
@@ -51,14 +46,15 @@ begin
     empty <= '1' when R_head_index = R_tail_index else '0';
 
     insert_enable <= '1' when 
-        (uop_in.valid = '1' and full = '0') and (stall_in = '0' or R_pipeline.valid = '0') and
+        (uop_in.valid = '1' and full = '0') and (stall_in = '0') and
         (cdb.branch_mispredicted = '0' or cdb.valid = '0') else '0';
-    retire_enable <= '1' when empty = '0' and R_uop_head.executed = '1' and
+    retire_enable <= '1' when empty = '0' and M_rob(to_integer(R_head_index)).executed = '1' and
         not (cdb.valid = '1' and cdb.branch_mispredicted = '1') else '0';
 
     rob_write_entry.arch_dst_reg <= uop_in.arch_dst_reg;
     rob_write_entry.phys_dst_reg <= uop_in.phys_dst_reg;
-    rob_write_entry.executed <= '0';
+    -- Immediately enable retirement for STORE instructions
+    rob_write_entry.executed <= '1' when uop_in.exec_unit_id = 1 and uop_in.funct(3) = '1' else '0';
 
     -- This process generates the next value which pointer registers have to
     -- take when they update
@@ -125,13 +121,7 @@ begin
                     end if;
                 end if;
 
-                -- ROB read logic
-                if retire_enable = '1' then
-                    R_uop_head <= M_rob(to_integer(head_index_next));
-                else
-                    R_uop_head <= M_rob(to_integer(R_head_index));
-                end if;
-                -- ROB update & mispredict recovery logic
+                -- ROB update logic
                 if cdb.valid = '1' then
                     M_rob(to_integer(cdb.id)).executed <= '1';
                 end if;
@@ -141,8 +131,10 @@ begin
 
     uop_allocated_id <= R_tail_index;
 
-    retired_uop <= R_uop_head;
-    retired_uop_valid <= retire_enable;
+    retired_uop.id <= R_head_index;
+    retired_uop.arch_dst_reg <= M_rob(to_integer(R_head_index)).arch_dst_reg;
+    retired_uop.phys_dst_reg <= M_rob(to_integer(R_head_index)).phys_dst_reg;
+    retired_uop.valid <= retire_enable;
     stall_out <= full;
 end rtl;
  

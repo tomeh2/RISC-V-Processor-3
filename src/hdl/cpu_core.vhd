@@ -10,7 +10,6 @@ entity cpu_core is
         bus_resp_fe    : in T_bus_response;
         bus_req_lsu    : out T_bus_request;
         bus_resp_lsu   : in T_bus_response;
-        bus_ready      : in std_logic;
     
         clk            : in std_logic;
         reset          : in std_logic
@@ -29,8 +28,7 @@ begin
              stall_be   => stall_be,
              cdb_in     => cdb,
              bus_req    => bus_req_fe,
-             bus_resp   => bus_resp_fe,
-             bus_ready  => bus_ready);
+             bus_resp   => bus_resp_fe);
 
     be_inst : entity work.back_end
     port map(uop_1       => uop,
@@ -38,7 +36,6 @@ begin
              cdb_out     => cdb,
              bus_req     => bus_req_lsu,
              bus_resp    => bus_resp_lsu,
-             bus_ready   => bus_ready,
              clk         => clk,
              reset       => reset);
 end rtl;

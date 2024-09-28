@@ -11,8 +11,7 @@ entity register_rename is
         
         cdb_in : in T_uop;
 
-        rob_in : in T_rob;
-        rob_in_valid : in std_logic;
+        retired_uop : in T_retired_uop;
 
         stall_in : in std_logic;
         stall_out : out std_logic;
@@ -57,7 +56,7 @@ begin
     port map(get_tag => raa_get_tag,
              get_enable => raa_get_enable,
              put_tag => phys_dst_reg_retire,
-             put_enable => rob_in_valid,
+             put_enable => retired_uop.valid,
              take_snapshot_enable => take_snapshot_enable,
              take_snapshot_index => take_snapshot_index,
              recover_snapshot_enable => recover_snapshot_enable,
@@ -86,13 +85,13 @@ begin
 
     retirement_rat_inst : entity work.register_alias_table
     generic map(ENABLE_MISPREDICT_RECOVERY => false)
-    port map(arch_read_tag_1 => rob_in.arch_dst_reg,
+    port map(arch_read_tag_1 => retired_uop.arch_dst_reg,
              arch_read_tag_2 => (others => '0'),
              phys_read_tag_1 => phys_dst_reg_retire,
              phys_read_tag_2 => open,
-             arch_write_tag_1 => rob_in.arch_dst_reg,
-             phys_write_tag_1 => rob_in.phys_dst_reg,
-             write_enable_1 => rob_in_valid,
+             arch_write_tag_1 => retired_uop.arch_dst_reg,
+             phys_write_tag_1 => retired_uop.phys_dst_reg,
+             write_enable_1 => retired_uop.valid,
              take_snapshot_enable => '0',
              take_snapshot_index => 0,
              recover_snapshot_enable => '0',
@@ -123,7 +122,11 @@ begin
         pipeline_0_next.reg_read_2_ready <= phys_src_reg_2_valid;
     end process;
 
-    F_pipeline_reg(pipeline_0_next, R_pipeline_0, cdb_in, clk, reset, stall_in, pipeline_0_stall);
+    process(clk)
+    begin
+        F_pipeline_reg(pipeline_0_next, R_pipeline_0, cdb_in, clk, reset, stall_in);
+    end process;
+    pipeline_0_stall <= stall_in and R_pipeline_0.valid;
     
     uop_out <= R_pipeline_0;
     stall_out <= raa_empty or pipeline_0_stall;

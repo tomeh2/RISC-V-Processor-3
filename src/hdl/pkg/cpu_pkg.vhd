@@ -145,7 +145,7 @@ package cpu_pkg is
     end record T_cdb;
 
     -- ROB data holds information necessary to record one instruction in ROB.
-    type T_rob is record
+    type T_rob_entry is record
         -- Destination registers are required to update reitrement RAT and free
         -- the physical register
         arch_dst_reg        : std_logic_vector(ARCH_REG_ADDR_WIDTH - 1 downto 0);
@@ -153,13 +153,22 @@ package cpu_pkg is
         -- Indicated whether this instruction has finished execution
         executed            : std_logic;
     end record;
+
+    type T_retired_uop is record
+        id              : unsigned(UOP_INDEX_WIDTH - 1 downto 0);
+        arch_dst_reg        : std_logic_vector(ARCH_REG_ADDR_WIDTH - 1 downto 0);
+        phys_dst_reg        : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
+        valid               : std_logic;
+    end record;
     
     type T_lsu_store is record
+        -- uOP ID
+        id              : unsigned(UOP_INDEX_WIDTH - 1 downto 0);
         -- Store address
         address             : std_logic_vector(ADDR_WIDTH - 1 downto 0);
         address_valid       : std_logic;
         -- Data to be stored
-        data                : std_logic_vector(ADDR_WIDTH - 1 downto 0);
+        data                : std_logic_vector(DATA_WIDTH - 1 downto 0);
         data_valid          : std_logic;
         -- Was the uOP sent to the bus controller / cache
         dispatched          : std_logic;
@@ -186,7 +195,7 @@ package cpu_pkg is
     type T_lsu_agu_port is record
         address         : std_logic_vector(ADDR_WIDTH - 1 downto 0);
         address_valid   : std_logic;
-        data            : std_logic_vector(ADDR_WIDTH - 1 downto 0);
+        data            : std_logic_vector(DATA_WIDTH - 1 downto 0);
         data_valid      : std_logic;
         rw              : std_logic;
         sq_tag          : unsigned(SQ_TAG_WIDTH - 1 downto 0);
@@ -209,8 +218,9 @@ package cpu_pkg is
     type T_bus_response is record
         data            : std_logic_vector(DATA_WIDTH - 1 downto 0);
         address         : std_logic_vector(ADDR_WIDTH - 1 downto 0);
-        rw              : std_logic;
-        valid           : std_logic;
+        rw              : std_logic;    -- Load or store
+        valid           : std_logic;    -- Memory request executed and data is on resp bus
+        ready           : std_logic;    -- Did the bus controller accept the memory request
     end record;
     type T_bus_response_array is array (natural range<>) of T_bus_response;
 
@@ -250,7 +260,7 @@ package cpu_pkg is
         '0'
     );
 
-    constant ROB_ZERO : T_rob := (
+    constant ROB_ZERO : T_rob_entry := (
         (others => '0'),
         (others => '0'),
         '0'
@@ -260,8 +270,16 @@ package cpu_pkg is
         (others => '0'),
         (others => '0'),
         '0',
+        '0',
         '0'
     );
+
+    -- =========
+    --   TYPES
+    -- =========
+    subtype T_sched_exec_id is integer range 0 to 7;
+    type T_sched_exec_id_array is array (0 to 7) of T_sched_exec_id;
+    type T_uop_array is array (integer range<>) of T_uop;
 
     -- ===============================
     -- FUNCTIONS POST TYPE DEFINITIONS
@@ -273,11 +291,10 @@ package cpu_pkg is
                              signal cdb : in T_uop;
                              signal clk : in std_logic;
                              signal reset : in std_logic;
-                             signal stall_in : in std_logic;
-                             signal stall_out : out std_logic);
+                             signal stall_in : in std_logic);
     -- This function takes a uOP as an input and returns a type which can be
     -- put into the ROB
-    function F_uop_to_rob_type (uop : T_uop) return T_rob;
+    function F_uop_to_rob_type (uop : T_uop) return T_rob_entry;
     -- Branchmask to index mapping functions
     function F_brmask_to_index (signal branch_mask : in std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0))
       return natural;
@@ -352,10 +369,8 @@ package body cpu_pkg is
                              signal cdb : in T_uop;
                              signal clk : in std_logic;
                              signal reset : in std_logic;
-                             signal stall_in : in std_logic;
-                             signal stall_out : out std_logic) is
+                             signal stall_in : in std_logic) is
     begin
-        stall_out <= stall_in and R_uop_out.valid;
         if rising_edge(clk) then
             if reset = '1' then
                 R_uop_out.valid <= '0';
@@ -404,8 +419,8 @@ package body cpu_pkg is
         end if;
     end procedure;
 
-    function F_uop_to_rob_type (uop : T_uop) return T_rob is
-        variable rob_var : T_rob;
+    function F_uop_to_rob_type (uop : T_uop) return T_rob_entry is
+        variable rob_var : T_rob_entry;
     begin
         rob_var.arch_dst_reg := uop.arch_dst_reg;
         rob_var.phys_dst_reg := uop.phys_dst_reg;

@@ -11,7 +11,6 @@ entity wishbone_bus_controller is
         -- CPU SIDE BUS
         bus_req : in T_bus_request_array(0 to NUM_MASTERS - 1);
         bus_resp : out T_bus_response_array(0 to NUM_MASTERS - 1);
-        bus_ready : out std_logic;
 
         adr_o : out std_logic_vector(31 downto 0);
         dat_i : in std_logic_vector(31 downto 0);
@@ -32,10 +31,29 @@ architecture rtl of wishbone_bus_controller is
     signal R_wb_state : T_wb_state;
     signal R_lock_bus_id : natural range 0 to NUM_MASTERS - 1;
     
-    signal R_addr : std_logic_vector(31 downto 0);
-    signal R_wr_data : std_logic_vector(31 downto 0);
-    signal R_rd_data : std_logic_vector(31 downto 0);
+    signal R_active_bus_reqests : T_bus_request_array(0 to NUM_MASTERS - 1);
 begin
+    P_active_req_regs : process(clk)
+    begin
+        if rising_edge(clk) then
+            if reset = '1' then
+                for i in 0 to NUM_MASTERS - 1 loop
+                    R_active_bus_reqests(i).valid <= '0';
+                end loop;
+            else
+                for i in 0 to NUM_MASTERS - 1 loop
+                    if R_active_bus_reqests(i).valid = '0' and bus_req(i).valid = '1' then
+                        R_active_bus_reqests(i) <= bus_req(i);
+                    end if;
+                end loop;
+
+                if ack_i = '1' and R_wb_state /= IDLE then
+                    R_active_bus_reqests(R_lock_bus_id).valid <= '0';
+                end if;
+            end if;
+        end if;
+    end process;
+
     process(clk)
     begin
         if rising_edge(clk) then
@@ -44,74 +62,76 @@ begin
             else
                 case R_wb_state is
                 when IDLE =>
-                    for i in NUM_MASTERS - 1 downto 0 loop
-                        if bus_req(i).valid = '1' then
-                            R_addr <= bus_req(i).address;
-                            R_wr_data <= bus_req(i).data;
-                            
-                            if bus_req(i).rw = '1' then
-                                R_wb_state <= WRITE_LOCK;
-                            else
-                                R_wb_state <= READ_LOCK;
-                            end if;
+                    for i in 0 to NUM_MASTERS - 1 loop
+                        if R_active_bus_reqests(i).valid = '1' then
                             R_lock_bus_id <= i;
+                            if R_active_bus_reqests(i).rw = '0' then
+                                R_wb_state <= READ_LOCK;
+                            else
+                                R_wb_state <= WRITE_LOCK;
+                            end if;
                         end if;
                     end loop;
                 when READ_LOCK =>
                     if ack_i = '1' then
                         R_wb_state <= IDLE;
-                        R_lock_bus_id <= 0;
                     end if;
                 when WRITE_LOCK =>
                     if ack_i = '1' then
                         R_wb_state <= IDLE;
-                        R_lock_bus_id <= 0;
                     end if;
                 end case;
             end if;
         end if;
     end process;
 
-    process(R_wb_state, ack_i, dat_i, R_addr)
+    process(R_active_bus_reqests, R_lock_bus_id, R_wb_state, dat_i, ack_i)
     begin
-        sel_o <= "0000";
+        for i in 0 to NUM_MASTERS - 1 loop
+            bus_resp(i).ready <= not R_active_bus_reqests(i).valid;
+        end loop;
+    
+        adr_o <= (others => '0');
+        dat_o <= (others => '0');
+        we_o <= '0';
+        sel_o <= (others => '0');
         stb_o <= '0';
         cyc_o <= '0';
-        we_o <= '0';
-        bus_ready <= '1';
+
         for i in 0 to NUM_MASTERS - 1 loop
+            bus_resp(i).data <= (others => '0');
+            bus_resp(i).address <= (others => '0');
             bus_resp(i).rw <= '0';
             bus_resp(i).valid <= '0';
-            bus_resp(i).address <= (others => '0');
         end loop;
-
         case R_wb_state is
         when IDLE =>
             
         when READ_LOCK =>
-            bus_ready <= '0';
+            adr_o <= R_active_bus_reqests(R_lock_bus_id).address;
+            dat_o <= R_active_bus_reqests(R_lock_bus_id).data;
+            we_o <= R_active_bus_reqests(R_lock_bus_id).rw;
+            sel_o <= "1111";
+            stb_o <= '1';
+            cyc_o <= '1';
+            
+            bus_resp(R_lock_bus_id).data <= dat_i;
+            bus_resp(R_lock_bus_id).address <= R_active_bus_reqests(R_lock_bus_id).address;
+            bus_resp(R_lock_bus_id).rw <= R_active_bus_reqests(R_lock_bus_id).rw;
+            bus_resp(R_lock_bus_id).valid <= ack_i;
+        when WRITE_LOCK =>
+            adr_o <= R_active_bus_reqests(R_lock_bus_id).address;
+            dat_o <= R_active_bus_reqests(R_lock_bus_id).data;
+            we_o <= R_active_bus_reqests(R_lock_bus_id).rw;
             sel_o <= "1111";
             stb_o <= '1';
             cyc_o <= '1';
 
             bus_resp(R_lock_bus_id).data <= dat_i;
-            bus_resp(R_lock_bus_id).rw <= '0';
+            bus_resp(R_lock_bus_id).address <= R_active_bus_reqests(R_lock_bus_id).address;
+            bus_resp(R_lock_bus_id).rw <= R_active_bus_reqests(R_lock_bus_id).rw;
             bus_resp(R_lock_bus_id).valid <= ack_i;
-            bus_resp(R_lock_bus_id).address <= R_addr;
-        when WRITE_LOCK =>
-            bus_ready <= '0';
-            sel_o <= "1111";
-            stb_o <= '1';
-            cyc_o <= '1';
-            we_o <= '1';
-
-            bus_resp(R_lock_bus_id).rw <= '1';
-            bus_resp(R_lock_bus_id).valid <= ack_i;
-            bus_resp(R_lock_bus_id).address <= R_addr;
         when others =>
-            bus_ready <= '0';
         end case;
     end process;
-    adr_o <= R_addr;
-    dat_o <= R_wr_data;
 end rtl;

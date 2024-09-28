@@ -19,7 +19,6 @@ entity execution_unit is
         uop_out : out T_uop;
 
         cdb_in : in T_uop;
-
         -- ============
         -- FLOW CONTROL
         -- ============
@@ -110,9 +109,11 @@ begin
         pipeline_0_next.branch_mispredicted <= branch_mispredicted;
     end process;
 
-    pipeline_0_stall_in <= '0';
-    F_pipeline_reg(pipeline_0_next, R_pipeline_0, cdb_in, clk, reset, pipeline_0_stall_in, pipeline_0_stall);
+    process(clk)
+    begin
+        F_pipeline_reg(pipeline_0_next, R_pipeline_0, cdb_in, clk, reset, stall_in);
+    end process;
 
     uop_out <= R_pipeline_0;
-    stall_out <= pipeline_0_stall;
+    stall_out <= R_pipeline_0.valid and stall_in;
 end rtl;

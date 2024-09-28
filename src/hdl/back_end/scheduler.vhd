@@ -8,13 +8,23 @@ use WORK.CPU_PKG.ALL;
 -- instructions for dispatchment at random if the conditions are met.
 -- Basic scheduler should in theory have the worst performance, but
 -- it should have fairly low resource usage on FPGAs
+
+-- NUM_OUTPUT_PORT - How many output ports does this instance of the scheduler
+-- have. This number corresponds to the max amount of uOPs that the scheduler
+-- can issue per cycle
+-- OUTPUT_PORT_EXEC_IDS - An array which is used to determine which ports issue
+-- which instruction. Putting a value of 2 into the first element of the array
+-- means that all uOPs with exec_unit_id of 2 will be sent to port 0
+-- Currently IDs must not repeat
 entity scheduler is
     generic(
+        NUM_OUTPUT_PORT : T_sched_exec_id;
+        OUTPUT_PORT_EXEC_IDS : T_sched_exec_id_array;
         ENTRIES : integer
     );
     port(
         uop_in : in T_uop;
-        uop_out : out T_uop;
+        uop_out : out T_uop_array(0 to NUM_OUTPUT_PORT - 1);
         cdb_in : in T_uop;
 
         -- ============
@@ -24,7 +34,7 @@ entity scheduler is
         -- output is not yet ready for new data
         -- Stall out tells the blocks preceding this one that this block is not
         -- yet ready to receive new data
-        stall_in    : in std_logic;
+        stall_in    : in std_logic_vector(NUM_OUTPUT_PORT - 1 downto 0);
         stall_out   : out std_logic;
 
         clk : in std_logic;
@@ -33,22 +43,22 @@ entity scheduler is
 end scheduler;
 
 architecture rtl of scheduler is
-    -- Pipeline
-    signal R_pipeline_0 : T_uop;
-    signal pipeline_0_stall : std_logic;
+    signal output_reg_stall_array : std_logic_vector(NUM_OUTPUT_PORT - 1 downto 0);
 
     type T_sched_array is array (0 to ENTRIES - 1) of T_uop;
     signal M_scheduler : T_sched_array;
 
-    signal uop_dispatch : T_uop;
+    signal uop_dispatch : T_uop_array(0 to NUM_OUTPUT_PORT - 1);
 
     -- Write priority encoder
-    signal sched_write_index : integer;
+    signal sched_write_index : integer range 0 to ENTRIES - 1;
     signal sched_write_enable : std_logic;
 
     -- Dispatch control
-    signal sched_dispatch_index : integer := 0;
-    signal sched_dispatch_enable : std_logic;
+    subtype T_sched_dispatch_index is integer range 0 to ENTRIES - 1;
+    type T_sched_dispatch_index_array is array (0 to NUM_OUTPUT_PORT - 1) of T_sched_dispatch_index;
+    signal sched_dispatch_index_array : T_sched_dispatch_index_array;
+    signal sched_dispatch_enable_array : std_logic_vector(0 to NUM_OUTPUT_PORT - 1);
 
     -- Scheduler control signals
     signal sched_full : std_logic;
@@ -79,22 +89,22 @@ begin
     -- The instruction is picked randomly within the subset of valid
     -- instructions. Valid instructions are ones where all operands are
     -- ready and the uOP itself is valid
-    P_sched_dispatch_prio_enc : process(M_scheduler, pipeline_0_stall)
-        variable temp_index : integer;
-        variable temp_enable : std_logic;
+    P_sched_dispatch_prio_enc : process(M_scheduler, output_reg_stall_array)
     begin
-        temp_index := ENTRIES - 1;
-        temp_enable := '0';
-        for i in ENTRIES - 1 downto 0 loop
-            if M_scheduler(i).valid = '1' and
-               M_scheduler(i).reg_read_1_ready = '1' and
-               M_scheduler(i).reg_read_2_ready = '1' then
-                temp_index := i;
-                temp_enable := '1';
-            end if;
+        for j in 0 to NUM_OUTPUT_PORT - 1 loop
+            sched_dispatch_index_array(j) <= 0;
+            sched_dispatch_enable_array(j) <= '0';
+            for i in ENTRIES - 1 downto 0 loop
+                if M_scheduler(i).valid = '1' and
+                    M_scheduler(i).reg_read_1_ready = '1' and
+                    M_scheduler(i).reg_read_2_ready = '1' and
+                    output_reg_stall_array(j) = '0' and
+                    M_scheduler(i).exec_unit_id = OUTPUT_PORT_EXEC_IDS(j) then
+                        sched_dispatch_index_array(j) <= i;
+                        sched_dispatch_enable_array(j) <= '1';
+                end if;
+            end loop;
         end loop;
-        sched_dispatch_index <= temp_index;
-        sched_dispatch_enable <= temp_enable and not pipeline_0_stall;
     end process;
 
     -- Scheduler entry controller
@@ -166,22 +176,32 @@ begin
                 end loop;
 
                 -- Scheduler dispatch control
-                if sched_dispatch_enable then
-                    M_scheduler(sched_dispatch_index).valid <= '0';
-                end if;
+                for i in 0 to NUM_OUTPUT_PORT - 1 loop
+                    if sched_dispatch_enable_array(i) = '1' then
+                        M_scheduler(sched_dispatch_index_array(i)).valid <= '0';
+                    end if;
+                end loop;
             end if;
         end if;
     end process;
 
     -- Selects the next instruction selected for disptach and puts it into
     -- the uop_dispatch signal
-    P_dispatch_reg : process(M_scheduler, sched_dispatch_index)
+    P_dispatch_reg : process(M_scheduler, sched_dispatch_index_array, sched_dispatch_enable_array)
     begin
-        uop_dispatch <= M_scheduler(sched_dispatch_index);
+        for i in 0 to NUM_OUTPUT_PORT - 1 loop
+            uop_dispatch(i) <= M_scheduler(sched_dispatch_index_array(i));
+            uop_dispatch(i).valid <= sched_dispatch_enable_array(i);
+        end loop;
     end process;
 
-    F_pipeline_reg(uop_dispatch, R_pipeline_0, cdb_in, clk, reset, stall_in, pipeline_0_stall);
+    G_gen_out_port_regs : for i in 0 to NUM_OUTPUT_PORT - 1 generate
+        process(clk)
+        begin
+            F_pipeline_reg(uop_dispatch(i), uop_out(i), cdb_in, clk, reset, stall_in(i));
+        end process;
+        output_reg_stall_array(i) <= stall_in(0) and uop_out(i).valid;
+    end generate;
 
-    uop_out <= R_pipeline_0;
     stall_out <= sched_full;
 end rtl;

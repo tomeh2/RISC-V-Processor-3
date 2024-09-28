@@ -53,7 +53,6 @@ begin
              bus_resp_fe    => bus_resp_fe,
              bus_req_lsu    => bus_req_lsu,
              bus_resp_lsu   => bus_resp_lsu,
-             bus_ready      => bus_ready,
              clk            => clk,
              reset          => reset);
              
@@ -63,7 +62,6 @@ begin
              bus_req(1) => bus_req_lsu,
              bus_resp(0) => bus_resp_fe,
              bus_resp(1) => bus_resp_lsu,
-             bus_ready => bus_ready,
 
              adr_o => adr_o,
              dat_i => dat_i,

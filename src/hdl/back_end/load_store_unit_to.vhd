@@ -18,11 +18,12 @@ entity load_store_unit_to is
         cdb_request         : out std_logic;
         cdb_granted         : in std_logic;
 
+        retired_uop         : in T_retired_uop;
+
         agu_in_port         : in T_lsu_agu_port;
 
         bus_req             : out T_bus_request;
         bus_resp            : in T_bus_response;
-        bus_ready           : in std_logic;
 
         stall_in            : in std_logic;
         stall_out           : out std_logic;
@@ -161,13 +162,14 @@ begin
                     R_sq_tail <= sq_tail_next;
                     sq_valid(to_integer(R_sq_tail)) <= '1';
 
+                    M_store_queue(to_integer(R_sq_tail)).id <= uop_in.id;
                     M_store_queue(to_integer(R_sq_tail)).address <= (others => '0');
                     M_store_queue(to_integer(R_sq_tail)).address_valid <= '0';
                     M_store_queue(to_integer(R_sq_tail)).data <= (others => '0');
                     M_store_queue(to_integer(R_sq_tail)).data_valid <= '0';
                     M_store_queue(to_integer(R_sq_tail)).dispatched <= '0';
                     M_store_queue(to_integer(R_sq_tail)).done <= '0';
-                    M_store_queue(to_integer(R_sq_tail)).retired <= '1';
+                    M_store_queue(to_integer(R_sq_tail)).retired <= '0';
                 end if;
 
                 if sq_dequeue = '1' then
@@ -194,12 +196,20 @@ begin
                     end if;
                 end if;
 
-                if bus_ready = '1' and sq_dispatch_enable = '1' then
+                if bus_resp.ready = '1' and sq_dispatch_enable = '1' then
                     M_store_queue(to_integer(R_sq_head)).dispatched <= '1';
                 end if;
 
                 if bus_resp.valid = '1' and bus_resp.rw = '1' then
                     M_store_queue(to_integer(R_sq_head)).done <= '1';
+                end if;
+
+                if retired_uop.valid = '1' then
+                    for i in 0 to SQ_ENTRIES - 1 loop
+                        if M_store_queue(i).id = retired_uop.id then
+                            M_store_queue(i).retired <= '1';
+                        end if;
+                    end loop;
                 end if;
             end if;
         end if;
@@ -306,7 +316,7 @@ begin
                     end if;
                 end if;
 
-                if bus_ready = '1' and lq_dispatch_enable = '1' then
+                if bus_resp.ready = '1' and lq_dispatch_enable = '1' then
                     M_load_queue(to_integer(R_lq_head)).dispatched <= '1';
                 end if;
 

@@ -51,6 +51,7 @@ begin
                 instruction_type <= S_TYPE;
                 exec_unit_id <= to_unsigned(1, EXEC_UNIT_ID_WIDTH);
                 funct <= "0000001" & funct3;
+                arch_dest_reg <= (others => '0');
             when OPCODE_BRANCH =>
                 instruction_type <= B_TYPE;
                 exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
@@ -88,6 +89,7 @@ begin
                 funct <= "0100000000";
             when others =>
                 invalid_instruction <= instruction_valid;
+                arch_dest_reg <= (others => '0');
             end case;
         end if;
     end process;

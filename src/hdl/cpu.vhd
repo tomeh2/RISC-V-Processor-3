@@ -9,7 +9,6 @@ entity cpu is
         bus_resp_fe     : in T_bus_response;
         bus_req_lsu     : out T_bus_request;
         bus_resp_lsu    : in T_bus_response;
-        bus_ready       : in std_logic;
 
         clk             : in std_logic;
         reset           : in std_logic
@@ -24,7 +23,6 @@ begin
              bus_resp_fe     => bus_resp_fe,
              bus_req_lsu     => bus_req_lsu,
              bus_resp_lsu    => bus_resp_lsu,
-             bus_ready       => bus_ready,
              clk             => clk,
              reset           => reset); 
 
