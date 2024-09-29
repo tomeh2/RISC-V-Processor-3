@@ -18,14 +18,18 @@ architecture Behavioral of top_sim is
     signal bus_resp_lsu : T_bus_response;
     signal bus_ready : std_logic;
 
-    signal adr_o : std_logic_vector(31 downto 0);
-    signal dat_i : std_logic_vector(31 downto 0);
-    signal dat_o : std_logic_vector(31 downto 0);
-    signal we_o : std_logic;
-    signal sel_o : std_logic_vector(3 downto 0);
-    signal stb_o : std_logic;
-    signal ack_i : std_logic;
-    signal cyc_o : std_logic;
+    signal wb_req : T_wishbone_req;
+    signal wb_resp : T_wishbone_resp;
+
+    signal rom_rdata : std_logic_vector(31 downto 0);
+    signal rom_stb : std_logic;
+    signal rom_ack : std_logic;
+
+    signal uart_rdata : std_logic_vector(31 downto 0);
+    signal uart_stb : std_logic;
+    signal uart_ack : std_logic;
+    signal uart_rx : std_logic;
+    signal uart_tx : std_logic;
 begin
     process
     begin
@@ -62,15 +66,9 @@ begin
              bus_req(1) => bus_req_lsu,
              bus_resp(0) => bus_resp_fe,
              bus_resp(1) => bus_resp_lsu,
-
-             adr_o => adr_o,
-             dat_i => dat_i,
-             dat_o => dat_o,
-             we_o => we_o,
-             sel_o => sel_o,
-             stb_o => stb_o,
-             ack_i => ack_i,
-             cyc_o => cyc_o,
+             
+             wb_req => wb_req,
+             wb_resp => wb_resp,
 
              clk => clk,
              reset => reset);
@@ -79,9 +77,43 @@ begin
     generic map(C_size_kb => 4)
     port map(clk => clk,
              reset => reset,
-             wb_addr => adr_o,
-             wb_rdata => dat_i,
-             wb_stb => stb_o,
-             wb_cyc => cyc_o,
-             wb_ack => ack_i);
+             wb_addr => wb_req.adr,
+             wb_rdata => rom_rdata,
+             wb_stb => rom_stb,
+             wb_cyc => rom_stb,
+             wb_ack => rom_ack);
+
+    I_uart : entity work.uart_16550
+    port map(clk => clk,
+             reset => reset,
+             wb_adr_i => wb_req.adr(31 downto 2),
+             wb_dat_o => uart_rdata,
+             wb_dat_i => wb_req.dat,
+             wb_sel_i => wb_req.sel,
+             wb_cyc_i => uart_stb,
+             wb_stb_i => uart_stb,
+             wb_ack_o => uart_ack,
+             rx => uart_rx,
+             tx => uart_tx);
+
+    process(wb_req.adr, wb_req.cyc, rom_rdata, rom_ack, uart_rdata, uart_ack)
+    begin
+        wb_resp.dat <= (others => '0');
+        wb_resp.ack <= '0';
+        rom_stb <= '0';
+        uart_stb <= '0';
+        case wb_req.adr is
+        when X"0---_----" =>
+            wb_resp.dat <= rom_rdata;
+            wb_resp.ack <= rom_ack;
+            rom_stb <= wb_req.cyc;
+        when X"FFFF_FFF-" =>
+            wb_resp.dat <= uart_rdata;
+            wb_resp.ack <= uart_ack;
+            uart_stb <= wb_req.cyc;
+        when others =>
+            wb_resp.dat <= (others => '0');
+            wb_resp.ack <= '0';
+        end case;
+    end process;
 end Behavioral;
