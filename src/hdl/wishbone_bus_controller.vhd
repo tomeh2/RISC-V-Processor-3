@@ -26,6 +26,9 @@ architecture rtl of wishbone_bus_controller is
     signal R_lock_bus_id : natural range 0 to NUM_MASTERS - 1;
     
     signal R_active_bus_reqests : T_bus_request_array(0 to NUM_MASTERS - 1);
+
+    signal wb_resp_data_masked : std_logic_vector(31 downto 0);
+    signal wb_resp_data_shifted : std_logic_vector(31 downto 0);
 begin
     P_active_req_regs : process(clk)
     begin
@@ -79,7 +82,7 @@ begin
         end if;
     end process;
 
-    process(R_active_bus_reqests, R_lock_bus_id, R_wb_state, wb_resp)
+    process(R_active_bus_reqests, R_lock_bus_id, R_wb_state, wb_resp.ack, wb_resp_data_shifted)
     begin
         for i in 0 to NUM_MASTERS - 1 loop
             bus_resp(i).ready <= not R_active_bus_reqests(i).valid;
@@ -109,7 +112,7 @@ begin
             wb_req.stb <= '1';
             wb_req.cyc <= '1';
             
-            bus_resp(R_lock_bus_id).data <= wb_resp.dat;
+            bus_resp(R_lock_bus_id).data <= wb_resp_data_shifted;
             bus_resp(R_lock_bus_id).address <= R_active_bus_reqests(R_lock_bus_id).address;
             bus_resp(R_lock_bus_id).rw <= R_active_bus_reqests(R_lock_bus_id).rw;
             bus_resp(R_lock_bus_id).valid <= wb_resp.ack;
@@ -121,11 +124,41 @@ begin
             wb_req.stb <= '1';
             wb_req.cyc <= '1';
 
-            bus_resp(R_lock_bus_id).data <= wb_resp.dat;
+            bus_resp(R_lock_bus_id).data <= wb_resp_data_shifted;
             bus_resp(R_lock_bus_id).address <= R_active_bus_reqests(R_lock_bus_id).address;
             bus_resp(R_lock_bus_id).rw <= R_active_bus_reqests(R_lock_bus_id).rw;
             bus_resp(R_lock_bus_id).valid <= wb_resp.ack;
         when others =>
         end case;
     end process;
+
+    P_process_resp_data : process(R_active_bus_reqests, wb_resp.dat, wb_resp_data_masked, R_lock_bus_id)
+        variable dmask_trailing_zeroes : natural range 0 to 3;
+    begin
+        for i in 0 to 3 loop
+            if R_active_bus_reqests(R_lock_bus_id).data_mask(i) = '1' then
+                wb_resp_data_masked((i + 1) * 8 - 1 downto i * 8) <= wb_resp.dat((i + 1) * 8 - 1 downto i * 8); 
+            else
+                wb_resp_data_masked((i + 1) * 8 - 1 downto i * 8) <= (others => '0');
+            end if;
+        end loop;
+
+        dmask_trailing_zeroes := 0;
+        for i in 0 to 3 loop
+            if R_active_bus_reqests(R_lock_bus_id).data_mask(i) = '0' then
+                dmask_trailing_zeroes := i;
+            end if;
+        end loop;
+
+        wb_resp_data_shifted <= wb_resp_data_masked;
+        for i in 3 downto 1 loop
+            if dmask_trailing_zeroes = i then
+                wb_resp_data_shifted(31 downto (4 - i) * 8) <= (others => '0');
+                wb_resp_data_shifted((4 - i) * 8 - 1 downto 0) <= wb_resp_data_masked(31 downto i * 8);
+            end if;
+        end loop;
+    end process;
 end rtl;
+
+
+
