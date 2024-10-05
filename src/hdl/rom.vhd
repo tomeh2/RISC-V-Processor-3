@@ -54,7 +54,7 @@ begin
                 M_rom <= F_read_elf_file;
             else
                 wb_ack <= '0';
-                if wb_stb = '1' then
+                if wb_stb = '1' and wb_ack = '0' then
                     wb_rdata <= M_rom(F_vec_to_int(wb_addr(C_ROM_ADDR_BITS + 1 downto 2)));
                     wb_ack <= '1';
                 end if;

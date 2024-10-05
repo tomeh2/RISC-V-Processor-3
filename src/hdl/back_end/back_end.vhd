@@ -59,6 +59,7 @@ architecture rtl of back_end is
     signal rr_stall_out : std_logic;
     signal rob_stall_out : std_logic;
     signal lsu_stall_out : std_logic;
+    signal lsu_cdb_req : std_logic;
 
     signal rat_debug : T_rr_debug;
 
@@ -161,11 +162,13 @@ begin
              clk            => clk,
              reset          => reset);
 
-    process(eu0_out, cdb_out_lsu)
+    process(eu0_out, cdb_out_lsu, lsu_cdb_req)
     begin
         eu0_stall_in <= '1';
+        cdb_granted_lsu <= '0';
         cdb <= UOP_ZERO;
-        if cdb_out_lsu.valid = '1' then
+        if lsu_cdb_req = '1' then
+            cdb_granted_lsu <= '1';
             cdb <= cdb_out_lsu;
         elsif eu0_out.valid = '1' then
             eu0_stall_in <= '0';
@@ -182,13 +185,13 @@ begin
              uop_allocated_lq   => lsu_allocated_lq,
              cdb_in             => cdb,
              cdb_out            => cdb_out_lsu,
-             cdb_request        => open,
+             cdb_request        => lsu_cdb_req,
              cdb_granted        => cdb_granted_lsu,
              retired_uop        => rob_retired_uop,
              agu_in_port        => agu_temp,
              bus_req            => bus_req,
              bus_resp           => bus_resp,
-             stall_in           => pipeline_1_stall_reg,
+             stall_in           => (R_pipeline_1.valid and sched_stall_out) or rob_stall_out,
              stall_out          => lsu_stall_out,
              clk                => clk,
              reset              => reset);

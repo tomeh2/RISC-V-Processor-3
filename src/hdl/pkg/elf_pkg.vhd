@@ -41,7 +41,7 @@ package elf_pkg is
         p_flags_2 : std_logic_vector(31 downto 0);
         p_align : std_logic_vector(31 downto 0);
     end record;
-    type T_prog_headers is array (0 to 7) of T_elf_prog_header;
+    type T_prog_headers is array (0 to 15) of T_elf_prog_header;
     
     type T_elf_sect_header is record
         sh_name : std_logic_vector(31 downto 0);
@@ -55,7 +55,7 @@ package elf_pkg is
         sh_addralign : std_logic_vector(31 downto 0);
         sh_entsize : std_logic_vector(31 downto 0);
     end record;
-    type T_sect_headers is array (0 to 7) of T_elf_sect_header;
+    type T_sect_headers is array (0 to 15) of T_elf_sect_header;
     
     type T_elf_file is record
         filename : string(1 to 64);

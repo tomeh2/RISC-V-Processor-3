@@ -25,39 +25,5 @@ begin
     agu_out.sq_tag <= uop_in.sq_index;
     agu_out.lq_tag <= uop_in.lq_index;
     agu_out.rw <= uop_in.funct(3);
-
-    -- Data mask generation
-    process(uop_in.funct(1 downto 0), gen_address)
-    begin
-        agu_out.data_mask <= "0000";
-        case uop_in.funct(1 downto 0) is
-        when "00" =>            -- Byte
-            case gen_address(1 downto 0) is
-            when "00" =>
-                agu_out.data_mask <= "0001";
-            when "01" =>
-                agu_out.data_mask <= "0010";
-            when "10" =>
-                agu_out.data_mask <= "0100";
-            when "11" =>
-                agu_out.data_mask <= "1000";
-            when others =>
-            
-            end case;
-        when "01" =>            -- Half-Word
-            case gen_address(1 downto 0) is
-            when "00" =>
-                agu_out.data_mask <= "0011";
-            when "10" =>
-                agu_out.data_mask <= "1100";
-            when others =>
-            
-            end case;
-        when "10" =>            -- Word
-            agu_out.data_mask <= "1111";
-        when others =>
-        
-        end case;
-    end process;
-    agu_out.address <= gen_address(31 downto 2);
+    agu_out.address <= gen_address(31 downto 0);
 end rtl;

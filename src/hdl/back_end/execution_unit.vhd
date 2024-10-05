@@ -47,7 +47,7 @@ begin
     P_alu_op_sel : process(uop_in.is_speculative_br, uop_in.pc, uop_in.reg_read_1_data, uop_in.funct,
         uop_in.reg_read_2_data, uop_in.immediate)
     begin
-        if uop_in.is_speculative_br = '1' then
+        if uop_in.is_speculative_br = '1' and uop_in.funct(9 downto 8) /= "01" then
             alu_operand_1 <= std_logic_vector(uop_in.pc);
         else
             alu_operand_1 <= uop_in.reg_read_1_data;
@@ -104,7 +104,8 @@ begin
     process(uop_in, alu_result, branch_taken, branch_mispredicted)
     begin
         pipeline_0_next <= uop_in;
-        pipeline_0_next.reg_write_data <= alu_result;
+        pipeline_0_next.branch_target_addr <= alu_result;
+        pipeline_0_next.reg_write_data <= std_logic_vector(uop_in.pc + 4) when uop_in.funct(8) = '1' else alu_result;
         pipeline_0_next.branch_taken <= branch_taken;
         pipeline_0_next.branch_mispredicted <= branch_mispredicted;
     end process;

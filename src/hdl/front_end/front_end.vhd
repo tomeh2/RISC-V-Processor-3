@@ -57,7 +57,7 @@ begin
     fetch_fifo_instruction_write(63 downto 32) <= std_logic_vector(R_program_counter);
     fetch_fifo_instruction_write(31 downto 0) <= bus_resp.data;
 
-    fetch_fifo_put_en <= '1' when bus_resp.valid = '1' and unsigned(bus_resp.address) = R_program_counter(31 downto 2) else '0';
+    fetch_fifo_put_en <= '1' when bus_resp.valid = '1' and unsigned(bus_resp.address) = R_program_counter else '0';
     P_pc_cntrl : process(clk)
     begin
         if rising_edge(clk) then
@@ -65,7 +65,7 @@ begin
                 R_program_counter <= to_unsigned(0, ADDR_WIDTH); 
             else
                 if flush_all = '1' and cdb_in.branch_taken = '1' then
-                    R_program_counter <= unsigned(cdb_in.reg_write_data);
+                    R_program_counter <= unsigned(cdb_in.branch_target_addr);
                 elsif fetch_fifo_put_en = '1' then
                     R_program_counter <= R_program_counter + 4;
                 end if;
@@ -73,9 +73,9 @@ begin
         end if;
     end process;
 
-    bus_req.address <= std_logic_vector(R_program_counter(31 downto 2));
+    bus_req.address <= std_logic_vector(R_program_counter);
     bus_req.rw <= '0';
-    bus_req.data_mask <= "1111";
+    bus_req.data_size <= "10";
     bus_req.valid <= not reset and not fetch_fifo_full;
     
     -- ===================================

@@ -11,6 +11,7 @@ entity uart_16550 is
         wb_dat_o : out std_logic_vector(31 downto 0);
         wb_dat_i : in std_logic_vector(31 downto 0);
         wb_sel_i : in std_logic_vector(3 downto 0);
+        wb_we_i : in std_logic;
         wb_cyc_i : in std_logic;
         wb_stb_i : in std_logic;
         wb_ack_o : out std_logic;
@@ -94,21 +95,42 @@ begin
                 R_divisor_latch_m <= "00000000";
             else
                 if wb_stb_i = '1' and wb_ack = '1' then
-                    if wb_adr_i(2) = '0' then
-                        case wb_sel_i is
-                        when "0001" =>
-                            if R_line_cntrl(7) = '1' then
-                                R_divisor_latch_l <= wb_dat_i(7 downto 0);
-                            end if;
-                        when "001-" =>
-                            if R_line_cntrl(7) = '1' then
-                                R_divisor_latch_m <= wb_dat_i(7 downto 0);
-                            end if;
-                        when "01--" =>
-                        when "1---" =>
-                            R_line_cntrl <= wb_dat_i(7 downto 0);
-                        when others =>
-                        end case;
+                    if wb_we_i = '1' then
+                        if wb_adr_i(2) = '0' then
+                            case wb_sel_i is
+                            when "0001" =>
+                                if R_line_cntrl(7) = '1' then
+                                    R_divisor_latch_l <= wb_dat_i(7 downto 0);
+                                end if;
+                            when "001-" =>
+                                if R_line_cntrl(7) = '1' then
+                                    R_divisor_latch_m <= wb_dat_i(15 downto 8);
+                                end if;
+                            when "01--" =>
+                            when "1---" =>
+                                R_line_cntrl <= wb_dat_i(31 downto 24);
+                            when others =>
+                            end case;
+                        end if;
+                    end if;
+                end if;
+
+                if wb_stb_i = '1' and wb_we_i = '0' then
+                    if wb_adr_i(2) = '1' then
+                        wb_dat_o(7 downto 0) <= R_modem_cntrl;
+                        wb_dat_o(15 downto 8) <= R_line_status;
+                        wb_dat_o(23 downto 16) <= R_modem_status;
+                        wb_dat_o(31 downto 24) <= R_scratch;
+                    else
+                        if R_line_cntrl(7) = '1' then
+                            wb_dat_o(7 downto 0) <= R_divisor_latch_l;
+                            wb_dat_o(15 downto 8) <= R_divisor_latch_m;
+                        else
+                            wb_dat_o(7 downto 0) <= R_receiver_buffer;
+                            wb_dat_o(15 downto 8) <= R_interrupt_enable;
+                        end if;
+                        wb_dat_o(23 downto 16) <= R_interrupt_ident;
+                        wb_dat_o(31 downto 24) <= R_line_cntrl;
                     end if;
                 end if;
             end if;
@@ -117,6 +139,7 @@ begin
     tx_fifo_put_en <= '1' when wb_stb_i = '1' and
                                wb_ack = '1' and
                                wb_adr_i(2) = '0' and
+                               wb_we_i = '1' and
                                R_line_cntrl(7) = '0' and
                                wb_sel_i = "0001" else '0';
 
