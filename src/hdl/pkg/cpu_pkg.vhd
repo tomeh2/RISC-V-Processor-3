@@ -38,6 +38,21 @@ package cpu_pkg is
     constant MAX_SPEC_BRANCHES      : integer := 4;
     constant SQ_ENTRIES             : integer := 8;
     constant LQ_ENTRIES             : integer := 8;
+    constant SCHED_ENTRIES          : integer := 8;
+    constant SCHED_PORTS            : integer := 2;
+    constant RF_RESET_ENABLE        : boolean := true;
+    constant CSR_ENABLE             : boolean := true;
+    constant CSR_PERFCNTR_ENABLE    : boolean := true;
+    
+    type T_branch_predictors is (STATIC, SATCNT);
+    constant BP_TYPE                : T_branch_predictors := SATCNT;
+    -- What prediction will the static predictor always make
+    constant BP_STATIC_PREDICTION   : boolean := true;
+    constant BP_SATCNT_ENTRIES      : natural := 256;
+    -- Number of bits per saturating counter
+    constant BP_SATCNT_N            : natural := 2;
+    constant BTB_ENABLE             : boolean := true;
+    constant BTB_ENTRIES            : natural := 256;
 
     -- Fixed Constants
     constant EXEC_UNIT_ID_WIDTH   : integer := 2;
@@ -69,6 +84,7 @@ package cpu_pkg is
     constant OPCODE_LUI     : std_logic_vector(4 downto 0) := "01101";
     constant OPCODE_JAL     : std_logic_vector(4 downto 0) := "11011";
     constant OPCODE_JALR    : std_logic_vector(4 downto 0) := "11001";
+    constant OPCODE_SYSTEM  : std_logic_vector(4 downto 0) := "11100";
 
     -- ====================
     -- ALU OPERATION SELECT
@@ -82,7 +98,7 @@ package cpu_pkg is
     constant ALU_OP_OR      : std_logic_vector(3 downto 0) := "0110";
     constant ALU_OP_AND     : std_logic_vector(3 downto 0) := "0111";
     constant ALU_OP_SUB     : std_logic_vector(3 downto 0) := "1000";
-    constant ALU_OP_SRA     : std_logic_vector(3 downto 0) := "1001";   -- Shift Right Arith
+    constant ALU_OP_SRA     : std_logic_vector(3 downto 0) := "1101";   -- Shift Right Arith
 
     -- ===============
     -- DATA STRUCTURES
@@ -124,6 +140,7 @@ package cpu_pkg is
         -- Branch speculation masks
         is_speculative_br   : std_logic;
         branch_pred_taken   : std_logic;
+        branch_pred_target  : std_logic_vector(ADDR_WIDTH - 1 downto 0);
         branch_taken        : std_logic;
         branch_mispredicted : std_logic;
         branch_mask         : std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0);
@@ -194,6 +211,8 @@ package cpu_pkg is
         store_mask          : std_logic_vector(SQ_ENTRIES - 1 downto 0);
         -- Was the uOP sent to the bus controller / cache
         dispatched          : std_logic;
+        -- Is the load unsigned
+        is_unsigned         : std_logic;
         -- Did the RW operation in the bus controller finish
         done                : std_logic;
     end record;
@@ -229,6 +248,7 @@ package cpu_pkg is
         data            : std_logic_vector(DATA_WIDTH - 1 downto 0);
         data_size       : std_logic_vector(1 downto 0);
         rw              : std_logic;
+        is_unsigned     : std_logic;
         valid           : std_logic;
     end record;
     type T_bus_request_array is array (natural range<>) of T_bus_request;
@@ -273,6 +293,7 @@ package cpu_pkg is
         (others => '0'),
         '0',
         '0',
+        (others => '0'),
         '0',
         '0',
         (others => '0'),

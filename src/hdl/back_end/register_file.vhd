@@ -32,7 +32,7 @@ entity register_file is
         -- output is not yet ready for new data
         -- Stall out tells the blocks preceding this one that this block is not
         -- yet ready to receive new data
-        stall_in    : in std_logic;
+        stall_in    : in std_logic_vector(NUM_PORTS - 1 downto 0);
         stall_out   : out std_logic_vector(NUM_PORTS - 1 downto 0);
 
         debug_rat_in : in T_rr_debug;
@@ -43,8 +43,6 @@ entity register_file is
 end register_file;
 
 architecture rtl of register_file is
-    signal pipeline_regs_next : T_uop_array(0 to NUM_PORTS - 1); 
-
     type T_arch_regfile_debug is array (0 to 31) of std_logic_vector(DATA_WIDTH - 1 downto 0);
     signal arch_regfile_debug : T_arch_regfile_debug;
 
@@ -58,27 +56,23 @@ begin
     G_gen_out_port_regs : for i in 0 to NUM_PORTS - 1 generate
         pipeline_next_cntrl : process(M_regfile, uop_in(i))
         begin
-            pipeline_regs_next(i) <= uop_in(i);
-            pipeline_regs_next(i).reg_read_1_data <=
+            uop_out(i) <= uop_in(i);
+            uop_out(i).reg_read_1_data <=
                 M_regfile(to_integer(unsigned(uop_in(i).phys_src_reg_1))).data;
-            pipeline_regs_next(i).reg_read_2_data <=
+            uop_out(i).reg_read_2_data <=
                 M_regfile(to_integer(unsigned(uop_in(i).phys_src_reg_2))).data;
         end process;
-
-        process(clk)
-        begin
-            F_pipeline_reg(pipeline_regs_next(i), uop_out(i), cdb_in, clk, reset, stall_in);
-        end process;
-        stall_out(i) <= uop_out(i).valid and stall_in;
     end generate;
 
     process(clk)
     begin
         if rising_edge(clk) then
             if reset = '1' then
-                for i in 0 to PHYS_REGFILE_ENTRIES - 1 loop
-                    M_regfile(i).data <= (others => '0');
-                end loop;
+                if RF_RESET_ENABLE = true then
+                    for i in 0 to PHYS_REGFILE_ENTRIES - 1 loop
+                        M_regfile(i).data <= (others => '0');
+                    end loop;
+                end if;
             else
                 -- Register write logic
                 -- Physical register 0 always contains the value 0
@@ -95,4 +89,5 @@ begin
             arch_regfile_debug(i) <= M_regfile(to_integer(unsigned(debug_rat_in(i)))).data;
         end loop;
     end process;
+    stall_out <= stall_in;
 end rtl;

@@ -26,9 +26,9 @@ entity register_alias_table is
         write_enable_1 : in std_logic;
 
         take_snapshot_enable : in std_logic;
-        take_snapshot_index : in integer;
+        take_snapshot_index : in integer range 0 to MAX_SPEC_BRANCHES - 1;
         recover_snapshot_enable : in std_logic;
-        recover_snapshot_index : in integer;
+        recover_snapshot_index : in integer range 0 to MAX_SPEC_BRANCHES - 1;
 
         debug_out : out T_rr_debug;
 
@@ -48,7 +48,6 @@ architecture rtl of register_alias_table is
     signal M_rat_mispredict_recovery : T_rat_mispredict_recovery;
 begin
     P_rat_write_cntrl : process(clk)
-        variable mispredict_recovery_slot_id : integer;
     begin
         if rising_edge(clk) then
             if reset = '1' then
@@ -58,14 +57,13 @@ begin
                 M_rat <= (others => (others => '0'));
             else
                 if recover_snapshot_enable = '1' and ENABLE_MISPREDICT_RECOVERY = true then
-                    M_rat <= M_rat_mispredict_recovery(mispredict_recovery_slot_id);
+                    M_rat <= M_rat_mispredict_recovery(recover_snapshot_index);
                 else
                     if take_snapshot_enable = '1' and ENABLE_MISPREDICT_RECOVERY = true then
-                        mispredict_recovery_slot_id := take_snapshot_index;
-                        M_rat_mispredict_recovery(mispredict_recovery_slot_id) <= M_rat;
+                        M_rat_mispredict_recovery(take_snapshot_index) <= M_rat;
 
                         if arch_write_tag_1 /= ARCH_REG_ZERO then
-                            M_rat_mispredict_recovery(mispredict_recovery_slot_id)
+                            M_rat_mispredict_recovery(take_snapshot_index)
                               (F_vec_to_int(arch_write_tag_1)) <= phys_write_tag_1;
                         end if;
                     end if;   

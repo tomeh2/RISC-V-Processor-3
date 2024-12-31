@@ -30,7 +30,7 @@ architecture rtl of front_end is
     signal R_pipeline_0_valid : std_logic;
 
     signal stall_fetch : std_logic;
-    signal flush_all : std_logic;
+    signal cdb_branch_mispredicted : std_logic;
 
     signal R_program_counter : unsigned(ADDR_WIDTH - 1 downto 0);
 
@@ -38,8 +38,14 @@ architecture rtl of front_end is
 
     signal bc_stall : std_logic;
     signal bc_free_branch_mask : std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0);
+    signal bc_spec_branches_mask : std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0);
+
+    signal bp_pred_target_pc: unsigned(ADDR_WIDTH - 1 downto 0);
+    signal bp_pred_taken: std_logic;
+    signal bp_pred_valid: std_logic;
 begin
-    flush_all <= cdb_in.valid and cdb_in.branch_mispredicted;
+    cdb_branch_mispredicted <= cdb_in.valid and cdb_in.branch_mispredicted;
+    bp_pred_valid <= bp_pred_taken and instdec_uop.valid and instdec_uop.is_speculative_br;
     -- ===================================
     --      INSTRUCTION FETCH LOGIC
     -- ===================================
@@ -47,7 +53,7 @@ begin
     generic map(BITS_PER_ENTRY => 64,
                 ENTRIES => 4)
     port map(clk        => clk,
-             reset      => reset or flush_all,
+             reset      => reset or cdb_branch_mispredicted or bp_pred_valid,
              data_in    => fetch_fifo_instruction_write,
              data_out   => fetch_fifo_instruction_read,
              get_en     => not stall_be,
@@ -64,8 +70,14 @@ begin
             if reset = '1' then
                 R_program_counter <= to_unsigned(0, ADDR_WIDTH); 
             else
-                if flush_all = '1' and cdb_in.branch_taken = '1' then
-                    R_program_counter <= unsigned(cdb_in.branch_target_addr);
+                if cdb_branch_mispredicted = '1' then
+                    if cdb_in.branch_taken = '1' then
+                        R_program_counter <= unsigned(cdb_in.branch_target_addr);
+                    else
+                        R_program_counter <= cdb_in.pc + 4;
+                    end if;
+                elsif bp_pred_valid = '1' then
+                    R_program_counter <= bp_pred_target_pc;
                 elsif fetch_fifo_put_en = '1' then
                     R_program_counter <= R_program_counter + 4;
                 end if;
@@ -76,6 +88,7 @@ begin
     bus_req.address <= std_logic_vector(R_program_counter);
     bus_req.rw <= '0';
     bus_req.data_size <= "10";
+    bus_req.is_unsigned <= '1';
     bus_req.valid <= not reset and not fetch_fifo_full;
     
     -- ===================================
@@ -90,19 +103,29 @@ begin
 
     I_branch_controller : entity work.branch_controller
     generic map(BRANCHING_DEPTH => MAX_SPEC_BRANCHES)
-    port map(clk                => clk,
-             reset              => reset,
-             cdb_in             => cdb_in,
-             uop_in             => instdec_uop,
-             stall_in           => stall_be,
-             stall_out          => bc_stall,
-             free_branch_mask   => bc_free_branch_mask);
+    port map(clk                    => clk,
+             reset                  => reset,
+             cdb_in                 => cdb_in,
+             uop_in                 => instdec_uop,
+             stall_in               => stall_be,
+             stall_out              => bc_stall,
+             free_branch_mask       => bc_free_branch_mask,
+             active_branches_mask   => bc_spec_branches_mask);
 
-    process(instdec_uop, bc_free_branch_mask)
+    I_branch_predictor: entity work.branch_predictor
+    port map(clk => clk,
+             uop_in => instdec_uop,
+             cdb_in => cdb_in,
+             branch_predictor_taken => bp_pred_taken,
+             branch_predictor_target_pc => bp_pred_target_pc);
+
+    process(instdec_uop, bc_free_branch_mask, bc_spec_branches_mask, bp_pred_target_pc, bp_pred_taken)
     begin
         uop_out <= instdec_uop;
-        uop_out.branch_pred_taken <= '0';
+        uop_out.branch_pred_taken <= bp_pred_taken;
+        uop_out.branch_pred_target <= std_logic_vector(bp_pred_target_pc);
         uop_out.branch_mask <= bc_free_branch_mask;
+        uop_out.spec_branch_mask <= bc_spec_branches_mask;
     end process;
     
 end rtl;

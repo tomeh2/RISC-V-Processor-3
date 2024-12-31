@@ -24,6 +24,8 @@ architecture rtl of instruction_decoder is
 
     signal is_speculative_br : std_logic;
     signal exec_unit_id : unsigned(EXEC_UNIT_ID_WIDTH - 1 downto 0);
+    signal arch_src_reg_1 : std_logic_vector(4 downto 0);
+    signal arch_src_reg_2 : std_logic_vector(4 downto 0);
     signal immediate : std_logic_vector(31 downto 0);
     signal funct : std_logic_vector(9 downto 0);
     signal arch_dest_reg : std_logic_vector(4 downto 0);
@@ -35,9 +37,14 @@ begin
     -- for decoding table
     P_decode_type : process(instruction, instruction_valid, funct3, funct7)
     begin
+        arch_src_reg_1 <= instruction(19 downto 15);
+        arch_src_reg_2 <= instruction(24 downto 20);
         arch_dest_reg <= instruction(11 downto 7);
         invalid_instruction <= '0';
         is_speculative_br <= '0';
+        funct <= (others => '0');
+        exec_unit_id <= (others => '0');
+        instruction_type <= R_TYPE;
         if instruction(1 downto 0) /= "11" then
             invalid_instruction <= instruction_valid;
         else
@@ -56,24 +63,27 @@ begin
                 instruction_type <= B_TYPE;
                 exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
                 is_speculative_br <= '1';
-                funct <= "1000000" & funct3;
+                funct <= "1010000" & funct3;
                 arch_dest_reg <= (others => '0');
             when OPCODE_OP =>
                 instruction_type <= R_TYPE;
                 exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
-                funct <= "000000" & funct7(6) & funct3;
+                funct <= "000000" & funct7(5) & funct3;
             when OPCODE_OP_IMM =>
                 instruction_type <= I_TYPE;
                 exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
                 if funct3 = "001" or funct3 = "101" then
-                    funct <= "100000" & funct7(6) & funct3;
+                    funct <= "100000" & funct7(5) & funct3;
                 else
                     funct <= "1000000" & funct3;
                 end if;
             when OPCODE_AUIPC =>
+                arch_src_reg_2 <= (others => '0');
+                funct <= "1010000000";
                 instruction_type <= U_TYPE;
                 exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
             when OPCODE_LUI =>
+                arch_src_reg_1 <= (others => '0');
                 instruction_type <= U_TYPE;
                 exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
                 funct <= "1000000000";
@@ -81,12 +91,19 @@ begin
                 instruction_type <= J_TYPE;
                 exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
                 is_speculative_br <= '1';
-                funct <= "1100000000";
+                funct <= "1110000000";
             when OPCODE_JALR =>
                 instruction_type <= I_TYPE;
                 exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
                 is_speculative_br <= '1';
                 funct <= "0100000000";
+            when OPCODE_SYSTEM =>
+                if CSR_ENABLE = true then
+                    arch_src_reg_2 <= (others => '0');
+                    instruction_type <= I_TYPE;
+                    exec_unit_id <= to_unsigned(0, EXEC_UNIT_ID_WIDTH);
+                    funct <= "000" & funct3 & "0000";
+                end if;
             when others =>
                 invalid_instruction <= instruction_valid;
                 arch_dest_reg <= (others => '0');
@@ -137,8 +154,8 @@ begin
     decoded_uop.pc <= pc;
     decoded_uop.exec_unit_id <= exec_unit_id;
     decoded_uop.funct <= funct;
-    decoded_uop.arch_src_reg_1 <= instruction(19 downto 15);
-    decoded_uop.arch_src_reg_2 <= instruction(24 downto 20);
+    decoded_uop.arch_src_reg_1 <= arch_src_reg_1;
+    decoded_uop.arch_src_reg_2 <= arch_src_reg_2;
     decoded_uop.arch_dst_reg <= arch_dest_reg;
     decoded_uop.immediate <= immediate;
     decoded_uop.is_speculative_br <= is_speculative_br;

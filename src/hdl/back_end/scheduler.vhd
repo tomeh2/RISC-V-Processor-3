@@ -43,8 +43,6 @@ entity scheduler is
 end scheduler;
 
 architecture rtl of scheduler is
-    signal output_reg_stall_array : std_logic_vector(NUM_OUTPUT_PORT - 1 downto 0);
-
     type T_sched_array is array (0 to ENTRIES - 1) of T_uop;
     signal M_scheduler : T_sched_array;
 
@@ -89,7 +87,7 @@ begin
     -- The instruction is picked randomly within the subset of valid
     -- instructions. Valid instructions are ones where all operands are
     -- ready and the uOP itself is valid
-    P_sched_dispatch_prio_enc : process(M_scheduler, output_reg_stall_array)
+    P_sched_dispatch_prio_enc : process(M_scheduler, stall_in)
     begin
         for j in 0 to NUM_OUTPUT_PORT - 1 loop
             sched_dispatch_index_array(j) <= 0;
@@ -98,7 +96,7 @@ begin
                 if M_scheduler(i).valid = '1' and
                     M_scheduler(i).reg_read_1_ready = '1' and
                     M_scheduler(i).reg_read_2_ready = '1' and
-                    output_reg_stall_array(j) = '0' and
+                    stall_in(j) /= '1' and
                     M_scheduler(i).exec_unit_id = OUTPUT_PORT_EXEC_IDS(j) then
                         sched_dispatch_index_array(j) <= i;
                         sched_dispatch_enable_array(j) <= '1';
@@ -128,6 +126,15 @@ begin
                        cdb_in.branch_mask /= BR_MASK_ZERO then
                         M_scheduler(sched_write_index).spec_branch_mask <=
                           uop_in.spec_branch_mask and not cdb_in.branch_mask;
+                    end if;
+
+                    -- Make sure that the instruction is cancelled in case
+                    -- of a mispredict. Since this part of the processor
+                    -- is still in-order we only need to check for any
+                    -- mispredict
+                    if cdb_in.valid = '1' and
+                       cdb_in.branch_mispredicted = '1' then
+                        M_scheduler(sched_write_index).valid <= '0';
                     end if;
 
                     -- We need to handle a case where the CDB contains
@@ -167,11 +174,24 @@ begin
                 -- the corresponding speculated branches mask bit in all
                 -- entries
                 for i in 0 to ENTRIES - 1 loop
-                    if (M_scheduler(i).valid = '1' and
-                          cdb_in.valid = '1' and
-                          cdb_in.branch_mask /= BR_MASK_ZERO) then
-                        M_scheduler(i).spec_branch_mask <=
-                          M_scheduler(i).spec_branch_mask and not cdb_in.branch_mask;
+--                    if (M_scheduler(i).valid = '1' and
+--                          cdb_in.valid = '1' and
+--                          cdb_in.branch_mask /= BR_MASK_ZERO) then
+--                        M_scheduler(i).spec_branch_mask <=
+--                          M_scheduler(i).spec_branch_mask and not cdb_in.branch_mask;
+--                    end if;
+
+                    if M_scheduler(i).valid = '1' then
+                        if cdb_in.valid = '1' then
+                            if cdb_in.branch_mispredicted = '1' then
+                                if (cdb_in.branch_mask and M_scheduler(i).spec_branch_mask) /= BR_MASK_ZERO then
+                                    M_scheduler(i).valid <= '0';
+                                end if;
+                            else
+                                M_scheduler(i).spec_branch_mask <=
+                                  M_scheduler(i).spec_branch_mask and not cdb_in.branch_mask;
+                            end if;
+                        end if;
                     end if;
                 end loop;
 
@@ -185,23 +205,14 @@ begin
         end if;
     end process;
 
-    -- Selects the next instruction selected for disptach and puts it into
-    -- the uop_dispatch signal
+    -- Selects the next instruction selected for disptach and outputs it
     P_dispatch_reg : process(M_scheduler, sched_dispatch_index_array, sched_dispatch_enable_array)
     begin
         for i in 0 to NUM_OUTPUT_PORT - 1 loop
-            uop_dispatch(i) <= M_scheduler(sched_dispatch_index_array(i));
-            uop_dispatch(i).valid <= sched_dispatch_enable_array(i);
+            uop_out(i) <= M_scheduler(sched_dispatch_index_array(i));
+            uop_out(i).valid <= sched_dispatch_enable_array(i);
         end loop;
     end process;
-
-    G_gen_out_port_regs : for i in 0 to NUM_OUTPUT_PORT - 1 generate
-        process(clk)
-        begin
-            F_pipeline_reg(uop_dispatch(i), uop_out(i), cdb_in, clk, reset, stall_in(i));
-        end process;
-        output_reg_stall_array(i) <= stall_in(0) and uop_out(i).valid;
-    end generate;
 
     stall_out <= sched_full;
 end rtl;

@@ -18,7 +18,8 @@ entity branch_controller is
         stall_in : in std_logic;
         stall_out : out std_logic;
         
-        free_branch_mask : out std_logic_vector(BRANCHING_DEPTH - 1 downto 0)
+        free_branch_mask : out std_logic_vector(BRANCHING_DEPTH - 1 downto 0);
+        active_branches_mask : out std_logic_vector(BRANCHING_DEPTH - 1 downto 0)
     );
 end branch_controller;
 
@@ -78,5 +79,6 @@ begin
             end if;
         end if;
     end process;
+    active_branches_mask <= R_used_brmasks_bitmap;
     stall_out <= not full;
 end rtl;

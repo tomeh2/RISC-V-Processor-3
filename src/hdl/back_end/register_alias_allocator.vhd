@@ -21,6 +21,8 @@ entity register_alias_allocator is
         take_snapshot_index : in integer;
         recover_snapshot_enable : in std_logic;
         recover_snapshot_index : in integer;
+        invalidate_snapshot_enable : in std_logic;
+        invalidate_snapshot_index : in integer;
 
         -- Returns whether the RAA has any registers left to allocate. A value
         -- of 1 indicates that this RAA doesn't have any free registers left
@@ -66,12 +68,6 @@ begin
                     R_active_mask <= R_active_mask or M_snapshots(recover_snapshot_index);
                     R_snapshosts_valid(recover_snapshot_index) <= '0';
                 else
-                    -- Snapshot logic
-                    if take_snapshot_enable = '1' then
-                        M_snapshots(take_snapshot_index) <= (others => '0');
-                        R_snapshosts_valid(take_snapshot_index) <= '1';
-                    end if;
-
                     if get_enable = '1' and free_tag_index /= 0 then
                         -- Find a free tag index using a priority encoder
                         R_active_mask(free_tag_index) <= '0';
@@ -80,6 +76,16 @@ begin
                                 M_snapshots(i)(free_tag_index) <= '1';
                             end if; 
                         end loop;
+                    end if;
+
+                    -- Snapshot logic
+                    if take_snapshot_enable = '1' then
+                        M_snapshots(take_snapshot_index) <= (others => '0');
+                        R_snapshosts_valid(take_snapshot_index) <= '1';
+                    end if;
+
+                    if invalidate_snapshot_enable = '1' then
+                        R_snapshosts_valid(invalidate_snapshot_index) <= '0';
                     end if;
     
                     if put_enable = '1' and unsigned(put_tag) /= 0 then
