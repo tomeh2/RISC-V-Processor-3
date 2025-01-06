@@ -5,8 +5,9 @@ use IEEE.MATH_REAL.ALL;
 
 entity fifo is
     generic(
-        BITS_PER_ENTRY : natural;
-        ENTRIES : natural
+        BITS_PER_ENTRY: natural;
+        OUTPUT_REG_ENABLE: boolean;
+        ENTRIES: natural
     );
     port(
         clk : in std_logic;
@@ -18,7 +19,9 @@ entity fifo is
         get_en : in std_logic;
         put_en : in std_logic;
         
+        almost_full : out std_logic;
         full : out std_logic;
+        almost_empty : out std_logic;
         empty : out std_logic
     );
 end fifo;
@@ -33,7 +36,9 @@ architecture rtl of fifo is
     signal R_tail_next : unsigned(integer(ceil(log2(real(ENTRIES)))) - 1 downto 0);
     signal R_util : unsigned(integer(ceil(log2(real(ENTRIES)))) downto 0);
     
+    signal i_almost_full : std_logic;
     signal i_full : std_logic;
+    signal i_almost_empty : std_logic;
     signal i_empty : std_logic;
     
     signal R_data_out : std_logic_vector(BITS_PER_ENTRY - 1 downto 0);
@@ -86,11 +91,15 @@ begin
             end if;
         end if;
     end process;
-    data_out <= R_data_out;
+    data_out <= R_data_out when OUTPUT_REG_ENABLE = true else M_fifo(to_integer(R_head));
     
+    i_almost_full <= '1' when R_util = ENTRIES - 1 else '0';
     i_full <= '1' when R_util = ENTRIES else '0';
+    i_almost_empty <= '1' when R_util = 1 else '0';
     i_empty <= '1' when R_util = 0 else '0';
     
+    almost_full <= i_almost_full;
     full <= i_full;
+    almost_empty <= i_almost_empty;
     empty <= i_empty;
 end rtl;

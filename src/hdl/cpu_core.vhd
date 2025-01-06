@@ -19,16 +19,37 @@ end cpu_core;
 architecture rtl of cpu_core is
     signal uop : T_uop;
     signal cdb : T_uop;
+    signal icache_cancel_all : std_logic;
     signal stall_be : std_logic;
+    signal stall_icache: std_logic;
+    signal fe_bus_req: T_bus_request;
+    signal fe_bus_resp: T_bus_response;
 begin
+    I_icache: entity work.cache
+    generic map(ADDRESS_WIDTH => 32,
+                ASSOCIATIVITY => 1,
+                BYTES_PER_WORD => 4,
+                WORDS_PER_CACHELINE => 4,
+                NUM_BLOCKS => 64)
+    port map(clk => clk,
+             reset => reset,
+             cancel_all => icache_cancel_all,
+             stall_out => stall_icache,
+             bus_req => fe_bus_req,
+             bus_resp => fe_bus_resp,
+             bus_req2 => bus_req_fe,
+             bus_resp2 => bus_resp_fe);
+
     fe_inst : entity work.front_end
-    port map(clk        => clk,
-             reset      => reset,
-             uop_out    => uop,
-             stall_be   => stall_be,
-             cdb_in     => cdb,
-             bus_req    => bus_req_fe,
-             bus_resp   => bus_resp_fe);
+    port map(clk                => clk,
+             reset              => reset,
+             uop_out            => uop,
+             stall_be           => stall_be,
+             icache_cancel_all  => icache_cancel_all,
+             icache_ready       => not stall_icache,
+             cdb_in             => cdb,
+             bus_req            => fe_bus_req,
+             bus_resp           => fe_bus_resp);
 
     be_inst : entity work.back_end
     port map(uop_1       => uop,

@@ -34,8 +34,8 @@ entity scheduler is
         -- output is not yet ready for new data
         -- Stall out tells the blocks preceding this one that this block is not
         -- yet ready to receive new data
-        stall_in    : in std_logic_vector(NUM_OUTPUT_PORT - 1 downto 0);
-        stall_out   : out std_logic;
+        stall   : in std_logic_vector(NUM_OUTPUT_PORT - 1 downto 0);
+        ready   : out std_logic;
 
         clk : in std_logic;
         reset : in std_logic
@@ -87,7 +87,7 @@ begin
     -- The instruction is picked randomly within the subset of valid
     -- instructions. Valid instructions are ones where all operands are
     -- ready and the uOP itself is valid
-    P_sched_dispatch_prio_enc : process(M_scheduler, stall_in)
+    P_sched_dispatch_prio_enc : process(M_scheduler, stall)
     begin
         for j in 0 to NUM_OUTPUT_PORT - 1 loop
             sched_dispatch_index_array(j) <= 0;
@@ -96,7 +96,7 @@ begin
                 if M_scheduler(i).valid = '1' and
                     M_scheduler(i).reg_read_1_ready = '1' and
                     M_scheduler(i).reg_read_2_ready = '1' and
-                    stall_in(j) /= '1' and
+                    stall(j) /= '1' and
                     M_scheduler(i).exec_unit_id = OUTPUT_PORT_EXEC_IDS(j) then
                         sched_dispatch_index_array(j) <= i;
                         sched_dispatch_enable_array(j) <= '1';
@@ -214,5 +214,5 @@ begin
         end loop;
     end process;
 
-    stall_out <= sched_full;
+    ready <= not sched_full;
 end rtl;

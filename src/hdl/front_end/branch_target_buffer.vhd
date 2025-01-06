@@ -26,7 +26,7 @@ architecture rtl of branch_target_buffer is
     signal btb_index_write: unsigned(C_btb_index_size - 1 downto 0);
     signal btb_index_read: unsigned(C_btb_index_size - 1 downto 0);
     type T_btb is array (0 to ENTRIES - 1) of unsigned(ADDR_WIDTH - 1 downto 0);
-    signal M_btb: T_btb;
+    signal M_btb: T_btb := (others => (others => '0'));
 begin
     btb_index_write <= executed_branch_pc(C_btb_index_size + 1 downto 2);
     btb_index_read <= branch_pc(C_btb_index_size + 1 downto 2);

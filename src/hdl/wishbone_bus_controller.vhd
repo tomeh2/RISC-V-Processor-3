@@ -25,7 +25,9 @@ architecture rtl of wishbone_bus_controller is
     signal R_wb_state : T_wb_state;
     signal R_lock_bus_id : natural range 0 to NUM_MASTERS - 1;
     
+    signal R_burst_counter : unsigned(7 downto 0);
     signal R_active_bus_requests : T_bus_request_array(0 to NUM_MASTERS - 1);
+    signal R_address : std_logic_vector(31 downto 0);
 
     signal wb_resp_dat_1 : std_logic_vector(31 downto 0);
     signal wb_resp_dat_2 : std_logic_vector(31 downto 0);
@@ -47,7 +49,10 @@ begin
                 end loop;
 
                 if wb_resp.ack = '1' and R_wb_state /= IDLE then
-                    R_active_bus_requests(R_lock_bus_id).valid <= '0';
+                    R_active_bus_requests(R_lock_bus_id).address <= std_logic_vector(unsigned(R_active_bus_requests(R_lock_bus_id).address) + 4);
+                    if R_burst_counter = 0 then
+                        R_active_bus_requests(R_lock_bus_id).valid <= '0';
+                    end if;
                 end if;
             end if;
         end if;
@@ -64,6 +69,7 @@ begin
                     for i in 0 to NUM_MASTERS - 1 loop
                         if R_active_bus_requests(i).valid = '1' then
                             R_lock_bus_id <= i;
+                            R_burst_counter <= R_active_bus_requests(i).burst_len;
                             if R_active_bus_requests(i).rw = '0' then
                                 R_wb_state <= READ_LOCK;
                             else
@@ -73,11 +79,18 @@ begin
                     end loop;
                 when READ_LOCK =>
                     if wb_resp.ack = '1' then
-                        R_wb_state <= IDLE;
+                        R_burst_counter <= R_burst_counter - 1;
+                        if R_burst_counter = 0 then
+                            R_wb_state <= IDLE;
+                        end if;
                     end if;
                 when WRITE_LOCK =>
                     if wb_resp.ack = '1' then
                         R_wb_state <= IDLE;
+                        R_burst_counter <= R_burst_counter - 1;
+                        if R_burst_counter = 0 then
+                            R_wb_state <= IDLE;
+                        end if;
                     end if;
                 end case;
             end if;

@@ -25,15 +25,6 @@ entity register_file is
         uop_out : out T_uop_array(0 to NUM_PORTS - 1);
 
         cdb_in : in T_uop;
-        -- ============
-        -- FLOW CONTROL
-        -- ============
-        -- Stall in tells this block that whatever logic is connected to its
-        -- output is not yet ready for new data
-        -- Stall out tells the blocks preceding this one that this block is not
-        -- yet ready to receive new data
-        stall_in    : in std_logic_vector(NUM_PORTS - 1 downto 0);
-        stall_out   : out std_logic_vector(NUM_PORTS - 1 downto 0);
 
         debug_rat_in : in T_rr_debug;
 
@@ -89,5 +80,4 @@ begin
             arch_regfile_debug(i) <= M_regfile(to_integer(unsigned(debug_rat_in(i)))).data;
         end loop;
     end process;
-    stall_out <= stall_in;
 end rtl;

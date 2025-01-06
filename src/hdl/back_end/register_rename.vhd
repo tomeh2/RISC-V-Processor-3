@@ -13,8 +13,8 @@ entity register_rename is
 
         retired_uop: in T_retired_uop;
 
-        stall_in: in std_logic;
-        stall_out: out std_logic;
+        stall: in std_logic;
+        ready: out std_logic;
 
         debug_out: out T_rr_debug;
 
@@ -41,13 +41,13 @@ architecture rtl of register_rename is
     signal cdb_is_branch_mispredicted : std_logic;
     signal cdb_branch_index : natural range 0 to MAX_SPEC_BRANCHES - 1;
 begin
-    uop_in_is_branch <= '1' when uop_in.branch_mask /= BR_MASK_ZERO and uop_in.valid = '1' and stall_in = '0' else '0';
+    uop_in_is_branch <= '1' when uop_in.branch_mask /= BR_MASK_ZERO and uop_in.valid = '1' and stall = '0' else '0';
     F_priority_encoder(uop_in.branch_mask, uop_in_branch_index);
     cdb_is_branch <= '1' when cdb_in.branch_mask /= BR_MASK_ZERO and cdb_in.valid = '1' else '0';
     cdb_is_branch_mispredicted <= cdb_in.branch_mispredicted and cdb_in.valid;
     F_priority_encoder(cdb_in.branch_mask, cdb_branch_index);
 
-    raa_get_enable <= '1' when uop_in.valid = '1' and uop_in.arch_dst_reg /= ARCH_REG_ZERO and stall_in = '0' else '0';
+    raa_get_enable <= '1' when uop_in.valid = '1' and uop_in.arch_dst_reg /= ARCH_REG_ZERO and stall = '0' else '0';
     raa_inst : entity work.register_alias_allocator
     generic map(MAX_SNAPSHOTS => MAX_SPEC_BRANCHES,
                 MASK_LENGTH => PHYS_REGFILE_ENTRIES)
@@ -121,5 +121,5 @@ begin
         uop_out.reg_read_1_ready <= phys_src_reg_1_valid;
         uop_out.reg_read_2_ready <= phys_src_reg_2_valid;
     end process;
-    stall_out <= raa_empty or stall_in;
+    ready <= not raa_empty;
 end rtl;

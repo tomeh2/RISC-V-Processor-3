@@ -15,18 +15,16 @@ use WORK.CPU_PKG.ALL;
 
 entity execution_unit is
     port(
-        uop_in  : in T_uop;
-        uop_out : out T_uop;
+        uop_in: in T_uop;
+        uop_out: out T_uop;
 
-        cdb_in : in T_uop;
-        -- ============
-        -- FLOW CONTROL
-        -- ============
-        stall_in : in std_logic;
-        stall_out : out std_logic;
+        cdb_in: in T_uop;
 
-        clk         : in std_logic;
-        reset       : in std_logic
+        stall: in std_logic;
+        ready: out std_logic;
+
+        clk: in std_logic;
+        reset: in std_logic
     );
 end execution_unit;
 
@@ -105,5 +103,6 @@ begin
         uop_out.branch_taken <= branch_taken;
         uop_out.branch_mispredicted <= branch_mispredicted;
     end process;
-    stall_out <= stall_in;
+
+    ready <= '1';
 end rtl;

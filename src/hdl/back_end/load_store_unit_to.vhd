@@ -40,15 +40,12 @@ architecture rtl of load_store_unit_to is
     -- STORE QUEUE CONTROL SIGNALS
     type T_sq_tail_snapshot is array (0 to MAX_SPEC_BRANCHES - 1) of unsigned(SQ_TAG_WIDTH - 1 downto 0);
     signal M_sq_tail_snapshot: T_sq_tail_snapshot;
-    type T_sq_util_snapshot is array (0 to MAX_SPEC_BRANCHES - 1) of unsigned(SQ_TAG_WIDTH downto 0);
-    signal M_sq_util_snapshot: T_sq_util_snapshot;
+
     
     signal R_sq_head : unsigned(SQ_TAG_WIDTH - 1 downto 0);
     signal R_sq_tail : unsigned(SQ_TAG_WIDTH - 1 downto 0);
-    signal R_sq_util : unsigned(SQ_TAG_WIDTH downto 0);
     signal sq_head_next : unsigned(SQ_TAG_WIDTH - 1 downto 0);
     signal sq_tail_next : unsigned(SQ_TAG_WIDTH - 1 downto 0);
-    signal sq_util_next : unsigned(SQ_TAG_WIDTH downto 0);
 
     type T_sq_valid_snapshot is array (0 to MAX_SPEC_BRANCHES - 1) of std_logic_vector(SQ_ENTRIES - 1 downto 0);
     signal M_sq_valid_snapshot: T_sq_valid_snapshot;
@@ -74,15 +71,11 @@ architecture rtl of load_store_unit_to is
 
     type T_lq_tail_snapshot is array (0 to MAX_SPEC_BRANCHES - 1) of unsigned(LQ_TAG_WIDTH - 1 downto 0);
     signal M_lq_tail_snapshot : T_lq_tail_snapshot;
-    type T_lq_util_snapshot is array (0 to MAX_SPEC_BRANCHES - 1) of unsigned(LQ_TAG_WIDTH downto 0);
-    signal M_lq_util_snapshot : T_lq_util_snapshot;
 
     signal R_lq_head : unsigned(LQ_TAG_WIDTH - 1 downto 0);
     signal R_lq_tail : unsigned(LQ_TAG_WIDTH - 1 downto 0);
-    signal R_lq_util : unsigned(LQ_TAG_WIDTH downto 0);
     signal lq_head_next : unsigned(LQ_TAG_WIDTH - 1 downto 0);
     signal lq_tail_next : unsigned(LQ_TAG_WIDTH - 1 downto 0);
-    signal lq_util_next : unsigned(LQ_TAG_WIDTH downto 0);
 
     signal lq_head_uop : T_lsu_load;
     signal lq_dispatch_enable : std_logic;
@@ -108,7 +101,7 @@ begin
                            stall_in = '0' else '0';
     sq_dequeue <= not sq_empty and sq_head_uop.retired and sq_head_uop.done;
 
-    P_sq_next_calc : process(R_sq_head, R_sq_tail, R_sq_util, sq_enqueue, sq_dequeue)
+    P_sq_next_calc : process(R_sq_head, R_sq_tail, sq_enqueue, sq_dequeue)
     begin
         if R_sq_head = SQ_ENTRIES - 1 then
             sq_head_next <= (others => '0');
@@ -121,14 +114,6 @@ begin
         else
             sq_tail_next <= R_sq_tail + 1;
         end if;
-
-        if sq_enqueue = '1' and sq_dequeue = '0' then
-            sq_util_next <= R_sq_util + 1;
-        elsif sq_enqueue = '0' and sq_dequeue = '1' then
-            sq_util_next <= R_sq_util - 1;
-        else
-            sq_util_next <= R_sq_util;
-        end if;
     end process;
 
     P_sq_cntrl : process(clk)
@@ -137,7 +122,6 @@ begin
             if reset = '1' then
                 R_sq_head <= (others => '0');
                 R_sq_tail <= (others => '0');
-                R_sq_util <= (others => '0');
                 R_sq_valid <= (others => '0');
             else
                 -- We encountered a speculative branch and need to take a
@@ -145,26 +129,11 @@ begin
                 if cdb_in.valid and cdb_in.branch_mispredicted then
                     R_sq_tail <= M_sq_tail_snapshot(cdb_in_brmask_index);
                     R_sq_valid <= R_sq_valid and (not M_sq_valid_snapshot(cdb_in_brmask_index));
-
-                    if sq_dequeue = '1' then
-                        R_sq_util <= M_sq_util_snapshot(cdb_in_brmask_index) - 1;
-                    else
-                        R_sq_util <= M_sq_util_snapshot(cdb_in_brmask_index);
-                    end if;
                 else
                     if uop_in.valid = '1' and uop_in.branch_mask /= BR_MASK_ZERO then
                         M_sq_valid_snapshot(uop_in_brmask_index) <= (others => '0');
                         M_sq_tail_snapshot(uop_in_brmask_index) <= R_sq_tail;
-                        M_sq_util_snapshot(uop_in_brmask_index) <= sq_util_next;
                     end if;
-
-                    if sq_dequeue = '1' then
-                        for i in 0 to MAX_SPEC_BRANCHES - 1 loop
-                            M_sq_util_snapshot(i) <= M_sq_util_snapshot(i) - 1;
-                        end loop;
-                    end if;
-
-                    R_sq_util <= sq_util_next;
                 end if;
 
                 if sq_enqueue = '1' then
@@ -223,8 +192,8 @@ begin
     end process;
     sq_head_uop <= M_store_queue(to_integer(R_sq_head));
     sq_dispatch_enable <= not sq_empty and sq_head_uop.data_valid and sq_head_uop.address_valid and not sq_head_uop.dispatched and sq_head_uop.retired and not lq_dispatch_enable;
-    sq_full <= '1' when R_sq_util = SQ_ENTRIES else '0';
-    sq_empty <= '1' when R_sq_util = 0 else '0';
+    sq_full <= '1'  when sq_tail_next = R_sq_head else '0';
+    sq_empty <= '1' when R_sq_head = R_sq_tail else '0';
 
     -- ======================================
     --              LOAD QUEUE
@@ -235,9 +204,9 @@ begin
                            uop_in.valid = '1' and
                            not (cdb_in.valid = '1' and cdb_in.branch_mispredicted = '1') and
                            stall_in = '0' else '0';
-    lq_dequeue <= not lq_empty and lq_head_uop.done;
+    lq_dequeue <= not lq_empty and lq_head_uop.done and lq_head_uop.retired;
 
-    P_lq_next_calc : process(R_lq_head, R_lq_tail, lq_enqueue, lq_dequeue, R_lq_util)
+    P_lq_next_calc : process(R_lq_head, R_lq_tail, lq_enqueue, lq_dequeue)
     begin
         if R_lq_head = LQ_ENTRIES - 1 then
             lq_head_next <= (others => '0');
@@ -250,14 +219,6 @@ begin
         else 
             lq_tail_next <= R_lq_tail + 1;
         end if;
-
-        if lq_enqueue = '1' and lq_dequeue = '0' then
-            lq_util_next <= R_lq_util + 1;
-        elsif lq_enqueue = '0' and lq_dequeue = '1' then
-            lq_util_next <= R_lq_util - 1;
-        else
-            lq_util_next <= R_lq_util;
-        end if;
     end process;
 
     P_lq_cntrl : process(clk)
@@ -266,30 +227,20 @@ begin
             if reset = '1' then
                 R_lq_head <= (others => '0');
                 R_lq_tail <= (others => '0');
-                R_lq_util <= (others => '0');
                 R_load_valid <= '0';
             else
                 if cdb_in.valid and cdb_in.branch_mispredicted then
                     R_lq_tail <= M_lq_tail_snapshot(cdb_in_brmask_index);
-
-                    if lq_dequeue = '1' then
-                        R_lq_util <= M_lq_util_snapshot(cdb_in_brmask_index) - 1;
-                    else
-                        R_lq_util <= M_lq_util_snapshot(cdb_in_brmask_index);
-                    end if;
                 else
                     if uop_in.valid = '1' and uop_in.branch_mask /= BR_MASK_ZERO then
                         M_lq_tail_snapshot(uop_in_brmask_index) <= R_lq_tail;
-                        M_lq_util_snapshot(uop_in_brmask_index) <= lq_util_next;
                     end if;
+                end if;
 
-                    if lq_dequeue = '1' then
-                        for i in 0 to MAX_SPEC_BRANCHES - 1 loop
-                            M_lq_util_snapshot(i) <= M_lq_util_snapshot(i) - 1;
-                        end loop;
-                    end if;
-
-                    R_lq_util <= lq_util_next;
+                if cdb_in.valid then
+                    for i in 0 to LQ_ENTRIES - 1 loop
+                        M_load_queue(i).spec_branch_mask <= M_load_queue(i).spec_branch_mask and not cdb_in.branch_mask;
+                    end loop;
                 end if;
 
                 if lq_enqueue = '1' then
@@ -303,7 +254,14 @@ begin
                     M_load_queue(to_integer(R_lq_tail)).store_mask <= R_sq_valid;
                     M_load_queue(to_integer(R_lq_tail)).dispatched <= '0';
                     M_load_queue(to_integer(R_lq_tail)).is_unsigned <= uop_in.funct(2);
+                    M_load_queue(to_integer(R_lq_tail)).retired <= '0';
                     M_load_queue(to_integer(R_lq_tail)).done <= '0';
+
+                    if cdb_in.valid then
+                        M_load_queue(to_integer(R_lq_tail)).spec_branch_mask <= uop_in.spec_branch_mask and not cdb_in.branch_mask;
+                    else
+                        M_load_queue(to_integer(R_lq_tail)).spec_branch_mask <= uop_in.spec_branch_mask;
+                    end if;
                 end if;
 
                 if lq_dequeue = '1' then
@@ -340,14 +298,26 @@ begin
                     M_load_queue(to_integer(R_lq_head)).done <= '1';
                     R_load_valid <= '0';
                 end if;
+
+                if retired_uop.valid = '1' then
+                    for i in 0 to LQ_ENTRIES - 1 loop
+                        if M_load_queue(i).id = retired_uop.id then
+                            M_load_queue(i).retired <= '1';
+                        end if;
+                    end loop;
+                end if;
             end if;
         end if;
     end process;
     lq_head_uop <= M_load_queue(to_integer(R_lq_head));
-    lq_dispatch_enable <= '1' when lq_empty = '0' and  lq_head_uop.address_valid = '1' and lq_head_uop.dispatched = '0' and lq_head_uop.store_mask = STORE_MASK_ZERO else '0';
+    lq_dispatch_enable <= '1' when lq_empty = '0' and
+                                   lq_head_uop.address_valid = '1' and
+                                   lq_head_uop.dispatched = '0' and
+                                   lq_head_uop.store_mask = STORE_MASK_ZERO and
+                                   lq_head_uop.spec_branch_mask = BR_MASK_ZERO else '0';
 
-    lq_full <= '1' when R_lq_util = LQ_ENTRIES else '0';
-    lq_empty <= '1' when R_lq_util = 0 else '0'; 
+    lq_full <= '1' when lq_tail_next = R_lq_head else '0';
+    lq_empty <= '1' when R_lq_head = R_lq_tail else '0'; 
     -- ======================================
     --             BUS OUTPUT
     -- ======================================
@@ -362,6 +332,7 @@ begin
             bus_req.address <= lq_head_uop.address;
             bus_req.data <= (others => '0');
             bus_req.data_size <= lq_head_uop.data_size;
+            bus_req.burst_len <= X"00";
             bus_req.rw <= '0';
             bus_req.is_unsigned <= lq_head_uop.is_unsigned;
             bus_req.valid <= '1';
@@ -369,6 +340,7 @@ begin
             bus_req.address <= sq_head_uop.address;
             bus_req.data <= sq_head_uop.data;
             bus_req.data_size <= sq_head_uop.data_size;
+            bus_req.burst_len <= X"00";
             bus_req.rw <= '1';
             bus_req.is_unsigned <= '0';
             bus_req.valid <= sq_dispatch_enable;

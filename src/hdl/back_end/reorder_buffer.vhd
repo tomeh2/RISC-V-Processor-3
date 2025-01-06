@@ -12,8 +12,8 @@ entity reorder_buffer is
 
         retired_uop : out T_retired_uop;
 
-        stall_in : in std_logic;
-        stall_out : out std_logic;
+        stall : in std_logic;
+        ready : out std_logic;
 
         clk : in std_logic;
         reset : in std_logic
@@ -46,7 +46,7 @@ begin
     empty <= '1' when R_head_index = R_tail_index else '0';
 
     insert_enable <= '1' when 
-        (uop_in.valid = '1' and full = '0') and (stall_in = '0') and
+        (uop_in.valid = '1' and full = '0') and (stall = '0') and
         (cdb.branch_mispredicted = '0' or cdb.valid = '0') else '0';
     retire_enable <= '1' when empty = '0' and M_rob(to_integer(R_head_index)).executed = '1' and
         not (cdb.valid = '1' and cdb.branch_mispredicted = '1') else '0';
@@ -111,7 +111,7 @@ begin
                 if cdb.valid = '1' and cdb.branch_mispredicted = '1' then
 
                 else
-                    if uop_in.valid = '1' and stall_in = '0' and full = '0' then
+                    if uop_in.valid = '1' and stall = '0' and full = '0' then
                         -- Update ROB memory
                         M_rob(to_integer(R_tail_index)) <= rob_write_entry;
 
@@ -135,6 +135,7 @@ begin
     retired_uop.arch_dst_reg <= M_rob(to_integer(R_head_index)).arch_dst_reg;
     retired_uop.phys_dst_reg <= M_rob(to_integer(R_head_index)).phys_dst_reg;
     retired_uop.valid <= retire_enable;
-    stall_out <= full;
+
+    ready <= not full;
 end rtl;
  

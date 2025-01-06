@@ -34,6 +34,7 @@ package cpu_pkg is
     constant ADDR_WIDTH             : integer := 32;
     constant ARCH_REGFILE_ENTRIES   : integer := 32;
     constant PHYS_REGFILE_ENTRIES   : integer := 64;
+    constant FETCH_FIFO_ENTRIES     : integer := 8;
     constant REORDER_BUFFER_ENTRIES : integer := 32;
     constant MAX_SPEC_BRANCHES      : integer := 4;
     constant SQ_ENTRIES             : integer := 8;
@@ -209,10 +210,14 @@ package cpu_pkg is
         phys_dst_reg        : std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
         -- Indicates which stores this uOP depends on
         store_mask          : std_logic_vector(SQ_ENTRIES - 1 downto 0);
+        -- Indicated which branches this load depends on
+        spec_branch_mask    : std_logic_vector(MAX_SPEC_BRANCHES - 1 downto 0);
         -- Was the uOP sent to the bus controller / cache
         dispatched          : std_logic;
         -- Is the load unsigned
         is_unsigned         : std_logic;
+        -- Did the instruction retire
+        retired             : std_logic;
         -- Did the RW operation in the bus controller finish
         done                : std_logic;
     end record;
@@ -247,6 +252,7 @@ package cpu_pkg is
         address         : std_logic_vector(ADDR_WIDTH - 1 downto 0);
         data            : std_logic_vector(DATA_WIDTH - 1 downto 0);
         data_size       : std_logic_vector(1 downto 0);
+        burst_len       : unsigned(7 downto 0);
         rw              : std_logic;
         is_unsigned     : std_logic;
         valid           : std_logic;
@@ -259,8 +265,8 @@ package cpu_pkg is
         data            : std_logic_vector(DATA_WIDTH - 1 downto 0);
         address         : std_logic_vector(ADDR_WIDTH - 1 downto 0);
         rw              : std_logic;    -- Load or store
+        ready           : std_logic;    -- Memory request executed and data is on resp bus
         valid           : std_logic;    -- Memory request executed and data is on resp bus
-        ready           : std_logic;    -- Did the bus controller accept the memory request
     end record;
     type T_bus_response_array is array (natural range<>) of T_bus_response;
 
@@ -328,12 +334,13 @@ package cpu_pkg is
     -- ===============================
     -- This code contains definitions for functions which depend on previously
     -- defined data types which are not available at the beginning
-    procedure F_pipeline_reg(signal uop_in : in T_uop;
-                             signal R_uop_out : inout T_uop;
-                             signal cdb : in T_uop;
-                             signal clk : in std_logic;
-                             signal reset : in std_logic;
-                             signal stall_in : in std_logic);
+    procedure F_pipeline_reg(signal uop_in: in T_uop;
+                             signal R_uop_out: inout T_uop;
+                             signal cdb: in T_uop;
+                             signal clk: in std_logic;
+                             signal reset: in std_logic;
+                             signal stall: in std_logic;
+                             signal ready: in std_logic);
     -- This function takes a uOP as an input and returns a type which can be
     -- put into the ROB
     function F_uop_to_rob_type (uop : T_uop) return T_rob_entry;
@@ -345,7 +352,11 @@ end package;
 package body cpu_pkg is
     function F_min_bits (N : natural) return natural is
     begin
-        return integer(ceil(log2(real(N))));
+        if N < 2 then
+            return 1;
+        else
+            return integer(ceil(log2(real(N))));
+        end if;
     end function;
 
     function F_int_to_vec (N : integer; len : natural) return std_logic_vector is
@@ -411,14 +422,20 @@ package body cpu_pkg is
                              signal cdb : in T_uop;
                              signal clk : in std_logic;
                              signal reset : in std_logic;
-                             signal stall_in : in std_logic) is
+                             signal stall : in std_logic;
+                             signal ready: in std_logic) is
     begin
         if rising_edge(clk) then
             if reset = '1' then
                 R_uop_out.valid <= '0';
             else
-                if stall_in = '0' or R_uop_out.valid = '0' then     -- Next instruction can pass
-                    R_uop_out <= uop_in;
+                if stall /= '1' or R_uop_out.valid = '0' then     -- Next instruction can pass
+                    if ready = '1' then
+                        R_uop_out <= uop_in;
+                    else
+                        R_uop_out.valid <= '0';
+                    end if;
+
                     if cdb.valid = '1' then
                         -- Handle branch mispredicts
                         if cdb.branch_mispredicted = '1' then

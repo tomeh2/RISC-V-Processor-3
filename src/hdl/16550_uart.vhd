@@ -88,6 +88,7 @@ begin
                                tx_fifo_empty = '0' else '0';
     I_tx_fifo: entity work.fifo
     generic map(BITS_PER_ENTRY => 8,
+                OUTPUT_REG_ENABLE => true,
                 ENTRIES => 16)
     port map(clk => clk,
              reset => reset,
@@ -100,6 +101,7 @@ begin
 
     I_rx_fifo: entity work.fifo
     generic map(BITS_PER_ENTRY => 8,
+                OUTPUT_REG_ENABLE => true,
                 ENTRIES => 16)
     port map(clk => clk,
              reset => reset,

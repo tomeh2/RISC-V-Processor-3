@@ -15,12 +15,7 @@ entity csr is
         retired_uop_in: in T_retired_uop;
         csr_value: out std_logic_vector(31 downto 0);
 
-        cdb_in: in T_uop;
-        -- ============
-        -- FLOW CONTROL
-        -- ============
-        stall_in: in std_logic;
-        stall_out: out std_logic
+        cdb_in: in T_uop
     );
 end csr;
 
@@ -91,6 +86,4 @@ begin
             end case;
         end if;
     end process;
-
-    stall_out <= '0';
 end rtl;

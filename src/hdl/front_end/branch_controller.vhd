@@ -58,21 +58,27 @@ begin
                 R_used_brmasks_bitmap <= (others => '0');
             else
                 if cdb_in.valid = '1' then
-                    R_used_brmasks_bitmap <= R_used_brmasks_bitmap and not cdb_in.branch_mask;
-
-                    for i in 0 to BRANCHING_DEPTH - 1 loop
-                        M_mispredict_recovery_memory(i) <= M_mispredict_recovery_memory(i) and not cdb_in.branch_mask;
-                    end loop;
-                end if;
-
-                if cdb_in.valid = '1' and cdb_in.branch_mispredicted = '1' then
-                    R_used_brmasks_bitmap <= M_mispredict_recovery_memory(cdb_in_branch_mask_index);
-                elsif uop_in.valid = '1' and uop_in.is_speculative_br = '1' and stall_in = '0' then
-                    R_used_brmasks_bitmap <= R_used_brmasks_bitmap or free_branch_mask;
-
-                    if cdb_in.valid = '1' then
-                        M_mispredict_recovery_memory(free_branch_mask_index) <= R_used_brmasks_bitmap and not cdb_in.branch_mask;
+                    if cdb_in.branch_mispredicted = '1' then
+                        R_used_brmasks_bitmap <= M_mispredict_recovery_memory(cdb_in_branch_mask_index);
                     else
+                        if uop_in.valid = '1' and uop_in.is_speculative_br = '1' and stall_in = '0' then
+                            R_used_brmasks_bitmap <= (R_used_brmasks_bitmap and not cdb_in.branch_mask) or free_branch_mask;
+                            M_mispredict_recovery_memory(free_branch_mask_index) <= R_used_brmasks_bitmap and not cdb_in.branch_mask;
+                            for i in 0 to BRANCHING_DEPTH - 1 loop
+                                if i /= free_branch_mask_index then
+                                    M_mispredict_recovery_memory(i) <= M_mispredict_recovery_memory(i) and not cdb_in.branch_mask;
+                                end if;
+                            end loop;
+                        else
+                            R_used_brmasks_bitmap <= R_used_brmasks_bitmap and not cdb_in.branch_mask;
+                            for i in 0 to BRANCHING_DEPTH - 1 loop
+                                M_mispredict_recovery_memory(i) <= M_mispredict_recovery_memory(i) and not cdb_in.branch_mask;
+                            end loop;
+                        end if;
+                    end if;
+                else
+                    if uop_in.valid = '1' and uop_in.is_speculative_br = '1' and stall_in = '0' then
+                        R_used_brmasks_bitmap <= R_used_brmasks_bitmap or free_branch_mask;
                         M_mispredict_recovery_memory(free_branch_mask_index) <= R_used_brmasks_bitmap;
                     end if;
                 end if;
@@ -80,5 +86,5 @@ begin
         end if;
     end process;
     active_branches_mask <= R_used_brmasks_bitmap;
-    stall_out <= not full;
+    stall_out <= full;
 end rtl;
