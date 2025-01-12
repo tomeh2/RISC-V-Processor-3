@@ -10,7 +10,8 @@ entity cache is
         ASSOCIATIVITY: natural;                -- MUST BE POWER OF 2
         BYTES_PER_WORD: natural;               -- MUST BE POWER OF 2
         WORDS_PER_CACHELINE: natural;          -- MUST BE POWER OF 2
-        NUM_BLOCKS: natural                -- MUST BE POWER OF 2
+        NUM_BLOCKS: natural;                   -- MUST BE POWER OF 2
+        IS_BLOCKING: boolean                   -- MUST BE POWER OF 2
     );
     port(
         clk: in std_logic;
@@ -18,10 +19,10 @@ entity cache is
 
         cancel_all: in std_logic;
         stall_out: out std_logic;
-        bus_req: in T_bus_request;
-        bus_resp: out T_bus_response;
-        bus_req2: out T_bus_request;
-        bus_resp2: in T_bus_response
+        cpu_bus_req: in T_bus_request;
+        cpu_bus_resp: out T_bus_response;
+        ext_bus_req: out T_bus_request;
+        ext_bus_resp: in T_bus_response
     );
 end cache;
 
@@ -53,9 +54,10 @@ architecture rtl of cache is
     type T_cache_block is array (0 to ASSOCIATIVITY - 1) of T_cacheline;
     
     type T_cache_request is record
-        tag: unsigned(C_cacheline_tag_width - 1 downto 0);
-        block_index: unsigned(C_block_index_width - 1 downto 0);
-        word_index: unsigned(C_cacheline_word_index_width - 1 downto 2);
+        address: std_logic_vector(ADDRESS_WIDTH - 1 downto 0);
+--        tag: unsigned(C_cacheline_tag_width - 1 downto 0);
+--        block_index: unsigned(C_block_index_width - 1 downto 0);
+--        word_index: unsigned(C_cacheline_word_index_width - 1 downto 2);
         rw: std_logic;
         cancelled: std_logic;
         valid: std_logic;
@@ -73,7 +75,7 @@ architecture rtl of cache is
     constant CL_STATE_EXCLUSIVE: std_logic_vector(1 downto 0) := "01";
     constant CL_STATE_SHARED: std_logic_vector(1 downto 0) := "10";
     constant CL_STATE_MODIFIED: std_logic_vector(1 downto 0) := "11";
-    type T_cache_control_sm is (INITIALIZE, NORMAL, FETCH, WRITEBACK, RETRY);
+    type T_cache_control_sm is (INITIALIZE, NORMAL, STALL, STALL_FETCH);
     signal R_cache_control_sm: T_cache_control_sm;
 
     signal R_init_cacheline_counter: unsigned(C_block_index_width - 1 downto 0);
@@ -93,17 +95,102 @@ architecture rtl of cache is
     signal cache_block_writeback_index: unsigned(C_cacheline_index_width - 1 downto 0);
     signal cache_block_read_index: unsigned(C_cacheline_index_width - 1 downto 0);
 
-    signal R_cache_fetch_cacheline_data: std_logic_vector(BYTES_PER_WORD * WORDS_PER_CACHELINE * 8 - 1 downto 0);
-    signal R_cache_fetch_address: unsigned(ADDRESS_WIDTH - 1 downto 0);
-    signal R_cache_fetch_burst_len: unsigned(7 downto 0);
-    signal R_cache_fetch_burst_counter: unsigned(7 downto 0);
+    type T_fetcher_req is record
+        address: std_logic_vector(ADDRESS_WIDTH - 1 downto 0);
+        valid: std_logic;
+    end record;
+    signal fetcher_req: T_fetcher_req;
+    type T_fetcher_sm is (IDLE, BUSY, WRITEBACK);
+    signal R_fetcher_sm: T_fetcher_sm;
+    signal fetcher_ready: std_logic;
+    signal fetcher_cacheline_valid: std_logic;
+    signal R_fetcher_address: std_logic_vector(ADDRESS_WIDTH - 1 downto 0);
+    signal R_fetcher_burst_counter: unsigned(7 downto 0);
+    signal R_fetcher_burst_len: unsigned(7 downto 0);
+    signal R_fetcher_cacheline_data: std_logic_vector(BYTES_PER_WORD * WORDS_PER_CACHELINE * 8 - 1 downto 0);
+
+    function F_extract_tag(address: std_logic_vector) return std_logic_vector is
+    begin
+        return address(C_cacheline_tag_msb downto C_cacheline_tag_lsb);
+    end function;
+
+    function F_extract_block(address: std_logic_vector) return std_logic_vector is
+    begin
+        return address(C_block_index_msb downto C_block_index_lsb);
+    end function;
+
+    function F_extract_word(address: std_logic_vector) return std_logic_vector is
+    begin
+        return address(C_cacheline_word_index_msb downto C_cacheline_word_index_lsb);
+    end function;
+
+    function F_extract_block_index(address: std_logic_vector) return natural is
+    begin
+        return to_integer(unsigned(F_extract_block(address)));
+    end function;
+
+    function F_extract_word_index(address: std_logic_vector) return natural is
+    begin
+        return to_integer(unsigned(F_extract_word(address)));
+    end function;
 begin
-    bus_req2.address <= std_logic_vector(R_cache_fetch_address);
-    bus_req2.valid <= '1' when R_cache_control_sm = FETCH else '0';
-    bus_req2.data_size <= "10";
-    bus_req2.is_unsigned <= '1';
-    bus_req2.rw <= '0';
-    bus_req2.burst_len <= R_cache_fetch_burst_len;
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            if reset = '1' then
+                R_fetcher_sm <= IDLE;
+            else
+                case R_fetcher_sm is
+                when IDLE =>
+                    if fetcher_req.valid = '1' then
+                        R_fetcher_sm <= BUSY;
+                        R_fetcher_address <= fetcher_req.address;
+                        R_fetcher_burst_counter <= to_unsigned(WORDS_PER_CACHELINE - 1, 8);
+                        R_fetcher_burst_len <= to_unsigned(WORDS_PER_CACHELINE - 1, 8);
+                    end if;
+                when BUSY =>
+                    if ext_bus_resp.valid = '1' then
+                        R_fetcher_burst_counter <= R_fetcher_burst_counter - 1;
+    
+                        for i in 0 to WORDS_PER_CACHELINE - 1 loop
+                            if (WORDS_PER_CACHELINE - 1 - to_integer(R_fetcher_burst_counter)) = i then
+                                R_fetcher_cacheline_data(BYTES_PER_WORD * 8 * (i + 1) - 1 downto BYTES_PER_WORD * 8 * i) <=
+                                  ext_bus_resp.data;
+                            end if;
+                        end loop;
+    
+                        if R_fetcher_burst_counter = 0 then
+                            R_fetcher_sm <= WRITEBACK;
+                        end if;
+                    end if;
+                when WRITEBACK =>
+                    R_fetcher_sm <= IDLE;
+                end case;
+            end if;
+        end if;
+    end process;
+
+    process(R_fetcher_sm)
+    begin
+        fetcher_cacheline_valid <= '0';
+        fetcher_ready <= '1';
+        case R_fetcher_sm is
+        when IDLE =>
+            
+        when BUSY =>
+            fetcher_ready <= '0';
+        when WRITEBACK =>
+            fetcher_cacheline_valid <= '1';
+            fetcher_ready <= '0';
+        end case;
+    end process;
+
+    ext_bus_req.address <= std_logic_vector(R_fetcher_address);
+    ext_bus_req.valid <= '1' when R_fetcher_sm = BUSY else '0';
+    ext_bus_req.data_size <= "10";
+    ext_bus_req.is_unsigned <= '1';
+    ext_bus_req.rw <= '0';
+    ext_bus_req.burst_len <= R_fetcher_burst_len;
 
     process(cache_block_read)
     begin
@@ -133,30 +220,34 @@ begin
             else
                 R_random_selector <= R_random_selector + 1;
 
+                if fetcher_cacheline_valid = '1' then
+                    M_cache(F_extract_block_index(R_cache_request.address))(to_integer(cache_block_writeback_index)).data
+                      <= R_fetcher_cacheline_data;
+                    M_cache(F_extract_block_index(R_cache_request.address))(to_integer(cache_block_writeback_index)).tag
+                      <= std_logic_vector(R_fetcher_address(C_cacheline_tag_msb downto C_cacheline_tag_lsb));
+                    M_cache(F_extract_block_index(R_cache_request.address))(to_integer(cache_block_writeback_index)).state
+                      <= CL_STATE_EXCLUSIVE;
+                end if;
+
                 case R_cache_control_sm is
                 when NORMAL =>
                     if R_cache_request.valid = '1' and
                          cache_hit = '0' then
-                        R_cache_control_sm <= FETCH;
-                        -- Generate fetch address that is aligned to cacheline length
-                        R_cache_fetch_address <= (others => '0');
-                        R_cache_fetch_address(C_cacheline_tag_msb downto C_cacheline_tag_lsb) <= R_cache_request.tag;
-                        R_cache_fetch_address(C_block_index_msb downto C_block_index_lsb) <= unsigned(R_cache_request.block_index);
-                        -- Burst len equal to number of words in a cacheline
-                        R_cache_fetch_burst_len <= to_unsigned(WORDS_PER_CACHELINE - 1, 8);
-                        R_cache_fetch_burst_counter <= to_unsigned(WORDS_PER_CACHELINE - 1, 8);
+                        if fetcher_ready = '1' then
+                            R_cache_control_sm <= STALL_FETCH;
+                        else
+                            R_cache_control_sm <= STALL;
+                        end if;
 
                         if cancel_all = '1' then
                             R_cache_request.cancelled <= '1';
                         end if;
                     else
                         cache_block_read <= M_cache(to_integer(cache_block_pointer));
-                        R_cache_request.tag <= unsigned(bus_req.address(C_cacheline_tag_msb downto C_cacheline_tag_lsb));
-                        R_cache_request.block_index <= unsigned(bus_req.address(C_block_index_msb downto C_block_index_lsb));
-                        R_cache_request.word_index <= unsigned(bus_req.address(C_cacheline_word_index_msb downto C_cacheline_word_index_lsb));
-                        R_cache_request.rw <= bus_req.rw;
+                        R_cache_request.address <= cpu_bus_req.address;
+                        R_cache_request.rw <= cpu_bus_req.rw;
                         R_cache_request.cancelled <= '0';
-                        R_cache_request.valid <= bus_req.valid;
+                        R_cache_request.valid <= cpu_bus_req.valid;
                     end if;
                 when INITIALIZE =>      -- Initializes all cacheline states to INVALID (empty)
                     if R_init_cacheline_counter = C_cacheline_index_max then
@@ -167,43 +258,27 @@ begin
                         M_cache(to_integer(R_init_cacheline_counter))(i).state <= CL_STATE_INVALID;
                     end loop;
                     R_init_cacheline_counter <= R_init_cacheline_counter + 1;
-                when FETCH =>
-                    if bus_resp2.valid = '1' then
-                        if R_cache_fetch_burst_counter = 0 then
-                            R_cache_control_sm <= WRITEBACK;
-                        else
-                            R_cache_fetch_burst_counter <= R_cache_fetch_burst_counter - 1;
-                        end if;
-                        
-                        for i in 0 to WORDS_PER_CACHELINE - 1 loop
-                            if (WORDS_PER_CACHELINE - 1 - to_integer(R_cache_fetch_burst_counter)) = i then
-                                R_cache_fetch_cacheline_data(BYTES_PER_WORD * 8 * (i + 1) - 1 downto BYTES_PER_WORD * 8 * i) <=
-                                  bus_resp2.data;
-                            end if;
-                        end loop;
-                    end if;
-
+                when STALL =>
                     if cancel_all = '1' then
                         R_cache_request.cancelled <= '1';
                     end if;
-                when WRITEBACK =>
-                    R_cache_control_sm <= RETRY;
-                    M_cache(to_integer(R_cache_request.block_index))(to_integer(cache_block_writeback_index)).data
-                      <= R_cache_fetch_cacheline_data;
-                    M_cache(to_integer(R_cache_request.block_index))(to_integer(cache_block_writeback_index)).tag
-                      <= std_logic_vector(R_cache_fetch_address(C_cacheline_tag_msb downto C_cacheline_tag_lsb));
-                    M_cache(to_integer(R_cache_request.block_index))(to_integer(cache_block_writeback_index)).state
-                      <= CL_STATE_EXCLUSIVE;
 
+                    if fetcher_ready = '1' then
+                        R_cache_control_sm <= NORMAL;
+                    end if;
+                when STALL_FETCH =>
                     if cancel_all = '1' then
                         R_cache_request.cancelled <= '1';
                     end if;
-                when RETRY =>
-                    R_cache_control_sm <= NORMAL;
+
                     cache_block_read <= M_cache(to_integer(cache_block_pointer));
 
-                    if cancel_all = '1' then
-                        R_cache_request.cancelled <= '1';
+                    if cache_hit = '1' then
+                        R_cache_control_sm <= NORMAL;
+                        R_cache_request.address <= cpu_bus_req.address;
+                        R_cache_request.rw <= cpu_bus_req.rw;
+                        R_cache_request.cancelled <= '0';
+                        R_cache_request.valid <= cpu_bus_req.valid;
                     end if;
                 when others =>
                 end case;
@@ -211,13 +286,13 @@ begin
         end if;
     end process;
 
-    process(R_cache_request.valid, R_cache_request.tag, cache_block_read, cache_block_read_index)
+    process(R_cache_request.valid, R_cache_request.address, cache_block_read, cache_block_read_index)
     begin
         cache_hit <= '0';
         cache_block_read_index <= (others => '0');
         if R_cache_request.valid = '1' then
             for i in 0 to ASSOCIATIVITY - 1 loop
-                if R_cache_request.tag = unsigned(cache_block_read(i).tag) and cache_block_read(i).state /= CL_STATE_INVALID then
+                if F_extract_tag(R_cache_request.address) = cache_block_read(i).tag and cache_block_read(i).state /= CL_STATE_INVALID then
                     cache_block_read_index <= to_unsigned(i, C_cacheline_index_width);
                     cache_hit <= '1';
                 end if;
@@ -226,44 +301,47 @@ begin
         cacheline_read <= cache_block_read(to_integer(cache_block_read_index));
     end process;
 
-    process(cacheline_read, R_cache_request.word_index)
+    process(cacheline_read, R_cache_request.address)
     begin
         cache_read_word <= (others => '0');
         for i in 0 to WORDS_PER_CACHELINE - 1 loop
-            if to_integer(unsigned(R_cache_request.word_index)) = i then
+            if F_extract_word_index(R_cache_request.address) = i then
                 cache_read_word <= cacheline_read.data(8 * BYTES_PER_WORD * (i + 1) - 1 downto 8 * BYTES_PER_WORD * i);
             end if;
         end loop;
     end process;
     
-    process(R_cache_control_sm, R_init_cacheline_counter, R_cache_request, bus_req.address, cache_hit)
+    process(R_cache_control_sm, R_init_cacheline_counter, R_cache_request, cpu_bus_req.address, cache_hit)
     begin
         stall_out <= '0';
         cache_block_pointer <= (others => '0');
+        fetcher_req.address <= (others => '0');
+        fetcher_req.address(C_cacheline_tag_msb downto C_block_index_lsb) <= R_cache_request.address(C_cacheline_tag_msb downto C_block_index_lsb);
+        fetcher_req.valid <= '0';
         case R_cache_control_sm is
         when NORMAL =>
             if R_cache_request.valid = '1' and
                  cache_hit = '0' then
+                fetcher_req.valid <= '1';
                 stall_out <= '1';
             end if;
 
-            cache_block_pointer <= unsigned(bus_req.address(C_block_index_msb downto C_block_index_lsb));
+            cache_block_pointer <= unsigned(cpu_bus_req.address(C_block_index_msb downto C_block_index_lsb));
             R_cache_response.valid <= '0';
         when INITIALIZE =>
             cache_block_pointer <= R_init_cacheline_counter;
             stall_out <= '1';
-        when FETCH =>
+        when STALL =>
+            cache_block_pointer <= unsigned(F_extract_block(R_cache_request.address));
             stall_out <= '1';
-        when WRITEBACK =>
-            stall_out <= '1';
-        when RETRY =>
-            cache_block_pointer <= R_cache_request.block_index;
-            stall_out <= '1';
+        when STALL_FETCH =>
+            cache_block_pointer <= unsigned(F_extract_block(cpu_bus_req.address)) when cache_hit = '1' else unsigned(F_extract_block(R_cache_request.address));
+            stall_out <= '0' when cache_hit = '1' else '1';
         when others =>
         end case;
     end process;
 
-    bus_resp.address <= std_logic_vector(R_cache_request.tag & R_cache_request.block_index & R_cache_request.word_index) & "00";
-    bus_resp.data <= cache_read_word;
-    bus_resp.valid <= R_cache_request.valid and not R_cache_request.cancelled and cache_hit;
+    cpu_bus_resp.address <= R_cache_request.address;
+    cpu_bus_resp.data <= cache_read_word;
+    cpu_bus_resp.valid <= R_cache_request.valid and not R_cache_request.cancelled and cache_hit;
 end rtl;

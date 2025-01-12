@@ -30,15 +30,16 @@ begin
                 ASSOCIATIVITY => 1,
                 BYTES_PER_WORD => 4,
                 WORDS_PER_CACHELINE => 4,
-                NUM_BLOCKS => 64)
+                NUM_BLOCKS => 64,
+                IS_BLOCKING => true)
     port map(clk => clk,
              reset => reset,
              cancel_all => icache_cancel_all,
              stall_out => stall_icache,
-             bus_req => fe_bus_req,
-             bus_resp => fe_bus_resp,
-             bus_req2 => bus_req_fe,
-             bus_resp2 => bus_resp_fe);
+             cpu_bus_req => fe_bus_req,
+             cpu_bus_resp => fe_bus_resp,
+             ext_bus_req => bus_req_fe,
+             ext_bus_resp => bus_resp_fe);
 
     fe_inst : entity work.front_end
     port map(clk                => clk,
