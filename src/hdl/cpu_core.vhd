@@ -27,7 +27,7 @@ architecture rtl of cpu_core is
 begin
     I_icache: entity work.cache
     generic map(ADDRESS_WIDTH => 32,
-                ASSOCIATIVITY => 1,
+                ASSOCIATIVITY => 4,
                 BYTES_PER_WORD => 4,
                 WORDS_PER_CACHELINE => 4,
                 NUM_BLOCKS => 64,

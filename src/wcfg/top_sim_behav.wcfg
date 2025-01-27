@@ -13,18 +13,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0.000000 us"></ZoomStartTime>
-      <ZoomEndTime time="200.000001 us"></ZoomEndTime>
-      <Cursor1Time time="50.855019 us"></Cursor1Time>
+      <ZoomStartTime time="1,963.014 ns"></ZoomStartTime>
+      <ZoomEndTime time="2,056.015 ns"></ZoomEndTime>
+      <Cursor1Time time="2,012.081 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="231"></NameColumnWidth>
-      <ValueColumnWidth column_width="95"></ValueColumnWidth>
+      <NameColumnWidth column_width="283"></NameColumnWidth>
+      <ValueColumnWidth column_width="156"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="42" />
-   <wave_markers>
-      <marker time="1325000" label="" />
-   </wave_markers>
    <wvobject fp_name="/top_sim/I_top/CLK100MHZ" type="logic">
       <obj_property name="ElementShortName">CLK100MHZ</obj_property>
       <obj_property name="ObjectShortName">CLK100MHZ</obj_property>
@@ -103,6 +100,24 @@
       <wvobject fp_name="/top_sim/I_top/I_soc/wb_cntrlr_inst/bus_req" type="array">
          <obj_property name="ElementShortName">bus_req[0:1]</obj_property>
          <obj_property name="ObjectShortName">bus_req[0:1]</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+         <wvobject fp_name="/top_sim/I_top/I_soc/wb_cntrlr_inst/bus_req[0]" type="array">
+            <obj_property name="ElementShortName">[0]</obj_property>
+            <obj_property name="ObjectShortName">[0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/wb_cntrlr_inst/bus_req[1]" type="array">
+            <obj_property name="ElementShortName">[1]</obj_property>
+            <obj_property name="ObjectShortName">[1]</obj_property>
+            <obj_property name="isExpanded"></obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/wb_cntrlr_inst/bus_req[0]" type="array">
+            <obj_property name="ElementShortName">[0]</obj_property>
+            <obj_property name="ObjectShortName">[0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/wb_cntrlr_inst/bus_req[1]" type="array">
+            <obj_property name="ElementShortName">[1]</obj_property>
+            <obj_property name="ObjectShortName">[1]</obj_property>
+         </wvobject>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/wb_cntrlr_inst/bus_resp" type="array">
          <obj_property name="ElementShortName">bus_resp[0:1]</obj_property>
@@ -237,9 +252,11 @@
    <wvobject fp_name="group3140" type="group">
       <obj_property name="label">FRONT END</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="group2092" type="group">
          <obj_property name="label">FIFO</obj_property>
          <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="isExpanded"></obj_property>
          <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/fe_inst/I_fetch_fifo/data_in" type="array">
             <obj_property name="ElementShortName">data_in[63:0]</obj_property>
             <obj_property name="ObjectShortName">data_in[63:0]</obj_property>
@@ -313,6 +330,7 @@
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/fe_inst/uop_out" type="array">
          <obj_property name="ElementShortName">uop_out</obj_property>
          <obj_property name="ObjectShortName">uop_out</obj_property>
+         <obj_property name="isExpanded"></obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/fe_inst/cdb_in" type="array">
          <obj_property name="ElementShortName">cdb_in</obj_property>
@@ -425,11 +443,13 @@
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/fe_inst/R_fifo_pipeline" type="array">
          <obj_property name="ElementShortName">R_fifo_pipeline</obj_property>
          <obj_property name="ObjectShortName">R_fifo_pipeline</obj_property>
+         <obj_property name="isExpanded"></obj_property>
       </wvobject>
    </wvobject>
    <wvobject fp_name="group3160" type="group">
       <obj_property name="label">BACK END</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/uop_1" type="array">
          <obj_property name="ElementShortName">uop_1</obj_property>
          <obj_property name="ObjectShortName">uop_1</obj_property>
@@ -455,6 +475,7 @@
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/R_pipeline_0" type="array">
          <obj_property name="ElementShortName">R_pipeline_0</obj_property>
          <obj_property name="ObjectShortName">R_pipeline_0</obj_property>
+         <obj_property name="isExpanded"></obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/pipeline_0_next" type="array">
          <obj_property name="ElementShortName">pipeline_0_next</obj_property>
@@ -607,6 +628,7 @@
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/cdb" type="array">
          <obj_property name="ElementShortName">cdb</obj_property>
          <obj_property name="ObjectShortName">cdb</obj_property>
+         <obj_property name="isExpanded"></obj_property>
       </wvobject>
    </wvobject>
    <wvobject fp_name="group93" type="group">
@@ -627,6 +649,7 @@
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/register_rename_inst/retired_uop" type="array">
          <obj_property name="ElementShortName">retired_uop</obj_property>
          <obj_property name="ObjectShortName">retired_uop</obj_property>
+         <obj_property name="isExpanded"></obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/register_rename_inst/debug_out" type="array">
          <obj_property name="ElementShortName">debug_out[0:31][5:0]</obj_property>
@@ -740,7 +763,6 @@
    <wvobject fp_name="group617" type="group">
       <obj_property name="label">UART</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/top_sim/I_top/I_soc/I_uart/wb_adr_i" type="array">
          <obj_property name="ElementShortName">wb_adr_i[2:2]</obj_property>
          <obj_property name="ObjectShortName">wb_adr_i[2:2]</obj_property>
@@ -914,7 +936,6 @@
          <obj_property name="ElementShortName">M_fifo[0:15][7:0]</obj_property>
          <obj_property name="ObjectShortName">M_fifo[0:15][7:0]</obj_property>
          <obj_property name="Radix">ASCIIRADIX</obj_property>
-         <obj_property name="isExpanded"></obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/I_uart/I_rx_fifo/M_fifo" type="array">
          <obj_property name="ElementShortName">M_fifo[0:15][7:0]</obj_property>
@@ -1206,7 +1227,6 @@
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/cdb" type="array">
          <obj_property name="ElementShortName">cdb</obj_property>
          <obj_property name="ObjectShortName">cdb</obj_property>
-         <obj_property name="isExpanded"></obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/retired_uop" type="array">
          <obj_property name="ElementShortName">retired_uop</obj_property>
@@ -1216,6 +1236,263 @@
          <obj_property name="ElementShortName">M_rob[0:31]</obj_property>
          <obj_property name="ObjectShortName">M_rob[0:31]</obj_property>
          <obj_property name="isExpanded"></obj_property>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[0]" type="array">
+            <obj_property name="ElementShortName">[0]</obj_property>
+            <obj_property name="ObjectShortName">[0]</obj_property>
+            <obj_property name="isExpanded"></obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[1]" type="array">
+            <obj_property name="ElementShortName">[1]</obj_property>
+            <obj_property name="ObjectShortName">[1]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[2]" type="array">
+            <obj_property name="ElementShortName">[2]</obj_property>
+            <obj_property name="ObjectShortName">[2]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[3]" type="array">
+            <obj_property name="ElementShortName">[3]</obj_property>
+            <obj_property name="ObjectShortName">[3]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[4]" type="array">
+            <obj_property name="ElementShortName">[4]</obj_property>
+            <obj_property name="ObjectShortName">[4]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[5]" type="array">
+            <obj_property name="ElementShortName">[5]</obj_property>
+            <obj_property name="ObjectShortName">[5]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[6]" type="array">
+            <obj_property name="ElementShortName">[6]</obj_property>
+            <obj_property name="ObjectShortName">[6]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[7]" type="array">
+            <obj_property name="ElementShortName">[7]</obj_property>
+            <obj_property name="ObjectShortName">[7]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[8]" type="array">
+            <obj_property name="ElementShortName">[8]</obj_property>
+            <obj_property name="ObjectShortName">[8]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[9]" type="array">
+            <obj_property name="ElementShortName">[9]</obj_property>
+            <obj_property name="ObjectShortName">[9]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[10]" type="array">
+            <obj_property name="ElementShortName">[10]</obj_property>
+            <obj_property name="ObjectShortName">[10]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[11]" type="array">
+            <obj_property name="ElementShortName">[11]</obj_property>
+            <obj_property name="ObjectShortName">[11]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[12]" type="array">
+            <obj_property name="ElementShortName">[12]</obj_property>
+            <obj_property name="ObjectShortName">[12]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[13]" type="array">
+            <obj_property name="ElementShortName">[13]</obj_property>
+            <obj_property name="ObjectShortName">[13]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[14]" type="array">
+            <obj_property name="ElementShortName">[14]</obj_property>
+            <obj_property name="ObjectShortName">[14]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[15]" type="array">
+            <obj_property name="ElementShortName">[15]</obj_property>
+            <obj_property name="ObjectShortName">[15]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[16]" type="array">
+            <obj_property name="ElementShortName">[16]</obj_property>
+            <obj_property name="ObjectShortName">[16]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[17]" type="array">
+            <obj_property name="ElementShortName">[17]</obj_property>
+            <obj_property name="ObjectShortName">[17]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[18]" type="array">
+            <obj_property name="ElementShortName">[18]</obj_property>
+            <obj_property name="ObjectShortName">[18]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[19]" type="array">
+            <obj_property name="ElementShortName">[19]</obj_property>
+            <obj_property name="ObjectShortName">[19]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[20]" type="array">
+            <obj_property name="ElementShortName">[20]</obj_property>
+            <obj_property name="ObjectShortName">[20]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[21]" type="array">
+            <obj_property name="ElementShortName">[21]</obj_property>
+            <obj_property name="ObjectShortName">[21]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[22]" type="array">
+            <obj_property name="ElementShortName">[22]</obj_property>
+            <obj_property name="ObjectShortName">[22]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[23]" type="array">
+            <obj_property name="ElementShortName">[23]</obj_property>
+            <obj_property name="ObjectShortName">[23]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[24]" type="array">
+            <obj_property name="ElementShortName">[24]</obj_property>
+            <obj_property name="ObjectShortName">[24]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[25]" type="array">
+            <obj_property name="ElementShortName">[25]</obj_property>
+            <obj_property name="ObjectShortName">[25]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[26]" type="array">
+            <obj_property name="ElementShortName">[26]</obj_property>
+            <obj_property name="ObjectShortName">[26]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[27]" type="array">
+            <obj_property name="ElementShortName">[27]</obj_property>
+            <obj_property name="ObjectShortName">[27]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[28]" type="array">
+            <obj_property name="ElementShortName">[28]</obj_property>
+            <obj_property name="ObjectShortName">[28]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[29]" type="array">
+            <obj_property name="ElementShortName">[29]</obj_property>
+            <obj_property name="ObjectShortName">[29]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[30]" type="array">
+            <obj_property name="ElementShortName">[30]</obj_property>
+            <obj_property name="ObjectShortName">[30]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[31]" type="array">
+            <obj_property name="ElementShortName">[31]</obj_property>
+            <obj_property name="ObjectShortName">[31]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[0]" type="array">
+            <obj_property name="ElementShortName">[0]</obj_property>
+            <obj_property name="ObjectShortName">[0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[1]" type="array">
+            <obj_property name="ElementShortName">[1]</obj_property>
+            <obj_property name="ObjectShortName">[1]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[2]" type="array">
+            <obj_property name="ElementShortName">[2]</obj_property>
+            <obj_property name="ObjectShortName">[2]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[3]" type="array">
+            <obj_property name="ElementShortName">[3]</obj_property>
+            <obj_property name="ObjectShortName">[3]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[4]" type="array">
+            <obj_property name="ElementShortName">[4]</obj_property>
+            <obj_property name="ObjectShortName">[4]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[5]" type="array">
+            <obj_property name="ElementShortName">[5]</obj_property>
+            <obj_property name="ObjectShortName">[5]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[6]" type="array">
+            <obj_property name="ElementShortName">[6]</obj_property>
+            <obj_property name="ObjectShortName">[6]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[7]" type="array">
+            <obj_property name="ElementShortName">[7]</obj_property>
+            <obj_property name="ObjectShortName">[7]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[8]" type="array">
+            <obj_property name="ElementShortName">[8]</obj_property>
+            <obj_property name="ObjectShortName">[8]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[9]" type="array">
+            <obj_property name="ElementShortName">[9]</obj_property>
+            <obj_property name="ObjectShortName">[9]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[10]" type="array">
+            <obj_property name="ElementShortName">[10]</obj_property>
+            <obj_property name="ObjectShortName">[10]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[11]" type="array">
+            <obj_property name="ElementShortName">[11]</obj_property>
+            <obj_property name="ObjectShortName">[11]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[12]" type="array">
+            <obj_property name="ElementShortName">[12]</obj_property>
+            <obj_property name="ObjectShortName">[12]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[13]" type="array">
+            <obj_property name="ElementShortName">[13]</obj_property>
+            <obj_property name="ObjectShortName">[13]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[14]" type="array">
+            <obj_property name="ElementShortName">[14]</obj_property>
+            <obj_property name="ObjectShortName">[14]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[15]" type="array">
+            <obj_property name="ElementShortName">[15]</obj_property>
+            <obj_property name="ObjectShortName">[15]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[16]" type="array">
+            <obj_property name="ElementShortName">[16]</obj_property>
+            <obj_property name="ObjectShortName">[16]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[17]" type="array">
+            <obj_property name="ElementShortName">[17]</obj_property>
+            <obj_property name="ObjectShortName">[17]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[18]" type="array">
+            <obj_property name="ElementShortName">[18]</obj_property>
+            <obj_property name="ObjectShortName">[18]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[19]" type="array">
+            <obj_property name="ElementShortName">[19]</obj_property>
+            <obj_property name="ObjectShortName">[19]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[20]" type="array">
+            <obj_property name="ElementShortName">[20]</obj_property>
+            <obj_property name="ObjectShortName">[20]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[21]" type="array">
+            <obj_property name="ElementShortName">[21]</obj_property>
+            <obj_property name="ObjectShortName">[21]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[22]" type="array">
+            <obj_property name="ElementShortName">[22]</obj_property>
+            <obj_property name="ObjectShortName">[22]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[23]" type="array">
+            <obj_property name="ElementShortName">[23]</obj_property>
+            <obj_property name="ObjectShortName">[23]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[24]" type="array">
+            <obj_property name="ElementShortName">[24]</obj_property>
+            <obj_property name="ObjectShortName">[24]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[25]" type="array">
+            <obj_property name="ElementShortName">[25]</obj_property>
+            <obj_property name="ObjectShortName">[25]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[26]" type="array">
+            <obj_property name="ElementShortName">[26]</obj_property>
+            <obj_property name="ObjectShortName">[26]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[27]" type="array">
+            <obj_property name="ElementShortName">[27]</obj_property>
+            <obj_property name="ObjectShortName">[27]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[28]" type="array">
+            <obj_property name="ElementShortName">[28]</obj_property>
+            <obj_property name="ObjectShortName">[28]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[29]" type="array">
+            <obj_property name="ElementShortName">[29]</obj_property>
+            <obj_property name="ObjectShortName">[29]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[30]" type="array">
+            <obj_property name="ElementShortName">[30]</obj_property>
+            <obj_property name="ObjectShortName">[30]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/M_rob[31]" type="array">
+            <obj_property name="ElementShortName">[31]</obj_property>
+            <obj_property name="ObjectShortName">[31]</obj_property>
+         </wvobject>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/reorder_buffer_inst/R_head_index" type="array">
          <obj_property name="ElementShortName">R_head_index[4:0]</obj_property>
@@ -1629,6 +1906,7 @@
    <wvobject fp_name="group414" type="group">
       <obj_property name="label">BTB</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
    </wvobject>
    <wvobject fp_name="group17276" type="group">
       <obj_property name="label">ICACHE</obj_property>
@@ -1649,7 +1927,6 @@
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cpu_bus_resp" type="array">
          <obj_property name="ElementShortName">cpu_bus_resp</obj_property>
          <obj_property name="ObjectShortName">cpu_bus_resp</obj_property>
-         <obj_property name="isExpanded"></obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/ext_bus_req" type="array">
          <obj_property name="ElementShortName">ext_bus_req</obj_property>
@@ -1659,25 +1936,50 @@
          <obj_property name="ElementShortName">ext_bus_resp</obj_property>
          <obj_property name="ObjectShortName">ext_bus_resp</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/M_cache" type="array">
-         <obj_property name="ElementShortName">M_cache[0:63][0:0]</obj_property>
-         <obj_property name="ObjectShortName">M_cache[0:63][0:0]</obj_property>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/M_cache_data" type="array">
+         <obj_property name="ElementShortName">M_cache_data[0:3][0:1][127:0]</obj_property>
+         <obj_property name="ObjectShortName">M_cache_data[0:3][0:1][127:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/M_cache_tags" type="array">
+         <obj_property name="ElementShortName">M_cache_tags[0:3][0:1][26:0]</obj_property>
+         <obj_property name="ObjectShortName">M_cache_tags[0:3][0:1][26:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/M_cache_states" type="array">
+         <obj_property name="ElementShortName">M_cache_states[0:3][0:1][1:0]</obj_property>
+         <obj_property name="ObjectShortName">M_cache_states[0:3][0:1][1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cacheline_mem_read_data" type="array">
+         <obj_property name="ElementShortName">cacheline_mem_read_data[0:3][156:0]</obj_property>
+         <obj_property name="ObjectShortName">cacheline_mem_read_data[0:3][156:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cacheline_mem_write_data" type="array">
+         <obj_property name="ElementShortName">cacheline_mem_write_data[156:0]</obj_property>
+         <obj_property name="ObjectShortName">cacheline_mem_write_data[156:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cacheline_mem_read_addr" type="array">
+         <obj_property name="ElementShortName">cacheline_mem_read_addr[0:0]</obj_property>
+         <obj_property name="ObjectShortName">cacheline_mem_read_addr[0:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cacheline_mem_write_addr" type="array">
+         <obj_property name="ElementShortName">cacheline_mem_write_addr[0:0]</obj_property>
+         <obj_property name="ObjectShortName">cacheline_mem_write_addr[0:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/R_cache_control_sm" type="other">
          <obj_property name="ElementShortName">R_cache_control_sm</obj_property>
          <obj_property name="ObjectShortName">R_cache_control_sm</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/R_init_cacheline_counter" type="array">
-         <obj_property name="ElementShortName">R_init_cacheline_counter[5:0]</obj_property>
-         <obj_property name="ObjectShortName">R_init_cacheline_counter[5:0]</obj_property>
+         <obj_property name="ElementShortName">R_init_cacheline_counter[0:0]</obj_property>
+         <obj_property name="ObjectShortName">R_init_cacheline_counter[0:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cacheline_read" type="array">
-         <obj_property name="ElementShortName">cacheline_read</obj_property>
-         <obj_property name="ObjectShortName">cacheline_read</obj_property>
+         <obj_property name="ElementShortName">cacheline_read[127:0]</obj_property>
+         <obj_property name="ObjectShortName">cacheline_read[127:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/R_cache_request" type="array">
          <obj_property name="ElementShortName">R_cache_request</obj_property>
          <obj_property name="ObjectShortName">R_cache_request</obj_property>
+         <obj_property name="isExpanded"></obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/R_cache_response" type="array">
          <obj_property name="ElementShortName">R_cache_response</obj_property>
@@ -1688,36 +1990,50 @@
          <obj_property name="ObjectShortName">cache_hit</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/R_random_selector" type="array">
-         <obj_property name="ElementShortName">R_random_selector[0:0]</obj_property>
-         <obj_property name="ObjectShortName">R_random_selector[0:0]</obj_property>
+         <obj_property name="ElementShortName">R_random_selector[1:0]</obj_property>
+         <obj_property name="ObjectShortName">R_random_selector[1:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cache_read_word" type="array">
          <obj_property name="ElementShortName">cache_read_word[31:0]</obj_property>
          <obj_property name="ObjectShortName">cache_read_word[31:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cache_block_pointer" type="array">
-         <obj_property name="ElementShortName">cache_block_pointer[5:0]</obj_property>
-         <obj_property name="ObjectShortName">cache_block_pointer[5:0]</obj_property>
-      </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cache_block_read" type="array">
-         <obj_property name="ElementShortName">cache_block_read[0:0]</obj_property>
-         <obj_property name="ObjectShortName">cache_block_read[0:0]</obj_property>
+         <obj_property name="ElementShortName">cache_block_read[0:3]</obj_property>
+         <obj_property name="ObjectShortName">cache_block_read[0:3]</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cache_block_read[0]" type="array">
+            <obj_property name="ElementShortName">[0]</obj_property>
+            <obj_property name="ObjectShortName">[0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cache_block_read[1]" type="array">
+            <obj_property name="ElementShortName">[1]</obj_property>
+            <obj_property name="ObjectShortName">[1]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cache_block_read[2]" type="array">
+            <obj_property name="ElementShortName">[2]</obj_property>
+            <obj_property name="ObjectShortName">[2]</obj_property>
+            <obj_property name="isExpanded"></obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cache_block_read[3]" type="array">
+            <obj_property name="ElementShortName">[3]</obj_property>
+            <obj_property name="ObjectShortName">[3]</obj_property>
+         </wvobject>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cache_block_full" type="logic">
          <obj_property name="ElementShortName">cache_block_full</obj_property>
          <obj_property name="ObjectShortName">cache_block_full</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cache_block_free_index" type="array">
-         <obj_property name="ElementShortName">cache_block_free_index[0:0]</obj_property>
-         <obj_property name="ObjectShortName">cache_block_free_index[0:0]</obj_property>
+         <obj_property name="ElementShortName">cache_block_free_index[1:0]</obj_property>
+         <obj_property name="ObjectShortName">cache_block_free_index[1:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cache_block_writeback_index" type="array">
-         <obj_property name="ElementShortName">cache_block_writeback_index[0:0]</obj_property>
-         <obj_property name="ObjectShortName">cache_block_writeback_index[0:0]</obj_property>
+         <obj_property name="ElementShortName">cache_block_writeback_index[1:0]</obj_property>
+         <obj_property name="ObjectShortName">cache_block_writeback_index[1:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cache_block_read_index" type="array">
-         <obj_property name="ElementShortName">cache_block_read_index[0:0]</obj_property>
-         <obj_property name="ObjectShortName">cache_block_read_index[0:0]</obj_property>
+         <obj_property name="ElementShortName">cache_block_read_index[1:0]</obj_property>
+         <obj_property name="ObjectShortName">cache_block_read_index[1:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/fetcher_req" type="array">
          <obj_property name="ElementShortName">fetcher_req</obj_property>
@@ -1771,6 +2087,10 @@
          <obj_property name="ElementShortName">NUM_BLOCKS</obj_property>
          <obj_property name="ObjectShortName">NUM_BLOCKS</obj_property>
       </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/IS_BLOCKING" type="other">
+         <obj_property name="ElementShortName">IS_BLOCKING</obj_property>
+         <obj_property name="ObjectShortName">IS_BLOCKING</obj_property>
+      </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/C_cacheline_index_width" type="other">
          <obj_property name="ElementShortName">C_cacheline_index_width</obj_property>
          <obj_property name="ObjectShortName">C_cacheline_index_width</obj_property>
@@ -1788,12 +2108,12 @@
          <obj_property name="ObjectShortName">C_block_index_msb</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/C_cacheline_index_min" type="array">
-         <obj_property name="ElementShortName">C_cacheline_index_min[5:0]</obj_property>
-         <obj_property name="ObjectShortName">C_cacheline_index_min[5:0]</obj_property>
+         <obj_property name="ElementShortName">C_cacheline_index_min[0:0]</obj_property>
+         <obj_property name="ObjectShortName">C_cacheline_index_min[0:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/C_cacheline_index_max" type="array">
-         <obj_property name="ElementShortName">C_cacheline_index_max[5:0]</obj_property>
-         <obj_property name="ObjectShortName">C_cacheline_index_max[5:0]</obj_property>
+         <obj_property name="ElementShortName">C_cacheline_index_max[0:0]</obj_property>
+         <obj_property name="ObjectShortName">C_cacheline_index_max[0:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/C_cacheline_tag_lsb" type="other">
          <obj_property name="ElementShortName">C_cacheline_tag_lsb</obj_property>
@@ -1806,6 +2126,38 @@
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/C_cacheline_tag_width" type="other">
          <obj_property name="ElementShortName">C_cacheline_tag_width</obj_property>
          <obj_property name="ObjectShortName">C_cacheline_tag_width</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/C_cacheline_data_width" type="other">
+         <obj_property name="ElementShortName">C_cacheline_data_width</obj_property>
+         <obj_property name="ObjectShortName">C_cacheline_data_width</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/C_cacheline_width" type="other">
+         <obj_property name="ElementShortName">C_cacheline_width</obj_property>
+         <obj_property name="ObjectShortName">C_cacheline_width</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/C_temp_state_lsb" type="other">
+         <obj_property name="ElementShortName">C_temp_state_lsb</obj_property>
+         <obj_property name="ObjectShortName">C_temp_state_lsb</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/C_temp_state_msb" type="other">
+         <obj_property name="ElementShortName">C_temp_state_msb</obj_property>
+         <obj_property name="ObjectShortName">C_temp_state_msb</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/C_temp_data_lsb" type="other">
+         <obj_property name="ElementShortName">C_temp_data_lsb</obj_property>
+         <obj_property name="ObjectShortName">C_temp_data_lsb</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/C_temp_data_msb" type="other">
+         <obj_property name="ElementShortName">C_temp_data_msb</obj_property>
+         <obj_property name="ObjectShortName">C_temp_data_msb</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/C_temp_tag_lsb" type="other">
+         <obj_property name="ElementShortName">C_temp_tag_lsb</obj_property>
+         <obj_property name="ObjectShortName">C_temp_tag_lsb</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/C_temp_tag_msb" type="other">
+         <obj_property name="ElementShortName">C_temp_tag_msb</obj_property>
+         <obj_property name="ObjectShortName">C_temp_tag_msb</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/C_cacheline_word_index_lsb" type="other">
          <obj_property name="ElementShortName">C_cacheline_word_index_lsb</obj_property>
@@ -1834,6 +2186,47 @@
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/CL_STATE_MODIFIED" type="array">
          <obj_property name="ElementShortName">CL_STATE_MODIFIED[1:0]</obj_property>
          <obj_property name="ObjectShortName">CL_STATE_MODIFIED[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_memblk/addr_write" type="array">
+         <obj_property name="ElementShortName">addr_write[0:0]</obj_property>
+         <obj_property name="ObjectShortName">addr_write[0:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_memblk/write_enable" type="logic">
+         <obj_property name="ElementShortName">write_enable</obj_property>
+         <obj_property name="ObjectShortName">write_enable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_memblk/data_write" type="array">
+         <obj_property name="ElementShortName">data_write[156:0]</obj_property>
+         <obj_property name="ObjectShortName">data_write[156:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_memblk/addr_read" type="array">
+         <obj_property name="ElementShortName">addr_read[0:0]</obj_property>
+         <obj_property name="ObjectShortName">addr_read[0:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_memblk/data_read" type="array">
+         <obj_property name="ElementShortName">data_read[156:0]</obj_property>
+         <obj_property name="ObjectShortName">data_read[156:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_memblk/M_bram" type="array">
+         <obj_property name="ElementShortName">M_bram[0:1][156:0]</obj_property>
+         <obj_property name="ObjectShortName">M_bram[0:1][156:0]</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_memblk/addr_write_int" type="other">
+         <obj_property name="ElementShortName">addr_write_int</obj_property>
+         <obj_property name="ObjectShortName">addr_write_int</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_memblk/addr_read_int" type="other">
+         <obj_property name="ElementShortName">addr_read_int</obj_property>
+         <obj_property name="ObjectShortName">addr_read_int</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_memblk/WORD_LENGTH" type="other">
+         <obj_property name="ElementShortName">WORD_LENGTH</obj_property>
+         <obj_property name="ObjectShortName">WORD_LENGTH</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_memblk/NUM_WORDS" type="other">
+         <obj_property name="ElementShortName">NUM_WORDS</obj_property>
+         <obj_property name="ObjectShortName">NUM_WORDS</obj_property>
       </wvobject>
    </wvobject>
    <wvobject fp_name="group25146" type="group">
