@@ -64,6 +64,7 @@ architecture rtl of cache is
     end record;
     type T_cache_block is array (0 to C_cachelines_per_block - 1) of T_cacheline;
 
+    -- CACHELINE RAM SIGNALS
     type T_cacheline_mem_read_data is array (0 to C_cachelines_per_block - 1) of std_logic_vector(C_cacheline_size - 1 downto 0);
     signal cacheline_mem_read_data: T_cacheline_mem_read_data;
     signal cacheline_mem_write_data: std_logic_vector(C_cacheline_size - 1 downto 0);
@@ -87,7 +88,7 @@ architecture rtl of cache is
     constant CL_STATE_EXCLUSIVE: std_logic_vector(1 downto 0) := "01";
     constant CL_STATE_SHARED: std_logic_vector(1 downto 0) := "10";
     constant CL_STATE_MODIFIED: std_logic_vector(1 downto 0) := "11";
-    type T_cache_control_sm is (INITIALIZE, NORMAL, STALL, STALL_FETCH);
+    type T_cache_control_sm is (INITIALIZE, NORMAL, STALL_CACHE_IO_NOT_READY, STALL_IO);
     signal R_cache_control_sm: T_cache_control_sm;
 
     signal R_init_cacheline_counter: unsigned(C_cache_block_index_size - 1 downto 0);
@@ -100,12 +101,15 @@ architecture rtl of cache is
     signal R_random_selector: unsigned(C_cacheline_index_size - 1 downto 0);
 
     signal cache_read_word: std_logic_vector(BYTES_PER_WORD * 8 - 1 downto 0);
+
+    -- CACHE BLOCK SIGNALS
     signal cache_block_read: T_cache_block;
     signal cache_block_full: std_logic;
     signal cache_block_free_index: unsigned(C_cacheline_index_size - 1 downto 0);
     signal cache_block_writeback_index: unsigned(C_cacheline_index_size - 1 downto 0);
     signal cache_block_read_index: unsigned(C_cacheline_index_size - 1 downto 0);
 
+    -- CACHE IO SIGNALS
     signal cacheio_req_address: std_logic_vector(ADDRESS_WIDTH - 1 downto 0);
     signal cacheio_req_data: std_logic_vector(C_cacheline_data_size - 1 downto 0);
     signal cacheio_req_rw: std_logic;
@@ -237,19 +241,10 @@ begin
                     if R_cache_request.valid = '1' and
                          cache_hit = '0' then
                         if cacheio_resp_ready = '1' then
-                            R_cache_control_sm <= STALL_FETCH;
+                            R_cache_control_sm <= STALL_IO;
                         else
-                            R_cache_control_sm <= STALL;
+                            R_cache_control_sm <= STALL_CACHE_IO_NOT_READY;
                         end if;
-
-                        if cancel_all = '1' then
-                            R_cache_request.cancelled <= '1';
-                        end if;
-                    else
-                        R_cache_request.address <= cpu_bus_req.address;
-                        R_cache_request.rw <= cpu_bus_req.rw;
-                        R_cache_request.cancelled <= '0';
-                        R_cache_request.valid <= cpu_bus_req.valid;
                     end if;
                 when INITIALIZE =>      -- Initializes all cacheline states to INVALID (empty)
                     if R_init_cacheline_counter = C_cache_num_blocks - 1 then
@@ -257,29 +252,37 @@ begin
                     end if;
 
                     R_init_cacheline_counter <= R_init_cacheline_counter + 1;
-                when STALL =>
-                    if cancel_all = '1' then
-                        R_cache_request.cancelled <= '1';
-                    end if;
-
+                when STALL_CACHE_IO_NOT_READY =>
                     if cacheio_resp_ready = '1' then
                         R_cache_control_sm <= NORMAL;
                     end if;
-                when STALL_FETCH =>
-                    if cancel_all = '1' then
-                        R_cache_request.cancelled <= '1';
-                    end if;
-
+                when STALL_IO =>
                     if cache_hit = '1' then
                         R_cache_control_sm <= NORMAL;
-                        R_cache_request.address <= cpu_bus_req.address;
-                        R_cache_request.rw <= cpu_bus_req.rw;
-                        R_cache_request.cancelled <= '0';
-                        R_cache_request.valid <= cpu_bus_req.valid;
                     else
                     end if;
                 when others =>
                 end case;
+            end if;
+        end if;
+    end process;
+
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            if reset = '1' then
+                R_cache_request.valid <= '0';
+            else
+                if stall_out /= '1' then
+                    R_cache_request.address <= cpu_bus_req.address;
+                    R_cache_request.rw <= cpu_bus_req.rw;
+                    R_cache_request.cancelled <= '0';
+                    R_cache_request.valid <= cpu_bus_req.valid;
+                else
+                    if cancel_all = '1' then
+                        R_cache_request.cancelled <= '1';
+                    end if;
+                end if;
             end if;
         end if;
     end process;
@@ -338,9 +341,9 @@ begin
             R_cache_response.valid <= '0';
         when INITIALIZE =>
             stall_out <= '1';
-        when STALL =>
+        when STALL_CACHE_IO_NOT_READY =>
             stall_out <= '1';
-        when STALL_FETCH =>
+        when STALL_IO =>
             if cache_hit = '1' then
                 cacheline_mem_read_addr <= F_extract_block(cpu_bus_req.address);
             else
