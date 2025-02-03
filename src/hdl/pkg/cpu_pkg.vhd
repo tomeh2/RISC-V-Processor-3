@@ -270,6 +270,20 @@ package cpu_pkg is
     end record;
     type T_bus_response_array is array (natural range<>) of T_bus_response;
 
+    type T_cacheio_req is record
+        address         : std_logic_vector;
+        data            : std_logic_vector;
+        rw              : std_logic;
+        valid           : std_logic;
+    end record;
+    
+    type T_cacheio_resp is record
+        address         : std_logic_vector;
+        data            : std_logic_vector;
+        ready           : std_logic;
+        valid           : std_logic;
+    end record;
+
     type T_rr_debug is array (0 to 31) of std_logic_vector(PHYS_REG_ADDR_WIDTH - 1 downto 0);
 
     constant CDB_ZERO : T_cdb := (

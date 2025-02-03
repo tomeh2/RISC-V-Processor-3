@@ -24,14 +24,15 @@ architecture rtl of cpu_core is
     signal stall_icache: std_logic;
     signal fe_bus_req: T_bus_request;
     signal fe_bus_resp: T_bus_response;
+    signal lsu_bus_req: T_bus_request;
+    signal lsu_bus_resp: T_bus_response;
 begin
     I_icache: entity work.cache
     generic map(ADDRESS_WIDTH => 32,
-                ASSOCIATIVITY => 4,
+                ASSOCIATIVITY => 1,
                 BYTES_PER_WORD => 4,
                 WORDS_PER_CACHELINE => 4,
-                NUM_BLOCKS => 64,
-                IS_BLOCKING => true)
+                SIZE_BYTES => 512)
     port map(clk => clk,
              reset => reset,
              cancel_all => icache_cancel_all,
@@ -40,6 +41,21 @@ begin
              cpu_bus_resp => fe_bus_resp,
              ext_bus_req => bus_req_fe,
              ext_bus_resp => bus_resp_fe);
+
+--    I_dcache: entity work.cache
+--    generic map(ADDRESS_WIDTH => 32,
+--                ASSOCIATIVITY => 1,
+--                BYTES_PER_WORD => 4,
+--                WORDS_PER_CACHELINE => 4,
+--                NUM_BLOCKS => 4)
+--    port map(clk => clk,
+--             reset => reset,
+--             cancel_all => '0',
+--             stall_out => open,
+--             cpu_bus_req => lsu_bus_req,
+--             cpu_bus_resp => lsu_bus_resp,
+--             ext_bus_req => bus_req_lsu,
+--             ext_bus_resp => bus_resp_lsu);
 
     fe_inst : entity work.front_end
     port map(clk                => clk,
