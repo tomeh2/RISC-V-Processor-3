@@ -35,6 +35,7 @@ architecture rtl of cache is
     constant C_cacheline_index_size: natural := F_min_bits(C_cachelines_per_block);
     constant C_cache_block_index_size: natural := F_min_bits(C_cache_num_blocks);
     constant C_cache_word_index_size: natural := F_min_bits(WORDS_PER_CACHELINE);
+    constant C_cacheline_word_size: natural := 8 * BYTES_PER_WORD;
     constant C_cacheline_data_size: natural := 8 * BYTES_PER_WORD * WORDS_PER_CACHELINE;
     constant C_cacheline_state_size: natural := 2;
     constant C_cacheline_tag_size: natural := ADDRESS_WIDTH - C_cacheline_state_size - C_cache_block_index_size - C_cache_word_index_size;
@@ -59,7 +60,7 @@ architecture rtl of cache is
     -- DATA TYPE FOR HOLDING UNPACKED CACHELINE FIELDS
     type T_cacheline is record
         tag: std_logic_vector(C_cacheline_tag_size - 1 downto 0);
-        data: std_logic_vector(BYTES_PER_WORD * WORDS_PER_CACHELINE * 8 - 1 downto 0);
+        data: std_logic_vector(C_cacheline_data_size - 1 downto 0);
         state: std_logic_vector(1 downto 0);
     end record;
     type T_cache_block is array (0 to C_cachelines_per_block - 1) of T_cacheline;
@@ -80,7 +81,7 @@ architecture rtl of cache is
     end record;
     
     type T_cache_response is record
-        data: std_logic_vector(BYTES_PER_WORD * 8 - 1 downto 0);
+        data: std_logic_vector(C_cacheline_word_size - 1 downto 0);
         valid: std_logic;
     end record;
 
@@ -92,7 +93,7 @@ architecture rtl of cache is
     signal R_cache_control_sm: T_cache_control_sm;
 
     signal R_init_cacheline_counter: unsigned(C_cache_block_index_size - 1 downto 0);
-    signal cacheline_read: std_logic_vector(BYTES_PER_WORD * WORDS_PER_CACHELINE * 8 - 1 downto 0);
+    signal cacheline_read: std_logic_vector(C_cacheline_data_size - 1 downto 0);
     signal R_cache_request: T_cache_request;
     signal R_cache_response: T_cache_response;
 
@@ -100,7 +101,7 @@ architecture rtl of cache is
 
     signal R_random_selector: unsigned(C_cacheline_index_size - 1 downto 0);
 
-    signal cache_read_word: std_logic_vector(BYTES_PER_WORD * 8 - 1 downto 0);
+    signal cache_read_word: std_logic_vector(C_cacheline_word_size - 1 downto 0);
 
     -- CACHE BLOCK SIGNALS
     signal cache_block_read: T_cache_block;
@@ -119,51 +120,34 @@ architecture rtl of cache is
     signal cacheio_resp_ready: std_logic;
     signal cacheio_resp_valid: std_logic;
 
-    function F_extract_tag(address: std_logic_vector) return std_logic_vector is
+    -- FUNCTIONS
+    function F_get_tag_vector(address: std_logic_vector) return std_logic_vector is
     begin
         return address(C_address_tag_msb downto C_address_tag_lsb);
     end function;
 
-    function F_extract_block(address: std_logic_vector) return std_logic_vector is
+    function F_get_block_vector(address: std_logic_vector) return std_logic_vector is
     begin
         return address(C_address_block_index_msb downto C_address_block_index_lsb);
     end function;
 
-    function F_extract_word(address: std_logic_vector) return std_logic_vector is
+    function F_get_word_vector(address: std_logic_vector) return std_logic_vector is
     begin
         return address(C_address_word_index_msb downto C_address_word_index_lsb);
     end function;
 
-    function F_extract_block_index(address: std_logic_vector) return natural is
+    function F_get_block_integer(address: std_logic_vector) return natural is
     begin
-        return to_integer(unsigned(F_extract_block(address)));
+        return to_integer(unsigned(F_get_block_vector(address)));
     end function;
 
-    function F_extract_word_index(address: std_logic_vector) return natural is
+    function F_get_word_integer(address: std_logic_vector) return natural is
     begin
-        return to_integer(unsigned(F_extract_word(address)));
+        return to_integer(unsigned(F_get_word_vector(address)));
     end function;
-
-    procedure F_cacheline_pack(signal tag: in std_logic_vector(C_cacheline_tag_size - 1 downto 0);
-        signal data: in std_logic_vector(C_cacheline_data_size - 1 downto 0);
-        constant state: in std_logic_vector(1 downto 0);
-        signal packed_cacheline: out std_logic_vector(C_cacheline_size - 1 downto 0)) is
-    begin
-        packed_cacheline <= state & tag & data;
-    end procedure;
-
-    procedure F_cacheline_unpack(signal cacheline_packed: in std_logic_vector(C_cacheline_size - 1 downto 0);
-        signal tag: out std_logic_vector(C_cacheline_tag_size - 1 downto 0);
-        signal data: out std_logic_vector(C_cacheline_data_size - 1 downto 0);
-        signal state: out std_logic_vector(1 downto 0)) is
-    begin
-        tag <= cacheline_packed(C_cacheline_tag_msb downto C_cacheline_tag_lsb);
-        data <= cacheline_packed(C_cacheline_data_msb downto C_cacheline_data_lsb);
-        state <= cacheline_packed(C_cacheline_state_msb downto C_cacheline_state_lsb);
-    end procedure;
 begin
     I_cacheio: entity work.cache_io
-    generic map(ADDRESS_WIDTH => 32,
+    generic map(ADDRESS_WIDTH => ADDRESS_WIDTH,
         CACHELINE_DATA_WIDTH => C_cacheline_data_size,
         BYTES_PER_WORD => BYTES_PER_WORD,
         WORDS_PER_CACHELINE => WORDS_PER_CACHELINE)
@@ -181,15 +165,12 @@ begin
              external_bus_resp => ext_bus_resp);
 
     -- MEMORY DEFINITION
-        F_cacheline_pack(cacheio_resp_address(C_address_tag_msb downto C_address_tag_lsb),
-        cacheio_resp_data,
-        CL_STATE_EXCLUSIVE,
-        cacheline_mem_write_data);
     G_gen_memory: for i in 0 to ASSOCIATIVITY - 1 generate
+    begin
         cacheline_mem_write_enable(i) <= '1' when cache_block_writeback_index = i and cacheio_resp_valid = '1' else '0';
-        I_cache_memblk: entity work.bram
+        I_cache_ram_data: entity work.bram
         generic map(
-            WORD_LENGTH => C_cacheline_size,
+            WORD_LENGTH => C_cacheline_data_size,
             NUM_WORDS => C_cache_num_blocks
         )
         port map(
@@ -198,12 +179,47 @@ begin
             
             addr_write => cacheline_mem_write_addr,
             write_enable => cacheline_mem_write_enable(i),
-            data_write => cacheline_mem_write_data,
+            data_write => cacheio_resp_data,
             addr_read => cacheline_mem_read_addr,
-            data_read => cacheline_mem_read_data(i)
+            data_read => cache_block_read(i).data
         );  
+        
+        I_cache_ram_tags: entity work.bram
+        generic map(
+            WORD_LENGTH => C_cacheline_tag_size,
+            NUM_WORDS => C_cache_num_blocks
+        )
+        port map(
+            clk => clk,
+            reset => reset,
+            
+            addr_write => cacheline_mem_write_addr,
+            write_enable => cacheline_mem_write_enable(i),
+            data_write => F_get_tag_vector(cacheio_resp_address),
+            addr_read => cacheline_mem_read_addr,
+            data_read => cache_block_read(i).tag
+        );
+
+        I_cache_ram_states: entity work.bram
+        generic map(
+            WORD_LENGTH => C_cacheline_state_size,
+            NUM_WORDS => C_cache_num_blocks
+        )
+        port map(
+            clk => clk,
+            reset => reset,
+            
+            addr_write => cacheline_mem_write_addr,
+            write_enable => cacheline_mem_write_enable(i),
+            data_write => CL_STATE_EXCLUSIVE,
+            addr_read => cacheline_mem_read_addr,
+            data_read => cache_block_read(i).state
+        );
     end generate;
 
+    -- This process selects the cacheline inside of a block that will be used to store the
+    -- fetched data. It prioritizes empty cachelines first and if there are none it
+    -- just picks one at random (for now).
     process(cache_block_read, R_random_selector, cache_block_full, cache_block_free_index)
     begin
         cache_block_full <= '1';
@@ -287,23 +303,13 @@ begin
         end if;
     end process;
 
-    process(cacheline_mem_read_data)
-    begin
-        for i in 0 to ASSOCIATIVITY - 1 loop
-            F_cacheline_unpack(cacheline_mem_read_data(i),
-                cache_block_read(i).tag,
-                cache_block_read(i).data,
-                cache_block_read(i).state);
-        end loop;
-    end process;
-
     process(R_cache_request.valid, R_cache_request.address, cache_block_read, cache_block_read_index)
     begin
         cache_hit <= '0';
         cache_block_read_index <= (others => '0');
         if R_cache_request.valid = '1' then
             for i in 0 to ASSOCIATIVITY - 1 loop
-                if F_extract_tag(R_cache_request.address) = cache_block_read(i).tag and cache_block_read(i).state /= CL_STATE_INVALID then
+                if F_get_tag_vector(R_cache_request.address) = cache_block_read(i).tag and cache_block_read(i).state /= CL_STATE_INVALID then
                     cache_block_read_index <= to_unsigned(i, C_cacheline_index_size);
                     cache_hit <= '1';
                 end if;
@@ -316,7 +322,7 @@ begin
     begin
         cache_read_word <= (others => '0');
         for i in 0 to WORDS_PER_CACHELINE - 1 loop
-            if F_extract_word_index(R_cache_request.address) = i then
+            if F_get_word_integer(R_cache_request.address) = i then
                 cache_read_word <= cacheline_read(8 * BYTES_PER_WORD * (i + 1) - 1 downto 8 * BYTES_PER_WORD * i);
             end if;
         end loop;
@@ -328,13 +334,13 @@ begin
         stall_out <= '0';
         cacheio_req_address <= R_cache_request.address;
         cacheio_req_valid <= '0';
-        cacheline_mem_read_addr <= F_extract_block(cpu_bus_req.address);
-        cacheline_mem_write_addr <= F_extract_block(cacheio_resp_address);
+        cacheline_mem_read_addr <= F_get_block_vector(cpu_bus_req.address);
+        cacheline_mem_write_addr <= F_get_block_vector(cacheio_resp_address);
         case R_cache_control_sm is
         when NORMAL =>
             if R_cache_request.valid = '1' and
                  cache_hit = '0' then
-                cacheline_mem_read_addr <= F_extract_block(R_cache_request.address);
+                cacheline_mem_read_addr <= F_get_block_vector(R_cache_request.address);
                 cacheio_req_valid <= '1';
                 stall_out <= '1';
             end if;
@@ -345,9 +351,9 @@ begin
             stall_out <= '1';
         when STALL_IO =>
             if cache_hit = '1' then
-                cacheline_mem_read_addr <= F_extract_block(cpu_bus_req.address);
+                cacheline_mem_read_addr <= F_get_block_vector(cpu_bus_req.address);
             else
-                cacheline_mem_read_addr <= F_extract_block(R_cache_request.address);
+                cacheline_mem_read_addr <= F_get_block_vector(R_cache_request.address);
             end if;
             stall_out <= '0' when cache_hit = '1' else '1';
         when others =>
