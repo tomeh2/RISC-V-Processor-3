@@ -32,7 +32,7 @@ begin
                 ASSOCIATIVITY => 1,
                 BYTES_PER_WORD => 4,
                 WORDS_PER_CACHELINE => 4,
-                SIZE_BYTES => 512)
+                SIZE_BYTES => 8192)
     port map(clk => clk,
              reset => reset,
              cancel_all => icache_cancel_all,

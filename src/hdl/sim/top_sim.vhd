@@ -64,5 +64,7 @@ begin
              UART_TXD => tx,
              UART_RXD => rx,
              SW => X"AAAA",
-             LED => open);
+             LED => open,
+             TMP_INT => '0',
+             TMP_CT => '0');
 end Behavioral;

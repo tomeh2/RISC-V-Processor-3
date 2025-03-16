@@ -37,9 +37,11 @@ begin
              shift_direction    => shift_dir);
 
     comp_result <=
-      F_compare_signed(signed(operand_1), signed(operand_2), DATA_WIDTH);
+        std_logic_vector(to_unsigned(1, DATA_WIDTH)) when signed(operand_1) < signed(operand_2) else std_logic_vector(to_unsigned(0, DATA_WIDTH));
+      --F_compare_signed(signed(operand_1), signed(operand_2), DATA_WIDTH);
     compu_result <=
-      F_compare_unsigned(unsigned(operand_1), unsigned(operand_2), DATA_WIDTH);
+        std_logic_vector(to_unsigned(1, DATA_WIDTH)) when unsigned(operand_1) < unsigned(operand_2) else std_logic_vector(to_unsigned(0, DATA_WIDTH));
+      --F_compare_unsigned(unsigned(operand_1), unsigned(operand_2), DATA_WIDTH);
 
     with op_sel select result <=
         std_logic_vector(signed(operand_1) + signed(operand_2)) when ALU_OP_ADD,

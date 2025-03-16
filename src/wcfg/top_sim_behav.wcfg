@@ -13,15 +13,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="620.297 ns"></ZoomStartTime>
-      <ZoomEndTime time="754.328 ns"></ZoomEndTime>
-      <Cursor1Time time="715.000 ns"></Cursor1Time>
+      <ZoomStartTime time="0.000000 us"></ZoomStartTime>
+      <ZoomEndTime time="414.884444 us"></ZoomEndTime>
+      <Cursor1Time time="298.065000 us"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="283"></NameColumnWidth>
-      <ValueColumnWidth column_width="128"></ValueColumnWidth>
+      <ValueColumnWidth column_width="120"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="43" />
+   <WVObjectSize size="44" />
    <wvobject fp_name="/top_sim/I_top/CLK100MHZ" type="logic">
       <obj_property name="ElementShortName">CLK100MHZ</obj_property>
       <obj_property name="ObjectShortName">CLK100MHZ</obj_property>
@@ -235,7 +235,6 @@
    <wvobject fp_name="group3140" type="group">
       <obj_property name="label">FRONT END</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="group2092" type="group">
          <obj_property name="label">FIFO</obj_property>
          <obj_property name="DisplayName">label</obj_property>
@@ -431,6 +430,7 @@
    <wvobject fp_name="group3160" type="group">
       <obj_property name="label">BACK END</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/uop_1" type="array">
          <obj_property name="ElementShortName">uop_1</obj_property>
          <obj_property name="ObjectShortName">uop_1</obj_property>
@@ -456,7 +456,6 @@
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/R_pipeline_0" type="array">
          <obj_property name="ElementShortName">R_pipeline_0</obj_property>
          <obj_property name="ObjectShortName">R_pipeline_0</obj_property>
-         <obj_property name="isExpanded"></obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/be_inst/pipeline_0_next" type="array">
          <obj_property name="ElementShortName">pipeline_0_next</obj_property>
@@ -1635,7 +1634,6 @@
    <wvobject fp_name="group17276" type="group">
       <obj_property name="label">ICACHE</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cancel_all" type="logic">
          <obj_property name="ElementShortName">cancel_all</obj_property>
          <obj_property name="ObjectShortName">cancel_all</obj_property>
@@ -1661,20 +1659,20 @@
          <obj_property name="ObjectShortName">ext_bus_resp</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cacheline_mem_read_data" type="array">
-         <obj_property name="ElementShortName">cacheline_mem_read_data[0:0][155:0]</obj_property>
-         <obj_property name="ObjectShortName">cacheline_mem_read_data[0:0][155:0]</obj_property>
+         <obj_property name="ElementShortName">cacheline_mem_read_data[0:0][151:0]</obj_property>
+         <obj_property name="ObjectShortName">cacheline_mem_read_data[0:0][151:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cacheline_mem_write_data" type="array">
-         <obj_property name="ElementShortName">cacheline_mem_write_data[155:0]</obj_property>
-         <obj_property name="ObjectShortName">cacheline_mem_write_data[155:0]</obj_property>
+         <obj_property name="ElementShortName">cacheline_mem_write_data[127:0]</obj_property>
+         <obj_property name="ObjectShortName">cacheline_mem_write_data[127:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cacheline_mem_read_addr" type="array">
-         <obj_property name="ElementShortName">cacheline_mem_read_addr[1:0]</obj_property>
-         <obj_property name="ObjectShortName">cacheline_mem_read_addr[1:0]</obj_property>
+         <obj_property name="ElementShortName">cacheline_mem_read_addr[5:0]</obj_property>
+         <obj_property name="ObjectShortName">cacheline_mem_read_addr[5:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cacheline_mem_write_addr" type="array">
-         <obj_property name="ElementShortName">cacheline_mem_write_addr[1:0]</obj_property>
-         <obj_property name="ObjectShortName">cacheline_mem_write_addr[1:0]</obj_property>
+         <obj_property name="ElementShortName">cacheline_mem_write_addr[5:0]</obj_property>
+         <obj_property name="ObjectShortName">cacheline_mem_write_addr[5:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cacheline_mem_write_enable" type="array">
          <obj_property name="ElementShortName">cacheline_mem_write_enable[0:0]</obj_property>
@@ -1685,8 +1683,8 @@
          <obj_property name="ObjectShortName">R_cache_control_sm</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/R_init_cacheline_counter" type="array">
-         <obj_property name="ElementShortName">R_init_cacheline_counter[1:0]</obj_property>
-         <obj_property name="ObjectShortName">R_init_cacheline_counter[1:0]</obj_property>
+         <obj_property name="ElementShortName">R_init_cacheline_counter[5:0]</obj_property>
+         <obj_property name="ObjectShortName">R_init_cacheline_counter[5:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cacheline_read" type="array">
          <obj_property name="ElementShortName">cacheline_read[127:0]</obj_property>
@@ -1716,11 +1714,6 @@
          <obj_property name="ElementShortName">cache_block_read[0:0]</obj_property>
          <obj_property name="ObjectShortName">cache_block_read[0:0]</obj_property>
          <obj_property name="isExpanded"></obj_property>
-         <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cache_block_read[0]" type="array">
-            <obj_property name="ElementShortName">[0]</obj_property>
-            <obj_property name="ObjectShortName">[0]</obj_property>
-            <obj_property name="isExpanded"></obj_property>
-         </wvobject>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/cache_block_full" type="logic">
          <obj_property name="ElementShortName">cache_block_full</obj_property>
@@ -1985,8 +1978,8 @@
          <obj_property name="DisplayName">label</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_ram_data/addr_write" type="array">
-         <obj_property name="ElementShortName">addr_write[1:0]</obj_property>
-         <obj_property name="ObjectShortName">addr_write[1:0]</obj_property>
+         <obj_property name="ElementShortName">addr_write[5:0]</obj_property>
+         <obj_property name="ObjectShortName">addr_write[5:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_ram_data/write_enable" type="logic">
          <obj_property name="ElementShortName">write_enable</obj_property>
@@ -1997,16 +1990,16 @@
          <obj_property name="ObjectShortName">data_write[127:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_ram_data/addr_read" type="array">
-         <obj_property name="ElementShortName">addr_read[1:0]</obj_property>
-         <obj_property name="ObjectShortName">addr_read[1:0]</obj_property>
+         <obj_property name="ElementShortName">addr_read[5:0]</obj_property>
+         <obj_property name="ObjectShortName">addr_read[5:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_ram_data/data_read" type="array">
          <obj_property name="ElementShortName">data_read[127:0]</obj_property>
          <obj_property name="ObjectShortName">data_read[127:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_ram_data/M_bram" type="array">
-         <obj_property name="ElementShortName">M_bram[0:3][127:0]</obj_property>
-         <obj_property name="ObjectShortName">M_bram[0:3][127:0]</obj_property>
+         <obj_property name="ElementShortName">M_bram[0:63][127:0]</obj_property>
+         <obj_property name="ObjectShortName">M_bram[0:63][127:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_ram_data/addr_write_int" type="other">
          <obj_property name="ElementShortName">addr_write_int</obj_property>
@@ -2021,28 +2014,28 @@
          <obj_property name="DisplayName">label</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_ram_tags/addr_write" type="array">
-         <obj_property name="ElementShortName">addr_write[1:0]</obj_property>
-         <obj_property name="ObjectShortName">addr_write[1:0]</obj_property>
+         <obj_property name="ElementShortName">addr_write[5:0]</obj_property>
+         <obj_property name="ObjectShortName">addr_write[5:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_ram_tags/write_enable" type="logic">
          <obj_property name="ElementShortName">write_enable</obj_property>
          <obj_property name="ObjectShortName">write_enable</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_ram_tags/data_write" type="array">
-         <obj_property name="ElementShortName">data_write[25:0]</obj_property>
-         <obj_property name="ObjectShortName">data_write[25:0]</obj_property>
+         <obj_property name="ElementShortName">data_write[21:0]</obj_property>
+         <obj_property name="ObjectShortName">data_write[21:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_ram_tags/addr_read" type="array">
-         <obj_property name="ElementShortName">addr_read[1:0]</obj_property>
-         <obj_property name="ObjectShortName">addr_read[1:0]</obj_property>
+         <obj_property name="ElementShortName">addr_read[5:0]</obj_property>
+         <obj_property name="ObjectShortName">addr_read[5:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_ram_tags/data_read" type="array">
-         <obj_property name="ElementShortName">data_read[25:0]</obj_property>
-         <obj_property name="ObjectShortName">data_read[25:0]</obj_property>
+         <obj_property name="ElementShortName">data_read[21:0]</obj_property>
+         <obj_property name="ObjectShortName">data_read[21:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_ram_tags/M_bram" type="array">
-         <obj_property name="ElementShortName">M_bram[0:3][25:0]</obj_property>
-         <obj_property name="ObjectShortName">M_bram[0:3][25:0]</obj_property>
+         <obj_property name="ElementShortName">M_bram[0:63][21:0]</obj_property>
+         <obj_property name="ObjectShortName">M_bram[0:63][21:0]</obj_property>
          <obj_property name="isExpanded"></obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_ram_tags/addr_write_int" type="other">
@@ -2058,8 +2051,8 @@
          <obj_property name="DisplayName">label</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_ram_states/addr_write" type="array">
-         <obj_property name="ElementShortName">addr_write[1:0]</obj_property>
-         <obj_property name="ObjectShortName">addr_write[1:0]</obj_property>
+         <obj_property name="ElementShortName">addr_write[5:0]</obj_property>
+         <obj_property name="ObjectShortName">addr_write[5:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_ram_states/write_enable" type="logic">
          <obj_property name="ElementShortName">write_enable</obj_property>
@@ -2070,16 +2063,16 @@
          <obj_property name="ObjectShortName">data_write[1:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_ram_states/addr_read" type="array">
-         <obj_property name="ElementShortName">addr_read[1:0]</obj_property>
-         <obj_property name="ObjectShortName">addr_read[1:0]</obj_property>
+         <obj_property name="ElementShortName">addr_read[5:0]</obj_property>
+         <obj_property name="ObjectShortName">addr_read[5:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_ram_states/data_read" type="array">
          <obj_property name="ElementShortName">data_read[1:0]</obj_property>
          <obj_property name="ObjectShortName">data_read[1:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_ram_states/M_bram" type="array">
-         <obj_property name="ElementShortName">M_bram[0:3][1:0]</obj_property>
-         <obj_property name="ObjectShortName">M_bram[0:3][1:0]</obj_property>
+         <obj_property name="ElementShortName">M_bram[0:63][1:0]</obj_property>
+         <obj_property name="ObjectShortName">M_bram[0:63][1:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/cpu_top_inst/cpu_core_0_inst/I_icache/\G_gen_memory(0)\/I_cache_ram_states/addr_write_int" type="other">
          <obj_property name="ElementShortName">addr_write_int</obj_property>
@@ -2178,5 +2171,256 @@
       <obj_property name="label">DCACHE</obj_property>
       <obj_property name="DisplayName">label</obj_property>
       <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject fp_name="group2260" type="group">
+      <obj_property name="label">I2C1</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/wb_adr_i" type="array">
+         <obj_property name="ElementShortName">wb_adr_i[7:0]</obj_property>
+         <obj_property name="ObjectShortName">wb_adr_i[7:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/wb_dat_o" type="array">
+         <obj_property name="ElementShortName">wb_dat_o[31:0]</obj_property>
+         <obj_property name="ObjectShortName">wb_dat_o[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/wb_dat_i" type="array">
+         <obj_property name="ElementShortName">wb_dat_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">wb_dat_i[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/wb_sel_i" type="array">
+         <obj_property name="ElementShortName">wb_sel_i[3:0]</obj_property>
+         <obj_property name="ObjectShortName">wb_sel_i[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/wb_we_i" type="logic">
+         <obj_property name="ElementShortName">wb_we_i</obj_property>
+         <obj_property name="ObjectShortName">wb_we_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/wb_cyc_i" type="logic">
+         <obj_property name="ElementShortName">wb_cyc_i</obj_property>
+         <obj_property name="ObjectShortName">wb_cyc_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/wb_stb_i" type="logic">
+         <obj_property name="ElementShortName">wb_stb_i</obj_property>
+         <obj_property name="ObjectShortName">wb_stb_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/wb_ack_o" type="logic">
+         <obj_property name="ElementShortName">wb_ack_o</obj_property>
+         <obj_property name="ObjectShortName">wb_ack_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/i2c_sda" type="logic">
+         <obj_property name="ElementShortName">i2c_sda</obj_property>
+         <obj_property name="ObjectShortName">i2c_sda</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/i2c_scl" type="logic">
+         <obj_property name="ElementShortName">i2c_scl</obj_property>
+         <obj_property name="ObjectShortName">i2c_scl</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/sin_tx_data_reg_empty" type="logic">
+         <obj_property name="ElementShortName">sin_tx_data_reg_empty</obj_property>
+         <obj_property name="ObjectShortName">sin_tx_data_reg_empty</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_control_sm" type="other">
+         <obj_property name="ElementShortName">R_control_sm</obj_property>
+         <obj_property name="ObjectShortName">R_control_sm</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_mode" type="other">
+         <obj_property name="ElementShortName">R_mode</obj_property>
+         <obj_property name="ObjectShortName">R_mode</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_control" type="array">
+         <obj_property name="ElementShortName">R_control[7:0]</obj_property>
+         <obj_property name="ObjectShortName">R_control[7:0]</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_dev_address" type="array">
+         <obj_property name="ElementShortName">R_dev_address[7:0]</obj_property>
+         <obj_property name="ObjectShortName">R_dev_address[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_tx_data" type="array">
+         <obj_property name="ElementShortName">R_tx_data[7:0]</obj_property>
+         <obj_property name="ObjectShortName">R_tx_data[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_rx_data" type="array">
+         <obj_property name="ElementShortName">R_rx_data[7:0]</obj_property>
+         <obj_property name="ObjectShortName">R_rx_data[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_clkdiv" type="array">
+         <obj_property name="ElementShortName">R_clkdiv[15:0]</obj_property>
+         <obj_property name="ObjectShortName">R_clkdiv[15:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_num_bytes" type="array">
+         <obj_property name="ElementShortName">R_num_bytes[7:0]</obj_property>
+         <obj_property name="ObjectShortName">R_num_bytes[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_tx_shift" type="array">
+         <obj_property name="ElementShortName">R_tx_shift[7:0]</obj_property>
+         <obj_property name="ObjectShortName">R_tx_shift[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_rx_shift" type="array">
+         <obj_property name="ElementShortName">R_rx_shift[7:0]</obj_property>
+         <obj_property name="ObjectShortName">R_rx_shift[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_rx_address" type="array">
+         <obj_property name="ElementShortName">R_rx_address[7:0]</obj_property>
+         <obj_property name="ObjectShortName">R_rx_address[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_i2c_sda" type="logic">
+         <obj_property name="ElementShortName">R_i2c_sda</obj_property>
+         <obj_property name="ObjectShortName">R_i2c_sda</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_i2c_scl" type="logic">
+         <obj_property name="ElementShortName">R_i2c_scl</obj_property>
+         <obj_property name="ObjectShortName">R_i2c_scl</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_bytes_left" type="other">
+         <obj_property name="ElementShortName">R_bytes_left</obj_property>
+         <obj_property name="ObjectShortName">R_bytes_left</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_bits_left" type="other">
+         <obj_property name="ElementShortName">R_bits_left</obj_property>
+         <obj_property name="ObjectShortName">R_bits_left</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_counter" type="array">
+         <obj_property name="ElementShortName">R_counter[15:0]</obj_property>
+         <obj_property name="ObjectShortName">R_counter[15:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_stop_countdown_enabled" type="logic">
+         <obj_property name="ElementShortName">R_stop_countdown_enabled</obj_property>
+         <obj_property name="ObjectShortName">R_stop_countdown_enabled</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_wb_ack" type="logic">
+         <obj_property name="ElementShortName">R_wb_ack</obj_property>
+         <obj_property name="ObjectShortName">R_wb_ack</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/data_clock" type="logic">
+         <obj_property name="ElementShortName">data_clock</obj_property>
+         <obj_property name="ObjectShortName">data_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/scd_clk_generated" type="logic">
+         <obj_property name="ElementShortName">scd_clk_generated</obj_property>
+         <obj_property name="ObjectShortName">scd_clk_generated</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/scd_enable" type="logic">
+         <obj_property name="ElementShortName">scd_enable</obj_property>
+         <obj_property name="ObjectShortName">scd_enable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/scd_divider" type="array">
+         <obj_property name="ElementShortName">scd_divider[15:0]</obj_property>
+         <obj_property name="ObjectShortName">scd_divider[15:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/i2c_sda_output" type="logic">
+         <obj_property name="ElementShortName">i2c_sda_output</obj_property>
+         <obj_property name="ObjectShortName">i2c_sda_output</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/slave_address_match" type="logic">
+         <obj_property name="ElementShortName">slave_address_match</obj_property>
+         <obj_property name="ObjectShortName">slave_address_match</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_i2c_sda_d" type="logic">
+         <obj_property name="ElementShortName">R_i2c_sda_d</obj_property>
+         <obj_property name="ObjectShortName">R_i2c_sda_d</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_i2c_sda_2d" type="logic">
+         <obj_property name="ElementShortName">R_i2c_sda_2d</obj_property>
+         <obj_property name="ObjectShortName">R_i2c_sda_2d</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_data_clk_d" type="logic">
+         <obj_property name="ElementShortName">R_data_clk_d</obj_property>
+         <obj_property name="ObjectShortName">R_data_clk_d</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_data_clk_2d" type="logic">
+         <obj_property name="ElementShortName">R_data_clk_2d</obj_property>
+         <obj_property name="ObjectShortName">R_data_clk_2d</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_i2c_sda_re" type="logic">
+         <obj_property name="ElementShortName">R_i2c_sda_re</obj_property>
+         <obj_property name="ObjectShortName">R_i2c_sda_re</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_i2c_sda_fe" type="logic">
+         <obj_property name="ElementShortName">R_i2c_sda_fe</obj_property>
+         <obj_property name="ObjectShortName">R_i2c_sda_fe</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_data_clk_re" type="logic">
+         <obj_property name="ElementShortName">R_data_clk_re</obj_property>
+         <obj_property name="ObjectShortName">R_data_clk_re</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_data_clk_fe" type="logic">
+         <obj_property name="ElementShortName">R_data_clk_fe</obj_property>
+         <obj_property name="ObjectShortName">R_data_clk_fe</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/i2c_sda_temp" type="logic">
+         <obj_property name="ElementShortName">i2c_sda_temp</obj_property>
+         <obj_property name="ObjectShortName">i2c_sda_temp</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/i2c_scl_temp" type="logic">
+         <obj_property name="ElementShortName">i2c_scl_temp</obj_property>
+         <obj_property name="ObjectShortName">i2c_scl_temp</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/SLAVE_ADDRESS" type="array">
+         <obj_property name="ElementShortName">SLAVE_ADDRESS[6:0]</obj_property>
+         <obj_property name="ObjectShortName">SLAVE_ADDRESS[6:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/MASTER_CLOCK_DIVIDER" type="array">
+         <obj_property name="ElementShortName">MASTER_CLOCK_DIVIDER[15:0]</obj_property>
+         <obj_property name="ObjectShortName">MASTER_CLOCK_DIVIDER[15:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/ENABLE_SIMULATION" type="other">
+         <obj_property name="ElementShortName">ENABLE_SIMULATION</obj_property>
+         <obj_property name="ObjectShortName">ENABLE_SIMULATION</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/T_stop_cond_sck_re_to_sda_re" type="array">
+         <obj_property name="ElementShortName">T_stop_cond_sck_re_to_sda_re[15:0]</obj_property>
+         <obj_property name="ObjectShortName">T_stop_cond_sck_re_to_sda_re[15:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/C_control_reg_addr" type="array">
+         <obj_property name="ElementShortName">C_control_reg_addr[7:0]</obj_property>
+         <obj_property name="ObjectShortName">C_control_reg_addr[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/C_dev_address_reg_addr" type="array">
+         <obj_property name="ElementShortName">C_dev_address_reg_addr[7:0]</obj_property>
+         <obj_property name="ObjectShortName">C_dev_address_reg_addr[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/C_tx_data_reg_addr" type="array">
+         <obj_property name="ElementShortName">C_tx_data_reg_addr[7:0]</obj_property>
+         <obj_property name="ObjectShortName">C_tx_data_reg_addr[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/C_rx_data_reg_addr" type="array">
+         <obj_property name="ElementShortName">C_rx_data_reg_addr[7:0]</obj_property>
+         <obj_property name="ObjectShortName">C_rx_data_reg_addr[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/C_clkdiv_reg_addr" type="array">
+         <obj_property name="ElementShortName">C_clkdiv_reg_addr[7:0]</obj_property>
+         <obj_property name="ObjectShortName">C_clkdiv_reg_addr[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/C_tx_num_bytes_reg_addr" type="array">
+         <obj_property name="ElementShortName">C_tx_num_bytes_reg_addr[7:0]</obj_property>
+         <obj_property name="ObjectShortName">C_tx_num_bytes_reg_addr[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/C_control_reg_size" type="other">
+         <obj_property name="ElementShortName">C_control_reg_size</obj_property>
+         <obj_property name="ObjectShortName">C_control_reg_size</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/C_dev_address_reg_size" type="other">
+         <obj_property name="ElementShortName">C_dev_address_reg_size</obj_property>
+         <obj_property name="ObjectShortName">C_dev_address_reg_size</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/C_tx_data_reg_size" type="other">
+         <obj_property name="ElementShortName">C_tx_data_reg_size</obj_property>
+         <obj_property name="ObjectShortName">C_tx_data_reg_size</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/C_rx_data_reg_size" type="other">
+         <obj_property name="ElementShortName">C_rx_data_reg_size</obj_property>
+         <obj_property name="ObjectShortName">C_rx_data_reg_size</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/C_clkdiv_reg_size" type="other">
+         <obj_property name="ElementShortName">C_clkdiv_reg_size</obj_property>
+         <obj_property name="ObjectShortName">C_clkdiv_reg_size</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/C_tx_num_bytes_reg_size" type="other">
+         <obj_property name="ElementShortName">C_tx_num_bytes_reg_size</obj_property>
+         <obj_property name="ObjectShortName">C_tx_num_bytes_reg_size</obj_property>
+      </wvobject>
    </wvobject>
 </wave_config>

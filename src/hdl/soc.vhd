@@ -12,8 +12,12 @@ entity soc is
         sevseg_cathodes: out std_logic_vector(7 downto 0);
         gpio_in: in std_logic_vector(31 downto 0);
         gpio_out: out std_logic_vector(31 downto 0);
+        i2c1_sda: inout std_logic;
+        i2c1_scl: inout std_logic;
         uart_tx: out std_logic;
-        uart_rx: in std_logic
+        uart_rx: in std_logic;
+        sda_debug: out std_logic;
+        scl_debug: out std_logic
     );
 end soc;
 
@@ -46,6 +50,10 @@ architecture rtl of soc is
     signal gpio_rdata: std_logic_vector(31 downto 0);
     signal gpio_stb: std_logic;
     signal gpio_ack: std_logic;
+
+    signal i2c1_rdata: std_logic_vector(31 downto 0);
+    signal i2c1_stb: std_logic;
+    signal i2c1_ack: std_logic;
 begin
     cpu_top_inst : entity work.cpu
     port map(bus_req_fe     => bus_req_fe,
@@ -133,8 +141,40 @@ begin
              gpin => gpio_in,
              gpout => gpio_out);
 
+    I_i2c1: entity work.i2c_controller
+    generic map(SLAVE_ADDRESS => "0001000")
+    port map(clk => clk,
+             reset => reset,
+             wb_adr_i => wb_req.adr(7 downto 0),
+             wb_dat_o => i2c1_rdata,
+             wb_dat_i => wb_req.dat,
+             wb_sel_i => wb_req.sel,
+             wb_we_i => wb_req.we,
+             wb_cyc_i => i2c1_stb,
+             wb_stb_i => i2c1_stb,
+             wb_ack_o => i2c1_ack,
+             i2c_sda => i2c1_sda,
+             i2c_scl => i2c1_scl,
+             sda_debug => sda_debug,
+             scl_debug => scl_debug);
+
+--        your_instance_name : entity work.ila_1
+--PORT MAP (
+--	clk => clk,
+
+--	probe0 => wb_req.adr,
+--	probe1 => wb_req.dat,
+--	probe2(0) => wb_req.we,
+--	probe3 => wb_req.sel,
+--    probe4(0) => wb_req.stb,
+--    probe5(0) => wb_req.cyc,
+--    probe6 => wb_resp.dat,
+--    probe7(0) => wb_resp.ack
+--);
+
     process(wb_req.adr, wb_req.cyc, rom_rdata, rom_ack, uart_rdata, uart_ack,
-            ram_rdata, ram_ack, sevseg_rdata, sevseg_ack, gpio_rdata, gpio_ack)
+            ram_rdata, ram_ack, sevseg_rdata, sevseg_ack, gpio_rdata, gpio_ack,
+            i2c1_rdata, i2c1_ack)
     begin
         wb_resp.dat <= (others => '0');
         wb_resp.ack <= '0';
@@ -143,6 +183,7 @@ begin
         ram_stb <= '0';
         sevseg_stb <= '0';
         gpio_stb <= '0';
+        i2c1_stb <= '0';
         if wb_req.adr(31 downto 4) = X"FFFF_FFF" then
             wb_resp.dat <= uart_rdata;
             wb_resp.ack <= uart_ack;
@@ -155,6 +196,10 @@ begin
             wb_resp.dat <= gpio_rdata;
             wb_resp.ack <= gpio_ack;
             gpio_stb <= wb_req.cyc;
+        elsif wb_req.adr(31 downto 8) = X"FFFF_FE" then
+            wb_resp.dat <= i2c1_rdata;
+            wb_resp.ack <= i2c1_ack;
+            i2c1_stb <= wb_req.cyc;
         elsif wb_req.adr(31 downto 28) = X"8" then
             wb_resp.dat <= ram_rdata;
             wb_resp.ack <= ram_ack;

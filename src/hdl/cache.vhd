@@ -68,8 +68,13 @@ architecture rtl of cache is
     -- CACHELINE RAM SIGNALS
     type T_cacheline_mem_read_data is array (0 to C_cachelines_per_block - 1) of std_logic_vector(C_cacheline_size - 1 downto 0);
     signal cacheline_mem_read_data: T_cacheline_mem_read_data;
-    signal cacheline_mem_write_data: std_logic_vector(C_cacheline_size - 1 downto 0);
     signal cacheline_mem_read_addr: std_logic_vector(C_cache_block_index_size - 1 downto 0);
+    signal cacheline_mem_write_data: std_logic_vector(C_cacheline_data_size - 1 downto 0);
+    signal cacheline_mem_write_tag: std_logic_vector(C_cacheline_tag_size - 1 downto 0);
+    signal cacheline_mem_write_state: std_logic_vector(C_cacheline_state_size - 1 downto 0);
+    signal cacheline_mem_write_data_addr: std_logic_vector(C_cache_block_index_size - 1 downto 0);
+    signal cacheline_mem_write_tag_addr: std_logic_vector(C_cache_block_index_size - 1 downto 0);
+    signal cacheline_mem_write_state_addr: std_logic_vector(C_cache_block_index_size - 1 downto 0);
     signal cacheline_mem_write_addr: std_logic_vector(C_cache_block_index_size - 1 downto 0);
     signal cacheline_mem_write_enable: std_logic_vector(C_cachelines_per_block - 1 downto 0);
 
@@ -167,7 +172,8 @@ begin
     -- MEMORY DEFINITION
     G_gen_memory: for i in 0 to ASSOCIATIVITY - 1 generate
     begin
-        cacheline_mem_write_enable(i) <= '1' when cache_block_writeback_index = i and cacheio_resp_valid = '1' else '0';
+        cacheline_mem_write_enable(i) <= '1' when (cache_block_writeback_index = i and cacheio_resp_valid = '1') or
+            R_cache_control_sm = INITIALIZE else '0';
         I_cache_ram_data: entity work.bram
         generic map(
             WORD_LENGTH => C_cacheline_data_size,
@@ -177,9 +183,9 @@ begin
             clk => clk,
             reset => reset,
             
-            addr_write => cacheline_mem_write_addr,
+            addr_write => cacheline_mem_write_data_addr,
             write_enable => cacheline_mem_write_enable(i),
-            data_write => cacheio_resp_data,
+            data_write => cacheline_mem_write_data,
             addr_read => cacheline_mem_read_addr,
             data_read => cache_block_read(i).data
         );  
@@ -193,9 +199,9 @@ begin
             clk => clk,
             reset => reset,
             
-            addr_write => cacheline_mem_write_addr,
+            addr_write => cacheline_mem_write_tag_addr,
             write_enable => cacheline_mem_write_enable(i),
-            data_write => F_get_tag_vector(cacheio_resp_address),
+            data_write => cacheline_mem_write_tag,
             addr_read => cacheline_mem_read_addr,
             data_read => cache_block_read(i).tag
         );
@@ -209,9 +215,9 @@ begin
             clk => clk,
             reset => reset,
             
-            addr_write => cacheline_mem_write_addr,
+            addr_write => cacheline_mem_write_state_addr,
             write_enable => cacheline_mem_write_enable(i),
-            data_write => CL_STATE_EXCLUSIVE,
+            data_write => cacheline_mem_write_state,
             addr_read => cacheline_mem_read_addr,
             data_read => cache_block_read(i).state
         );
@@ -329,13 +335,20 @@ begin
     end process;
     
     process(R_cache_control_sm, R_init_cacheline_counter, R_cache_request, cpu_bus_req.address, cache_hit,
-        cacheio_resp_address)
+        cacheio_resp_address, cacheline_mem_write_addr, cacheio_resp_data)
     begin
         stall_out <= '0';
         cacheio_req_address <= R_cache_request.address;
         cacheio_req_valid <= '0';
         cacheline_mem_read_addr <= F_get_block_vector(cpu_bus_req.address);
         cacheline_mem_write_addr <= F_get_block_vector(cacheio_resp_address);
+
+        cacheline_mem_write_data <= cacheio_resp_data;
+        cacheline_mem_write_tag <= F_get_tag_vector(cacheio_resp_address);
+        cacheline_mem_write_state <= CL_STATE_EXCLUSIVE;
+        cacheline_mem_write_data_addr <= cacheline_mem_write_addr;
+        cacheline_mem_write_tag_addr <= cacheline_mem_write_addr;
+        cacheline_mem_write_state_addr <= cacheline_mem_write_addr;
         case R_cache_control_sm is
         when NORMAL =>
             if R_cache_request.valid = '1' and
@@ -346,6 +359,8 @@ begin
             end if;
             R_cache_response.valid <= '0';
         when INITIALIZE =>
+            cacheline_mem_write_state <= CL_STATE_INVALID;
+            cacheline_mem_write_state_addr <= std_logic_vector(R_init_cacheline_counter);
             stall_out <= '1';
         when STALL_CACHE_IO_NOT_READY =>
             stall_out <= '1';

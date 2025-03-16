@@ -39,7 +39,15 @@ entity top is
         AN: out std_logic_vector(7 downto 0);
         -- GPIO
         SW: in std_logic_vector(15 downto 0);
-        LED: out std_logic_vector(15 downto 0)
+        LED: out std_logic_vector(15 downto 0);
+        -- I2C TEMP SENSOR
+        TMP_SCL: inout std_logic;
+        TMP_SDA: inout std_logic;
+        TMP_INT: in std_logic;
+        TMP_CT: in std_logic;
+        -- JD PMOD HEADER
+        JD1: out std_logic;
+        JD2: out std_logic
     );
 end top;
 
@@ -47,6 +55,9 @@ architecture rtl of top is
     signal pll_clk, pll_locked: std_logic;
     signal reset: std_logic;
     signal gpio_out: std_logic_vector(31 downto 0);
+    
+    signal i2c_sda, i2c_scl: std_logic;
+    signal sda_dbg, scl_dbg: std_logic;
     
     component clk_wiz_0
     port
@@ -83,7 +94,11 @@ begin
              uart_rx => UART_TXD,
              gpio_in(15 downto 0) => SW,
              gpio_in(31 downto 16) => X"0000",
-             gpio_out => gpio_out);
+             gpio_out => gpio_out,
+             i2c1_sda => i2c_sda,
+             i2c1_scl => i2c_scl,
+             sda_debug => sda_dbg,
+             scl_debug => scl_dbg);
     LED <= gpio_out(15 downto 0);
 
     your_instance_name : clk_wiz_0
@@ -94,4 +109,9 @@ begin
               -- Clock in ports
               clk_in1 => CLK100MHZ
  );
+
+    TMP_SDA <= i2c_sda;
+    TMP_SCL <= i2c_scl;
+    JD1 <= sda_dbg;
+    JD2 <= scl_dbg;
 end rtl;
