@@ -14,6 +14,8 @@ entity soc is
         gpio_out: out std_logic_vector(31 downto 0);
         i2c1_sda: inout std_logic;
         i2c1_scl: inout std_logic;
+        i2c2_sda: inout std_logic;
+        i2c2_scl: inout std_logic;
         uart_tx: out std_logic;
         uart_rx: in std_logic;
         sda_debug: out std_logic;
@@ -54,6 +56,10 @@ architecture rtl of soc is
     signal i2c1_rdata: std_logic_vector(31 downto 0);
     signal i2c1_stb: std_logic;
     signal i2c1_ack: std_logic;
+    
+    signal i2c2_rdata: std_logic_vector(31 downto 0);
+    signal i2c2_stb: std_logic;
+    signal i2c2_ack: std_logic;
 begin
     cpu_top_inst : entity work.cpu
     port map(bus_req_fe     => bus_req_fe,
@@ -77,7 +83,7 @@ begin
              reset => reset);
              
     I_rom : entity work.rom
-    generic map(C_size_kb => 8)
+    generic map(C_size_kb => 16)
     port map(clk => clk,
              reset => reset,
              wb_addr => wb_req.adr,
@@ -87,10 +93,10 @@ begin
              wb_ack => rom_ack);
 
     I_ram : entity work.ram
-    generic map(SIZE_KB => 4)
+    generic map(SIZE_KB => 128)
     port map(clk => clk,
              reset => reset,
-             wb_addr => wb_req.adr(11 downto 2),
+             wb_addr => wb_req.adr(16 downto 2),
              wb_rdata => ram_rdata,
              wb_wdata => wb_req.dat,
              wb_stb => ram_stb,
@@ -158,19 +164,19 @@ begin
              sda_debug => sda_debug,
              scl_debug => scl_debug);
 
---        your_instance_name : entity work.ila_1
---PORT MAP (
---	clk => clk,
+        your_instance_name : entity work.ila_1
+PORT MAP (
+	clk => clk,
 
---	probe0 => wb_req.adr,
---	probe1 => wb_req.dat,
---	probe2(0) => wb_req.we,
---	probe3 => wb_req.sel,
---    probe4(0) => wb_req.stb,
---    probe5(0) => wb_req.cyc,
---    probe6 => wb_resp.dat,
---    probe7(0) => wb_resp.ack
---);
+	probe0 => wb_req.adr,
+	probe1 => wb_req.dat,
+	probe2(0) => wb_req.we,
+	probe3 => wb_req.sel,
+    probe4(0) => wb_req.stb,
+    probe5(0) => wb_req.cyc,
+    probe6 => wb_resp.dat,
+    probe7(0) => wb_resp.ack
+);
 
     process(wb_req.adr, wb_req.cyc, rom_rdata, rom_ack, uart_rdata, uart_ack,
             ram_rdata, ram_ack, sevseg_rdata, sevseg_ack, gpio_rdata, gpio_ack,
@@ -200,6 +206,10 @@ begin
             wb_resp.dat <= i2c1_rdata;
             wb_resp.ack <= i2c1_ack;
             i2c1_stb <= wb_req.cyc;
+        elsif wb_req.adr(31 downto 8) = X"FFFF_FD" then
+            wb_resp.dat <= i2c2_rdata;
+            wb_resp.ack <= i2c2_ack;
+            i2c2_stb <= wb_req.cyc;
         elsif wb_req.adr(31 downto 28) = X"8" then
             wb_resp.dat <= ram_rdata;
             wb_resp.ack <= ram_ack;

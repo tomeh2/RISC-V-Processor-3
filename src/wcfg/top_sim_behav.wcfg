@@ -13,13 +13,13 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0.000000 us"></ZoomStartTime>
-      <ZoomEndTime time="414.884444 us"></ZoomEndTime>
-      <Cursor1Time time="298.065000 us"></Cursor1Time>
+      <ZoomStartTime time="0.000000000 ms"></ZoomStartTime>
+      <ZoomEndTime time="12.720000001 ms"></ZoomEndTime>
+      <Cursor1Time time="5.200000000 ms"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="283"></NameColumnWidth>
-      <ValueColumnWidth column_width="120"></ValueColumnWidth>
+      <ValueColumnWidth column_width="116"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="44" />
    <wvobject fp_name="/top_sim/I_top/CLK100MHZ" type="logic">
@@ -743,6 +743,7 @@
    <wvobject fp_name="group617" type="group">
       <obj_property name="label">UART</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
       <wvobject fp_name="/top_sim/I_top/I_soc/I_uart/wb_adr_i" type="array">
          <obj_property name="ElementShortName">wb_adr_i[2:2]</obj_property>
          <obj_property name="ObjectShortName">wb_adr_i[2:2]</obj_property>
@@ -819,6 +820,7 @@
       <wvobject fp_name="/top_sim/I_top/I_soc/I_uart/rx_fifo_data_out" type="array">
          <obj_property name="ElementShortName">rx_fifo_data_out[7:0]</obj_property>
          <obj_property name="ObjectShortName">rx_fifo_data_out[7:0]</obj_property>
+         <obj_property name="Radix">ASCIIRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/I_uart/R_receiver_buffer" type="array">
          <obj_property name="ElementShortName">R_receiver_buffer[7:0]</obj_property>
@@ -938,8 +940,8 @@
          <obj_property name="ObjectShortName">C_ROM_ADDR_BITS</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/I_rom/M_rom" type="array">
-         <obj_property name="ElementShortName">M_rom[0:2047][31:0]</obj_property>
-         <obj_property name="ObjectShortName">M_rom[0:2047][31:0]</obj_property>
+         <obj_property name="ElementShortName">M_rom[0:4095][31:0]</obj_property>
+         <obj_property name="ObjectShortName">M_rom[0:4095][31:0]</obj_property>
       </wvobject>
    </wvobject>
    <wvobject fp_name="group884" type="group">
@@ -2217,10 +2219,6 @@
          <obj_property name="ElementShortName">i2c_scl</obj_property>
          <obj_property name="ObjectShortName">i2c_scl</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/sin_tx_data_reg_empty" type="logic">
-         <obj_property name="ElementShortName">sin_tx_data_reg_empty</obj_property>
-         <obj_property name="ObjectShortName">sin_tx_data_reg_empty</obj_property>
-      </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_control_sm" type="other">
          <obj_property name="ElementShortName">R_control_sm</obj_property>
          <obj_property name="ObjectShortName">R_control_sm</obj_property>
@@ -2230,8 +2228,8 @@
          <obj_property name="ObjectShortName">R_mode</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_control" type="array">
-         <obj_property name="ElementShortName">R_control[7:0]</obj_property>
-         <obj_property name="ObjectShortName">R_control[7:0]</obj_property>
+         <obj_property name="ElementShortName">R_control[2:0]</obj_property>
+         <obj_property name="ObjectShortName">R_control[2:0]</obj_property>
          <obj_property name="isExpanded"></obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_dev_address" type="array">
@@ -2282,14 +2280,6 @@
          <obj_property name="ElementShortName">R_bits_left</obj_property>
          <obj_property name="ObjectShortName">R_bits_left</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_counter" type="array">
-         <obj_property name="ElementShortName">R_counter[15:0]</obj_property>
-         <obj_property name="ObjectShortName">R_counter[15:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_stop_countdown_enabled" type="logic">
-         <obj_property name="ElementShortName">R_stop_countdown_enabled</obj_property>
-         <obj_property name="ObjectShortName">R_stop_countdown_enabled</obj_property>
-      </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_wb_ack" type="logic">
          <obj_property name="ElementShortName">R_wb_ack</obj_property>
          <obj_property name="ObjectShortName">R_wb_ack</obj_property>
@@ -2306,17 +2296,9 @@
          <obj_property name="ElementShortName">scd_enable</obj_property>
          <obj_property name="ObjectShortName">scd_enable</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/scd_divider" type="array">
-         <obj_property name="ElementShortName">scd_divider[15:0]</obj_property>
-         <obj_property name="ObjectShortName">scd_divider[15:0]</obj_property>
-      </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/i2c_sda_output" type="logic">
          <obj_property name="ElementShortName">i2c_sda_output</obj_property>
          <obj_property name="ObjectShortName">i2c_sda_output</obj_property>
-      </wvobject>
-      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/slave_address_match" type="logic">
-         <obj_property name="ElementShortName">slave_address_match</obj_property>
-         <obj_property name="ObjectShortName">slave_address_match</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/R_i2c_sda_d" type="logic">
          <obj_property name="ElementShortName">R_i2c_sda_d</obj_property>
@@ -2350,29 +2332,13 @@
          <obj_property name="ElementShortName">R_data_clk_fe</obj_property>
          <obj_property name="ObjectShortName">R_data_clk_fe</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/i2c_sda_temp" type="logic">
-         <obj_property name="ElementShortName">i2c_sda_temp</obj_property>
-         <obj_property name="ObjectShortName">i2c_sda_temp</obj_property>
-      </wvobject>
-      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/i2c_scl_temp" type="logic">
-         <obj_property name="ElementShortName">i2c_scl_temp</obj_property>
-         <obj_property name="ObjectShortName">i2c_scl_temp</obj_property>
-      </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/SLAVE_ADDRESS" type="array">
          <obj_property name="ElementShortName">SLAVE_ADDRESS[6:0]</obj_property>
          <obj_property name="ObjectShortName">SLAVE_ADDRESS[6:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/MASTER_CLOCK_DIVIDER" type="array">
-         <obj_property name="ElementShortName">MASTER_CLOCK_DIVIDER[15:0]</obj_property>
-         <obj_property name="ObjectShortName">MASTER_CLOCK_DIVIDER[15:0]</obj_property>
-      </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/ENABLE_SIMULATION" type="other">
          <obj_property name="ElementShortName">ENABLE_SIMULATION</obj_property>
          <obj_property name="ObjectShortName">ENABLE_SIMULATION</obj_property>
-      </wvobject>
-      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/T_stop_cond_sck_re_to_sda_re" type="array">
-         <obj_property name="ElementShortName">T_stop_cond_sck_re_to_sda_re[15:0]</obj_property>
-         <obj_property name="ObjectShortName">T_stop_cond_sck_re_to_sda_re[15:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/C_control_reg_addr" type="array">
          <obj_property name="ElementShortName">C_control_reg_addr[7:0]</obj_property>
@@ -2397,30 +2363,6 @@
       <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/C_tx_num_bytes_reg_addr" type="array">
          <obj_property name="ElementShortName">C_tx_num_bytes_reg_addr[7:0]</obj_property>
          <obj_property name="ObjectShortName">C_tx_num_bytes_reg_addr[7:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/C_control_reg_size" type="other">
-         <obj_property name="ElementShortName">C_control_reg_size</obj_property>
-         <obj_property name="ObjectShortName">C_control_reg_size</obj_property>
-      </wvobject>
-      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/C_dev_address_reg_size" type="other">
-         <obj_property name="ElementShortName">C_dev_address_reg_size</obj_property>
-         <obj_property name="ObjectShortName">C_dev_address_reg_size</obj_property>
-      </wvobject>
-      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/C_tx_data_reg_size" type="other">
-         <obj_property name="ElementShortName">C_tx_data_reg_size</obj_property>
-         <obj_property name="ObjectShortName">C_tx_data_reg_size</obj_property>
-      </wvobject>
-      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/C_rx_data_reg_size" type="other">
-         <obj_property name="ElementShortName">C_rx_data_reg_size</obj_property>
-         <obj_property name="ObjectShortName">C_rx_data_reg_size</obj_property>
-      </wvobject>
-      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/C_clkdiv_reg_size" type="other">
-         <obj_property name="ElementShortName">C_clkdiv_reg_size</obj_property>
-         <obj_property name="ObjectShortName">C_clkdiv_reg_size</obj_property>
-      </wvobject>
-      <wvobject fp_name="/top_sim/I_top/I_soc/I_i2c1/C_tx_num_bytes_reg_size" type="other">
-         <obj_property name="ElementShortName">C_tx_num_bytes_reg_size</obj_property>
-         <obj_property name="ObjectShortName">C_tx_num_bytes_reg_size</obj_property>
       </wvobject>
    </wvobject>
 </wave_config>

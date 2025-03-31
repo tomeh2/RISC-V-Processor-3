@@ -46,8 +46,8 @@ entity top is
         TMP_INT: in std_logic;
         TMP_CT: in std_logic;
         -- JD PMOD HEADER
-        JD1: out std_logic;
-        JD2: out std_logic
+        JD1: inout std_logic;
+        JD2: inout std_logic
     );
 end top;
 
@@ -112,6 +112,6 @@ begin
 
     TMP_SDA <= i2c_sda;
     TMP_SCL <= i2c_scl;
-    JD1 <= sda_dbg;
-    JD2 <= scl_dbg;
+    --JD1 <= sda_dbg;
+    --JD2 <= scl_dbg;
 end rtl;

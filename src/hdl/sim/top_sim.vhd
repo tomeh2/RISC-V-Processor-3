@@ -35,27 +35,32 @@ begin
     end process;
 
     process
+        procedure F_uart_send(constant char: in std_logic_vector(7 downto 0); signal uart_tx: out std_logic) is
+            constant C_baud_time: time := 8.68us;        -- 115200 Baud
+        begin
+            uart_tx <= '0';
+            wait for C_baud_time;
+            for i in 0 to 7 loop
+                uart_tx <= char(i);
+                wait for C_baud_time;
+            end loop;
+            uart_tx <= '1';
+            wait for C_baud_time;
+        end procedure;
     begin
         tx <= '1';
-        wait for 1us;
-        tx <= '0';
-        wait for 4.34us;
-        tx <= '0';
-        wait for 4.34us;
-        tx <= '1';
-        wait for 4.34us;
-        tx <= '0';
-        wait for 4.34us;
-        tx <= '1';
-        wait for 4.34us;
-        tx <= '0';
-        wait for 4.34us;
-        tx <= '1';
-        wait for 4.34us;
-        tx <= '0';
-        wait for 4.34us;
-        tx <= '1';
-        wait for 4.34us;
+        wait for 2ms;
+        F_uart_send(X"0D", tx);
+        wait for 500us;
+        F_uart_send(X"70", tx);
+        wait for 250us;
+        F_uart_send(X"72", tx);
+        wait for 250us;
+        F_uart_send(X"6F", tx);
+        wait for 250us;
+        F_uart_send(X"67", tx);
+        wait for 250us;
+        F_uart_send(X"0D", tx);
     end process;
 
     I_top : entity work.top

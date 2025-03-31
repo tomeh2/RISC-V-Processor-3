@@ -182,7 +182,7 @@ begin
 
                 if retired_uop.valid = '1' then
                     for i in 0 to SQ_ENTRIES - 1 loop
-                        if M_store_queue(i).id = retired_uop.id then
+                        if M_store_queue(i).id = retired_uop.id and M_store_queue(i).retired = '0' then
                             M_store_queue(i).retired <= '1';
                         end if;
                     end loop;
@@ -301,7 +301,7 @@ begin
 
                 if retired_uop.valid = '1' then
                     for i in 0 to LQ_ENTRIES - 1 loop
-                        if M_load_queue(i).id = retired_uop.id then
+                        if M_load_queue(i).id = retired_uop.id and M_load_queue(i).retired = '0' then
                             M_load_queue(i).retired <= '1';
                         end if;
                     end loop;
