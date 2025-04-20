@@ -12,8 +12,7 @@ entity front_end is
         uop_out: out T_uop;
         cdb_in: in T_uop;
         stall_be: in std_logic;
-        icache_cancel_all: out std_logic;
-        icache_ready: in std_logic;
+        --icache_ready: in std_logic;
 
         bus_req: out T_bus_request;
         bus_resp: in T_bus_response
@@ -33,6 +32,8 @@ architecture rtl of front_end is
     signal R_pipeline_0_instr : std_logic_vector(31 downto 0);
     signal R_pipeline_0_pc : unsigned(31 downto 0);
     signal R_pipeline_0_valid : std_logic;
+
+    signal icache_cancel_all: std_logic;
 
     signal stall_fetch : std_logic;
     signal cdb_branch_mispredicted : std_logic;
@@ -94,7 +95,7 @@ begin
                     end if;
                 elsif bp_pred_valid = '1' then
                     R_program_counter <= bp_pred_target_pc;
-                elsif icache_ready = '1' and fetch_fifo_full = '0' and fetch_fifo_almost_full = '0' then
+                elsif bus_resp.ready = '1' and fetch_fifo_full = '0' and fetch_fifo_almost_full = '0' then
                     R_program_counter <= R_program_counter + 4;
                 end if;
             end if;
@@ -103,10 +104,13 @@ begin
 
     bus_req.address <= std_logic_vector(R_program_counter);
     bus_req.rw <= '0';
+    bus_req.burst_len <= (others => '0');
     bus_req.data_size <= "10";
     bus_req.is_unsigned <= '1';
+    bus_req.cancel <= icache_cancel_all;
+    bus_req.ready <= '1';
     bus_req.valid <= not reset and not (fetch_fifo_full or fetch_fifo_almost_full) and not cdb_branch_mispredicted and not icache_cancel_all;
-    
+
     process(clk)
     begin
         if rising_edge(clk) then

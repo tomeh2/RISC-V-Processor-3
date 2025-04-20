@@ -44,6 +44,8 @@ package cpu_pkg is
     constant RF_RESET_ENABLE        : boolean := true;
     constant CSR_ENABLE             : boolean := true;
     constant CSR_PERFCNTR_ENABLE    : boolean := true;
+    constant ICACHE_ENABLE          : boolean := true;
+    constant DCACHE_ENABLE          : boolean := true;
     
     type T_branch_predictors is (STATIC, SATCNT);
     constant BP_TYPE                : T_branch_predictors := SATCNT;
@@ -54,6 +56,9 @@ package cpu_pkg is
     constant BP_SATCNT_N            : natural := 2;
     constant BTB_ENABLE             : boolean := true;
     constant BTB_ENTRIES            : natural := 256;
+
+    -- Debugging
+    constant EXTERNAL_BUS_ILA_ENABLE: boolean := false;
 
     -- Fixed Constants
     constant EXEC_UNIT_ID_WIDTH   : integer := 2;
@@ -245,6 +250,9 @@ package cpu_pkg is
         dat : std_logic_vector(31 downto 0);
         ack : std_logic;
     end record;
+    
+    type T_wishbone_req_array is array (natural range<>) of T_wishbone_req;
+    type T_wishbone_resp_array is array (natural range<>) of T_wishbone_resp;
 
     -- This data type contains all data that the LSU gives the bus controller
     -- so that it can perform a R/W operation
@@ -255,7 +263,12 @@ package cpu_pkg is
         burst_len       : unsigned(7 downto 0);
         rw              : std_logic;
         is_unsigned     : std_logic;
+
+        -- Handshake
+        ready           : std_logic;
         valid           : std_logic;
+        -- Async Control
+        cancel          : std_logic;
     end record;
     type T_bus_request_array is array (natural range<>) of T_bus_request;
 
@@ -265,8 +278,10 @@ package cpu_pkg is
         data            : std_logic_vector(DATA_WIDTH - 1 downto 0);
         address         : std_logic_vector(ADDR_WIDTH - 1 downto 0);
         rw              : std_logic;    -- Load or store
-        ready           : std_logic;    -- Memory request executed and data is on resp bus
+
+        -- Handshanke
         valid           : std_logic;    -- Memory request executed and data is on resp bus
+        ready           : std_logic;    -- Responder is ready to accept the request
     end record;
     type T_bus_response_array is array (natural range<>) of T_bus_response;
 

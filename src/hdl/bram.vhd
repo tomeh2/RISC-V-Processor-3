@@ -31,6 +31,7 @@ use WORK.CPU_PKG.ALL;
 
 entity bram is
     generic(
+        USE_BYTE_ENABLE: boolean;
         WORD_LENGTH: natural;
         NUM_WORDS: natural
     );
@@ -40,6 +41,7 @@ entity bram is
 
         addr_write: in std_logic_vector(F_min_bits(NUM_WORDS) - 1 downto 0);
         write_enable: in std_logic;
+        byte_enable: in std_logic_vector(integer(ceil(real(WORD_LENGTH) / 8.0)) - 1 downto 0) := (others => '0');
         data_write: in std_logic_vector(WORD_LENGTH - 1 downto 0);
         addr_read: in std_logic_vector(F_min_bits(NUM_WORDS) - 1 downto 0);
         data_read: out std_logic_vector(WORD_LENGTH - 1 downto 0)
@@ -63,9 +65,19 @@ begin
             
             else
                 if write_enable = '1' then
-                    M_bram(addr_write_int) <= data_write;
+                    if USE_BYTE_ENABLE = true then
+                        for i in 0 to integer(ceil(real(WORD_LENGTH) / 8.0)) - 1 loop
+                            if byte_enable(i) = '1' then
+                                M_bram(addr_write_int)(8 * (i + 1) - 1 downto 8 * i) <= data_write(8 * (i + 1) - 1 downto 8 * i);
+                            end if;
+                        end loop;
+                    else
+                        M_bram(addr_write_int) <= data_write;
+                    end if;
                 end if;
-                data_read <= M_bram(addr_read_int);
+                for i in 0 to WORD_LENGTH - 1 loop
+                    data_read(i) <= '0' when M_bram(addr_read_int)(i) = 'U' else M_bram(addr_read_int)(i);
+                end loop;
             end if;
         end if;
     end process;

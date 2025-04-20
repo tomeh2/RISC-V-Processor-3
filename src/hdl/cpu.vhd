@@ -5,10 +5,10 @@ use WORK.CPU_PKG.ALL;
 
 entity cpu is
     port(
-        bus_req_fe      : out T_bus_request;
-        bus_resp_fe     : in T_bus_response;
-        bus_req_lsu     : out T_bus_request;
-        bus_resp_lsu    : in T_bus_response;
+        bus_req_fe      : out T_wishbone_req;
+        bus_resp_fe     : in T_wishbone_resp;
+        bus_req_lsu     : out T_wishbone_req;
+        bus_resp_lsu    : in T_wishbone_resp;
 
         clk             : in std_logic;
         reset           : in std_logic

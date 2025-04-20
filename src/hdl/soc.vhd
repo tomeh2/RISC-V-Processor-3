@@ -24,10 +24,10 @@ entity soc is
 end soc;
 
 architecture rtl of soc is
-    signal bus_req_fe: T_bus_request;
-    signal bus_resp_fe: T_bus_response;
-    signal bus_req_lsu: T_bus_request;
-    signal bus_resp_lsu: T_bus_response;
+    signal bus_req_fe: T_wishbone_req;
+    signal bus_resp_fe: T_wishbone_resp;
+    signal bus_req_lsu: T_wishbone_req;
+    signal bus_resp_lsu: T_wishbone_resp;
     signal bus_ready: std_logic;
 
     signal wb_req: T_wishbone_req;
@@ -69,7 +69,7 @@ begin
              clk            => clk,
              reset          => reset);
              
-    wb_cntrlr_inst : entity work.wishbone_bus_controller
+    wb_cntrlr_inst : entity work.wishbone_arbiter
     generic map(NUM_MASTERS => 2)
     port map(bus_req(0) => bus_req_fe,
              bus_req(1) => bus_req_lsu,
@@ -83,7 +83,7 @@ begin
              reset => reset);
              
     I_rom : entity work.rom
-    generic map(C_size_kb => 16)
+    generic map(C_size_kb => 32)
     port map(clk => clk,
              reset => reset,
              wb_addr => wb_req.adr,
@@ -164,19 +164,21 @@ begin
              sda_debug => sda_debug,
              scl_debug => scl_debug);
 
-        your_instance_name : entity work.ila_1
-PORT MAP (
-	clk => clk,
-
-	probe0 => wb_req.adr,
-	probe1 => wb_req.dat,
-	probe2(0) => wb_req.we,
-	probe3 => wb_req.sel,
-    probe4(0) => wb_req.stb,
-    probe5(0) => wb_req.cyc,
-    probe6 => wb_resp.dat,
-    probe7(0) => wb_resp.ack
-);
+    I_ext_bus_ila_gen: if EXTERNAL_BUS_ILA_ENABLE = true generate
+        I_ext_bus_ila : entity work.ila_1
+        port map(
+            clk => clk,
+        
+            probe0 => wb_req.adr,
+            probe1 => wb_req.dat,
+            probe2(0) => wb_req.we,
+            probe3 => wb_req.sel,
+            probe4(0) => wb_req.stb,
+            probe5(0) => wb_req.cyc,
+            probe6 => wb_resp.dat,
+            probe7(0) => wb_resp.ack
+        );
+    end generate;
 
     process(wb_req.adr, wb_req.cyc, rom_rdata, rom_ack, uart_rdata, uart_ack,
             ram_rdata, ram_ack, sevseg_rdata, sevseg_ack, gpio_rdata, gpio_ack,
@@ -219,25 +221,5 @@ PORT MAP (
             wb_resp.ack <= rom_ack;
             rom_stb <= wb_req.cyc;
         end if;
---        case wb_req.adr(31 downto 4) is
---        when X"0------" =>
---            wb_resp.dat <= rom_rdata;
---            wb_resp.ack <= rom_ack;
---            rom_stb <= wb_req.cyc;
---        when X"8------" =>
---            wb_resp.dat <= ram_rdata;
---            wb_resp.ack <= ram_ack;
---            ram_stb <= wb_req.cyc;
---        when X"FFFFFFE" =>
---            wb_resp.dat <= sevseg_rdata;
---            wb_resp.ack <= sevseg_ack;
---            sevseg_stb <= wb_req.cyc;
---        when X"FFFFFFF" =>
---            wb_resp.dat <= uart_rdata;
---            wb_resp.ack <= uart_ack;
---            uart_stb <= wb_req.cyc;
---        when others =>
---            wb_resp.ack <= '1';
---        end case;
     end process;
 end rtl;

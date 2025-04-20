@@ -89,6 +89,9 @@ architecture rtl of load_store_unit_to is
     -- BRANCHING LOGIC
     signal uop_in_brmask_index : natural range 0 to MAX_SPEC_BRANCHES - 1;
     signal cdb_in_brmask_index : natural range 0 to MAX_SPEC_BRANCHES - 1;
+    
+    signal wb_resp_dat_1: std_logic_vector(31 downto 0);
+    signal wb_resp_dat_2: std_logic_vector(31 downto 0);
 begin
     uop_in_brmask_index <= F_brmask_to_index(uop_in.branch_mask);
     cdb_in_brmask_index <= F_brmask_to_index(cdb_in.branch_mask);
@@ -172,14 +175,15 @@ begin
                     end if;
                 end if;
 
-                if bus_resp.ready = '1' and sq_dispatch_enable = '1' then
+                if bus_resp.ready = '1' and bus_req.valid = '1' and sq_dispatch_enable = '1' then
                     M_store_queue(to_integer(R_sq_head)).dispatched <= '1';
-                end if;
-
-                if bus_resp.valid = '1' and bus_resp.rw = '1' then
                     M_store_queue(to_integer(R_sq_head)).done <= '1';
                 end if;
-
+                
+                --if bus_resp.valid = '1' and bus_req.ready = '1' and bus_resp.rw = '1' then
+                --    M_store_queue(to_integer(R_sq_head)).done <= '1';
+                --end if;
+                
                 if retired_uop.valid = '1' then
                     for i in 0 to SQ_ENTRIES - 1 loop
                         if M_store_queue(i).id = retired_uop.id and M_store_queue(i).retired = '0' then
@@ -191,7 +195,13 @@ begin
         end if;
     end process;
     sq_head_uop <= M_store_queue(to_integer(R_sq_head));
-    sq_dispatch_enable <= not sq_empty and sq_head_uop.data_valid and sq_head_uop.address_valid and not sq_head_uop.dispatched and sq_head_uop.retired and not lq_dispatch_enable;
+    sq_dispatch_enable <= not sq_empty and
+        sq_head_uop.data_valid and
+        sq_head_uop.address_valid and
+        not sq_head_uop.dispatched and
+        sq_head_uop.retired and
+        bus_resp.ready and
+        not lq_dispatch_enable;
     sq_full <= '1'  when sq_tail_next = R_sq_head else '0';
     sq_empty <= '1' when R_sq_head = R_sq_tail else '0';
 
@@ -289,8 +299,8 @@ begin
                     M_load_queue(to_integer(R_lq_head)).dispatched <= '1';
                 end if;
 
-                if bus_resp.valid = '1' and bus_resp.rw = '0' then
-                    R_load_data <= bus_resp.data;
+                if bus_resp.valid = '1' and bus_req.ready = '1' and bus_resp.rw = '0' then
+                    R_load_data <= wb_resp_dat_2;
                     R_load_valid <= '1';
                 end if;
 
@@ -314,10 +324,55 @@ begin
                                    lq_head_uop.address_valid = '1' and
                                    lq_head_uop.dispatched = '0' and
                                    lq_head_uop.store_mask = STORE_MASK_ZERO and
-                                   lq_head_uop.spec_branch_mask = BR_MASK_ZERO else '0';
+                                   lq_head_uop.spec_branch_mask = BR_MASK_ZERO and
+                                   bus_resp.ready = '1' else '0';
 
     lq_full <= '1' when lq_tail_next = R_lq_head else '0';
     lq_empty <= '1' when R_lq_head = R_lq_tail else '0'; 
+
+        P_wb_req_dat_i_gen : process(M_load_queue, R_lq_head, bus_resp, wb_resp_dat_1)
+    begin
+        wb_resp_dat_1 <= (others => '0');
+        wb_resp_dat_2 <= (others => '0');
+        case M_load_queue(to_integer(R_lq_head)).data_size is
+        when "00" =>
+            case M_load_queue(to_integer(R_lq_head)).address(1 downto 0) is
+            when "00" =>
+                wb_resp_dat_1(7 downto 0) <= bus_resp.data(7 downto 0);
+            when "01" =>
+                wb_resp_dat_1(7 downto 0) <= bus_resp.data(15 downto 8);
+            when "10" =>
+                wb_resp_dat_1(7 downto 0) <= bus_resp.data(23 downto 16);
+            when "11" =>
+                wb_resp_dat_1(7 downto 0) <= bus_resp.data(31 downto 24);
+            when others =>
+            end case;
+
+            if M_load_queue(to_integer(R_lq_head)).is_unsigned = '1' then
+                wb_resp_dat_2 <= wb_resp_dat_1;
+            else
+                wb_resp_dat_2(31 downto 8) <= (others => wb_resp_dat_1(7));
+            end if;
+        when "01" =>
+            case M_load_queue(to_integer(R_lq_head)).address(1) is
+            when '0' =>
+                wb_resp_dat_1(15 downto 0) <= bus_resp.data(15 downto 0);
+            when '1' =>
+                wb_resp_dat_1(15 downto 0) <= bus_resp.data(31 downto 16);
+            when others =>
+            end case;
+
+            if M_load_queue(to_integer(R_lq_head)).is_unsigned = '1' then
+                wb_resp_dat_2 <= wb_resp_dat_1;
+            else
+                wb_resp_dat_2(31 downto 16) <= (others => wb_resp_dat_1(15));
+            end if;
+        when "10" =>
+            wb_resp_dat_1(31 downto 0) <= bus_resp.data(31 downto 0);
+            wb_resp_dat_2 <= wb_resp_dat_1;
+        when others =>
+        end case; 
+    end process;
     -- ======================================
     --             BUS OUTPUT
     -- ======================================
@@ -328,6 +383,8 @@ begin
     
     process(lq_head_uop, lq_dispatch_enable, sq_head_uop, sq_dispatch_enable)
     begin
+        bus_req.cancel <= '0';
+        bus_req.ready <= '1';
         if lq_dispatch_enable = '1' then
             bus_req.address <= lq_head_uop.address;
             bus_req.data <= (others => '0');

@@ -34,35 +34,15 @@ architecture rtl of wishbone_bus_controller is
     signal wb_req_dat_o : std_logic_vector(31 downto 0);
     signal wb_req_sel_o : std_logic_vector(3 downto 0);
 begin
-    P_active_req_regs : process(clk)
-    begin
-        if rising_edge(clk) then
-            if reset = '1' then
-                for i in 0 to NUM_MASTERS - 1 loop
-                    R_active_bus_requests(i).valid <= '0';
-                end loop;
-            else
-                for i in 0 to NUM_MASTERS - 1 loop
-                    if R_active_bus_requests(i).valid = '0' and bus_req(i).valid = '1' then
-                        R_active_bus_requests(i) <= bus_req(i);
-                    end if;
-                end loop;
-
-                if wb_resp.ack = '1' and R_wb_state /= IDLE then
-                    R_active_bus_requests(R_lock_bus_id).address <= std_logic_vector(unsigned(R_active_bus_requests(R_lock_bus_id).address) + 4);
-                    if R_burst_counter = 0 then
-                        R_active_bus_requests(R_lock_bus_id).valid <= '0';
-                    end if;
-                end if;
-            end if;
-        end if;
-    end process;
-
     process(clk)
     begin
         if rising_edge(clk) then
             if reset = '1' then
                 R_wb_state <= IDLE;
+
+                for i in 0 to NUM_MASTERS - 1 loop
+                    R_active_bus_requests(i).valid <= '0';
+                end loop;
             else
                 case R_wb_state is
                 when IDLE =>
@@ -75,21 +55,28 @@ begin
                             else
                                 R_wb_state <= WRITE_LOCK;
                             end if;
+                        else
+                            if bus_req(i).valid = '1' then
+                                R_active_bus_requests(i) <= bus_req(i);
+                            end if;
                         end if;
                     end loop;
                 when READ_LOCK =>
                     if wb_resp.ack = '1' then
                         R_burst_counter <= R_burst_counter - 1;
+                        R_active_bus_requests(R_lock_bus_id).address <= std_logic_vector(unsigned(R_active_bus_requests(R_lock_bus_id).address) + 4);
                         if R_burst_counter = 0 then
                             R_wb_state <= IDLE;
+                            R_active_bus_requests(R_lock_bus_id).valid <= '0';
                         end if;
                     end if;
                 when WRITE_LOCK =>
                     if wb_resp.ack = '1' then
-                        R_wb_state <= IDLE;
                         R_burst_counter <= R_burst_counter - 1;
+                        R_active_bus_requests(R_lock_bus_id).address <= std_logic_vector(unsigned(R_active_bus_requests(R_lock_bus_id).address) + 4);
                         if R_burst_counter = 0 then
                             R_wb_state <= IDLE;
+                            R_active_bus_requests(R_lock_bus_id).valid <= '0';
                         end if;
                     end if;
                 end case;
@@ -98,9 +85,12 @@ begin
     end process;
 
     process(R_active_bus_requests, R_lock_bus_id, R_wb_state, wb_resp.ack, wb_req_sel_o, wb_req_dat_o, wb_resp_dat_2)
+        variable found_active: boolean;
     begin
+        found_active := false;
+    
         for i in 0 to NUM_MASTERS - 1 loop
-            bus_resp(i).ready <= not R_active_bus_requests(i).valid;
+            bus_resp(i).ready <= '0';
         end loop;
     
         wb_req.adr <= (others => '0');
@@ -118,7 +108,9 @@ begin
         end loop;
         case R_wb_state is
         when IDLE =>
-            
+            for i in 0 to NUM_MASTERS - 1 loop
+                bus_resp(i).ready <= not R_active_bus_requests(i).valid;
+            end loop;
         when READ_LOCK =>
             wb_req.adr <= R_active_bus_requests(R_lock_bus_id).address;
             wb_req.sel <= wb_req_sel_o;
@@ -145,7 +137,7 @@ begin
         end case;
     end process;
 
-    P_wb_req_dat_o_gen : process(R_active_bus_requests, R_lock_bus_id)
+    P_wb_req_dat_o_gen : process(R_active_bus_requests, R_lock_bus_id, bus_req)
     begin
         wb_req_dat_o <= (others => '0');
         wb_req_sel_o <= (others => '0');
@@ -153,31 +145,38 @@ begin
         when "00" =>
             case R_active_bus_requests(R_lock_bus_id).address(1 downto 0) is
             when "00" =>
-                wb_req_dat_o(7 downto 0) <= R_active_bus_requests(R_lock_bus_id).data(7 downto 0);
+                --wb_req_dat_o(7 downto 0) <= R_active_bus_requests(R_lock_bus_id).data(7 downto 0);
+                wb_req_dat_o(7 downto 0) <= bus_req(R_lock_bus_id).data(7 downto 0);
                 wb_req_sel_o <= "0001";
             when "01" =>
-                wb_req_dat_o(15 downto 8) <= R_active_bus_requests(R_lock_bus_id).data(7 downto 0);
+                --wb_req_dat_o(15 downto 8) <= R_active_bus_requests(R_lock_bus_id).data(7 downto 0);
+                wb_req_dat_o(15 downto 8) <= bus_req(R_lock_bus_id).data(7 downto 0);
                 wb_req_sel_o <= "0010";
             when "10" =>
-                wb_req_dat_o(23 downto 16) <= R_active_bus_requests(R_lock_bus_id).data(7 downto 0);
+                --wb_req_dat_o(23 downto 16) <= R_active_bus_requests(R_lock_bus_id).data(7 downto 0);
+                wb_req_dat_o(23 downto 16) <= bus_req(R_lock_bus_id).data(7 downto 0);
                 wb_req_sel_o <= "0100";
             when "11" =>
-                wb_req_dat_o(31 downto 24) <= R_active_bus_requests(R_lock_bus_id).data(7 downto 0);
+                --wb_req_dat_o(31 downto 24) <= R_active_bus_requests(R_lock_bus_id).data(7 downto 0);
+                wb_req_dat_o(31 downto 24) <= bus_req(R_lock_bus_id).data(7 downto 0);
                 wb_req_sel_o <= "1000";
             when others =>
             end case;
         when "01" =>
             case R_active_bus_requests(R_lock_bus_id).address(1) is
             when '0' =>
-                wb_req_dat_o(15 downto 0) <= R_active_bus_requests(R_lock_bus_id).data(15 downto 0);
+                --wb_req_dat_o(15 downto 0) <= R_active_bus_requests(R_lock_bus_id).data(15 downto 0);
+                wb_req_dat_o(15 downto 0) <= bus_req(R_lock_bus_id).data(15 downto 0);
                 wb_req_sel_o <= "0011";
             when '1' =>
-                wb_req_dat_o(31 downto 16) <= R_active_bus_requests(R_lock_bus_id).data(15 downto 0);
+                --wb_req_dat_o(31 downto 16) <= R_active_bus_requests(R_lock_bus_id).data(15 downto 0);
+                wb_req_dat_o(31 downto 16) <= bus_req(R_lock_bus_id).data(15 downto 0);
                 wb_req_sel_o <= "1100";
             when others =>
             end case;
         when "10" =>
-            wb_req_dat_o(31 downto 0) <= R_active_bus_requests(R_lock_bus_id).data(31 downto 0);
+            --wb_req_dat_o(31 downto 0) <= R_active_bus_requests(R_lock_bus_id).data(31 downto 0);
+            wb_req_dat_o(31 downto 0) <= bus_req(R_lock_bus_id).data(31 downto 0);
             wb_req_sel_o <= "1111";
         when others =>
         end case; 

@@ -58,7 +58,7 @@ architecture rtl of ram is
     type ram_type is array (0 to SIZE_KB * 256 - 1) of std_logic_vector(NB_COL * COL_WIDTH - 1 downto 0);
     signal ram : ram_type;
     
-    signal wb_ack_i : std_logic;
+    signal R_ack : std_logic;
 begin
     ram_cntrl : process(clk)
     begin
@@ -79,11 +79,11 @@ begin
     begin
         if rising_edge(clk) then
             if reset = '1' then
-                wb_ack_i <= '0';
+                R_ack <= '0';
             else
-                wb_ack_i <= wb_stb;
+                R_ack <= wb_stb and wb_cyc and not R_ack;
             end if;
         end if;
     end process;
-    wb_ack <= wb_ack_i;
+    wb_ack <= R_ack;
 end rtl;
